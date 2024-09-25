@@ -1,16 +1,30 @@
-require('dotenv').config();
-const express = require('express');
-const sequelize = require('sequelize')
+import dotenv from 'dotenv';
+import express from 'express';
+import userRoute from './routes/user.route.js';
+import mongoose from 'mongoose';
+import cors from 'cors';
 
-const app = express();
+dotenv.config()
 
-app.get('/', (req,res) => {
-    res.send("server is ready");
-});
+//creates the server
+const app = express(); 
 
-mongoose.connect(process.env.mongodb_URI)
-.then((result) => {
-    console.log('connected to Mongodb');
-}).catch((err) => {
-    console.error(err);
+//allows us to accept JSON data in req.body
+app.use(express.json());
+
+//allows to server to interact with the front end
+app.use(cors());
+
+//application functions
+app.use('',userRoute);
+
+//creates server on port 5000 and connects to mongodb database
+app.listen(process.env.PORT || 5000, () => {
+    mongoose.connect(process.env.mongodb_URI)
+    .then((result) => {
+        console.log('connected to Mongodb');
+    }).catch((err) => {
+        console.error(err);
+    });
+    console.log('Server started at http://localhost:' + process.env.PORT);
 });
