@@ -1,6 +1,11 @@
+import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import express from 'express';
 import User from '../models/users.model.js';
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+
+dotenv.config()
 
 const router = express.Router();
 
@@ -84,6 +89,49 @@ router.put('/:id', async (req,res) => {
     } catch (error) {
         res.status(500).json({success:false, message: 'Server Error'});
     }
+});
+
+router.post('/register',async (req,res) => {
+    const {name,email,password}= req.body;
+
+    if (!name || !email || !password){
+        return res.status(400).json({sucess:false, message: 'Please provide all fields'});
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = new User({name,email,password:hashedPassword});
+
+    try {
+        await newUser.save();
+        res.status(201).json({success: true, data: newUser});
+    } catch(error) {
+        console.log("Error in creating user: ", error.message);
+        if (error.code == 11000){
+            res.status(409).json({sucess: false, message: "Duplicate email"});
+        };
+        res.status(500).json({sucess: false, message: "Server Error"});
+    }
+});
+
+router.post('/login',async (req,res) =>{
+    const {email,password}=req.body;
+
+    const user = await User.findOne({email});
+
+    if (!user){
+        return res.status(400).json({sucess:false, message: 'Invalid Credentials'});
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch){
+        return res.status(400).json({sucess:false, message: 'Invalid Credentials'});
+    }
+
+    const payload = {name: user.name,email: email};
+    const token = jwt.sign(payload,process.env.SECRET_ACCESS_TOKEN);
+    res.json({token: token});
 });
 
 export default router;
