@@ -3,8 +3,10 @@ import NavBar from '../components/NavBar.jsx';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import '../style/AuthUI.css';
+import { useNavigate } from 'react-router-dom';
 
 function Register() {
+    const navigate = useNavigate();
     const [userName, setUserName] = useState('');
     const [userEmail, setUserEmail] = useState('');
     const [userPassword, setUserPassword] = useState('');
@@ -21,9 +23,14 @@ function Register() {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(userInfo)
+        }).then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                navigate('/Login');
+            } else {
+                console.log('Registration failed:', data.message);
+            }
         })
-
-        console.log("Data sent: " + JSON.stringify(userInfo));
     };
 
     return(

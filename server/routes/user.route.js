@@ -109,8 +109,9 @@ router.post('/register',async (req,res) => {
         console.log("Error in creating user: ", error.message);
         if (error.code == 11000){
             res.status(409).json({sucess: false, message: "Duplicate email"});
+            return;
         };
-        res.status(500).json({sucess: false, message: "Server Error"});
+        res.status(500).json({success: false, message: "Server Error"});
     }
 });
 

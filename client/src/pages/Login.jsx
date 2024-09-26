@@ -3,8 +3,10 @@ import NavBar from '../components/NavBar.jsx';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import '../style/AuthUI.css';
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
+    const navigate = useNavigate();
     const [userEmail, setUserEmail] = useState('');
     const [userPassword, setUserPassword] = useState('');
 
@@ -25,6 +27,7 @@ function Login() {
             if (data.token) {
                 localStorage.setItem('token', data.token);
                 console.log('Token saved:', data.token);
+                navigate('/');
             } else {
                 console.log('Login failed:', data.message);
             }
