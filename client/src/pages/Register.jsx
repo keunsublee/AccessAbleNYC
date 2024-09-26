@@ -44,7 +44,7 @@ function Register() {
                         </Form.Group>
                     <Form.Group className="mb-3 label" controlId="formGroupEmail">
                         <Form.Label>Email address</Form.Label>
-                        <Form.Control type="email label" placeholder="Enter email" onChange={(e) => setUserEmail(e.target.value)}/>
+                        <Form.Control type="email" placeholder="Enter email" onChange={(e) => setUserEmail(e.target.value)}/>
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="formGroupPassword">
                         <Form.Label>Password</Form.Label>

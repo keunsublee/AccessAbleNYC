@@ -16,7 +16,7 @@ function Home() {
     return (
         <div>
             <NavBar />
-            <h1>Hello {name}</h1>
+            <h1>Welcome, {name}</h1>
         </div>
     );
 }
