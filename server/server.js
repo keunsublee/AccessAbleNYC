@@ -18,8 +18,8 @@ app.use(cors());
 //application functions
 app.use('',userRoute);
 
-//creates server on port 5000 and connects to mongodb database
-app.listen(process.env.PORT || 5000, () => {
+//creates server on port 8080 and connects to mongodb database
+app.listen(process.env.PORT || 8080, () => {
     mongoose.connect(process.env.mongodb_URI)
     .then((result) => {
         console.log('connected to Mongodb');

@@ -4,12 +4,15 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import '../style/AuthUI.css';
 import { useNavigate } from 'react-router-dom';
+import Toast from 'react-bootstrap/Toast';
 
 function Register() {
     const navigate = useNavigate();
     const [userName, setUserName] = useState('');
     const [userEmail, setUserEmail] = useState('');
     const [userPassword, setUserPassword] = useState('');
+    const [showToast, setShowToast] = useState(false);
+    const [message, setMessage] = useState('');
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -19,7 +22,7 @@ function Register() {
 
         const userInfo = {name: userName,email: userEmail, password: userPassword};
         
-        fetch('http://localhost:5000/register',{
+        fetch('http://localhost:8080/register',{
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(userInfo)
@@ -28,9 +31,14 @@ function Register() {
             if (data.success) {
                 navigate('/Login');
             } else {
-                console.log('Registration failed:', data.message);
+                setShowToast(true);
+                setMessage('Registration failed: '+ data.message);
             }
         })
+        .catch(error => {
+            setMessage('Error: '+ error);
+            setShowToast(true);
+        });
     };
 
     return(
@@ -55,6 +63,12 @@ function Register() {
                     </div>
                 </Form>
             </div>
+            <Toast onClose={() => setShowToast(false)} show={showToast} delay={3000} className="toast-top-right" bg='danger' autohide>
+                <Toast.Header>
+                    <strong className="me-auto">Alert</strong>
+                </Toast.Header>
+                <Toast.Body>{message}</Toast.Body>
+            </Toast>
         </div>
     )
 }

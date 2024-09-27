@@ -4,11 +4,14 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import '../style/AuthUI.css';
 import { useNavigate } from 'react-router-dom';
+import Toast from 'react-bootstrap/Toast';
 
 function Login() {
     const navigate = useNavigate();
     const [userEmail, setUserEmail] = useState('');
     const [userPassword, setUserPassword] = useState('');
+    const [showToast, setShowToast] = useState(false);
+    const [message, setMessage] = useState('');
 
     //Access the data
     const handleSubmit = (event) => {
@@ -18,7 +21,7 @@ function Login() {
 
         const userInfo = {email: userEmail, password: userPassword};
         
-        fetch('http://localhost:5000/login',{
+        fetch('http://localhost:8080/login',{
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(userInfo)
@@ -29,11 +32,13 @@ function Login() {
                 console.log('Token saved:', data.token);
                 navigate('/');
             } else {
-                console.log('Login failed:', data.message);
+                setMessage('Login failed: '+ data.message);
+                setShowToast(true);
             }
         })
         .catch(error => {
-            console.error('Error:', error);
+            setMessage('Error: '+ error);
+            setShowToast(true);
         });
 
         console.log("Data sent: " + JSON.stringify(userInfo));
@@ -57,6 +62,12 @@ function Login() {
                     </div>
                 </Form>
             </div>
+            <Toast onClose={() => setShowToast(false)} show={showToast} delay={3000} className="toast-top-right" bg='danger' autohide>
+                <Toast.Header>
+                    <strong className="me-auto">Alert</strong>
+                </Toast.Header>
+                <Toast.Body>{message}</Toast.Body>
+            </Toast>
         </div>
     )
 }

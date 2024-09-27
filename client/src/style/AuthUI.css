@@ -8,3 +8,10 @@
 .label{
     width: 400px;
 }
+
+.toast-top-right {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 1050;
+}
