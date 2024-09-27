@@ -19,7 +19,7 @@ app.use(cors());
 app.use('',userRoute);
 
 //creates server on port 8080 and connects to mongodb database
-app.listen(process.env.PORT || 8080, () => {
+app.listen(process.env.PORT || 8080, '0.0.0.0', () => {
     mongoose.connect(process.env.mongodb_URI)
     .then((result) => {
         console.log('connected to Mongodb');
