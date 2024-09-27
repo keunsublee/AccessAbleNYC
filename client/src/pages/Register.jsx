@@ -22,7 +22,7 @@ function Register() {
 
         const userInfo = {name: userName,email: userEmail, password: userPassword};
         
-        fetch('http://localhost:8080/register',{
+        fetch('https://accessablenyc-server.onrender.com/register',{
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(userInfo)
