@@ -1,0 +1,17 @@
+.outer-div{
+    margin-top: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.label{
+    width: 400px;
+}
+
+.toast-top-right {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 1050;
+}
