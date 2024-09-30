@@ -92,25 +92,36 @@ function Login() {
 
 
 function FacebookLogin() {
-
+    const [profile, setProfile] = useState(null);
     const navigate = useNavigate(); //redirect the user to the home page after a successful Facebook login
 
     return(
-        <LoginSocialFacebook
-        appId = "1509011246642552" // unique ID provided from developer facebook account
-        onResolve = {(response) => {
+        <div>
+        {!profile ? <LoginSocialFacebook
+            appId = "1509011246642552" // unique ID provided from developer facebook account
+            onResolve = {(response) => {
             console.log(response);
-            navigate('/'); //redirect the user to the home page (for now) after a successful Facebook login
-        }}
+            setProfile(response.data);
+            //navigate('/'); //redirect the user to the home page (for now) after a successful Facebook login
+            }}
 
-        onReject = {(error) => {
-            console.log('Facebook login error:', error);
-        }}
+            onReject = {(error) => {
+                console.log('Facebook login error:', error);
+            }}
         >
             <FacebookLoginButton />
-        </LoginSocialFacebook>
+        </LoginSocialFacebook>: ''}
+
+        
+        {profile ?
+            <div>
+            <h1>{profile.name}</h1>
+            <img src={profile.picture.data.url} />
+            </div>: ''}
+            </div>
     );
 }
+
 
 // If user logs in successfully, home page should be edited such that the header login and sign up buttons are replaced with their profile picture and name
 
