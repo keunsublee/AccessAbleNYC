@@ -102,7 +102,7 @@ function FacebookLogin() {
             onResolve = {(response) => {
             console.log(response);
             setProfile(response.data);
-            //navigate('/'); //redirect the user to the home page (for now) after a successful Facebook login
+            navigate('/'); //redirect the user to the home page (for now) after a successful Facebook login
             }}
 
             onReject = {(error) => {
