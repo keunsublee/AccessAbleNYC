@@ -8,6 +8,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../style/NavBar.css'
 import { Link } from 'react-router-dom';
 
+//main navbar used throughout each webpage
 function NavBar() {
   const [isAuthenticated,setIsAuthenticated] = useState(false);
 
@@ -32,7 +33,7 @@ function NavBar() {
         </Nav>
         {isAuthenticated ? (
           <Nav>
-            <Link to='/'><Button variant='outline-primary' className='same-btn'>Profile</Button></Link>
+            <Link to='/profile'><Button variant='outline-primary' className='same-btn'>Profile</Button></Link>
             <Link to='/login'><Button variant='outline-primary' className='same-btn' onClick={handleLogout}>Logout</Button></Link>
           </Nav>
         ) : (

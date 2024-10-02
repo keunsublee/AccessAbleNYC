@@ -2,8 +2,8 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import express from 'express';
 import User from '../models/users.model.js';
-import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 dotenv.config()
 
@@ -25,7 +25,7 @@ router.get('/:id', async (req,res) => {
     const {id} = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)){
-        return res.status(404).json({sucess: false, message: 'Invalid User Id'});
+        return res.status(404).json({success: false, message: 'Invalid User Id'});
     }
 
     try {
@@ -91,6 +91,7 @@ router.put('/:id', async (req,res) => {
     }
 });
 
+//register api
 router.post('/register',async (req,res) => {
     const {name,email,password}= req.body;
 
@@ -115,6 +116,8 @@ router.post('/register',async (req,res) => {
     }
 });
 
+
+//login api
 router.post('/login',async (req,res) =>{
     const {email,password}=req.body;
 

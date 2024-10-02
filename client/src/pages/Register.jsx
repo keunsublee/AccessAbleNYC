@@ -6,6 +6,7 @@ import '../style/AuthUI.css';
 import { useNavigate } from 'react-router-dom';
 import Toast from 'react-bootstrap/Toast';
 
+//register page
 function Register() {
     const navigate = useNavigate();
     const [userName, setUserName] = useState('');
@@ -13,6 +14,14 @@ function Register() {
     const [userPassword, setUserPassword] = useState('');
     const [showToast, setShowToast] = useState(false);
     const [message, setMessage] = useState('');
+
+    //makes sures the user is logged in
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            navigate('/');
+        }
+    }, []);
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -22,7 +31,7 @@ function Register() {
 
         const userInfo = {name: userName,email: userEmail, password: userPassword};
         
-        fetch('https://accessablenyc-server.onrender.com/register',{
+        fetch(import.meta.env.VITE_PORT + '/register',{
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(userInfo)
