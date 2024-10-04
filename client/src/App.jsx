@@ -4,7 +4,7 @@ import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import Profile from './pages/Profile.jsx'
 import { BrowserRouter as Router, Routes, Route} from "react-router-dom";
-import Footer from "./Footer.jsx";
+import Footer from "./pages/Footer.jsx";
 function App() {
     return(
         //Creates routes to other pages
