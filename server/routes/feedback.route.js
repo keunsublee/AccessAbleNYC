@@ -12,7 +12,7 @@ router.post('/feedback',async (req,res) =>{
  
     try {
         await newFeedback.save();
-        res.status(201).json({success: true, data: newFeedback});
+        res.status(201).json({success: true, data: newFeedback, message: "Feedback Sent"});
     } catch(error) {
         console.log("Error in saving feedback: ", error.message);
         res.status(500).json({success: false, message: "Server Error"});

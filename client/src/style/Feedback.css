@@ -9,6 +9,10 @@
     width: 400px;
 }
 
+.user-email{
+    font-weight: bold;
+}
+
 .toast-bottom-right {
     position: fixed;
     bottom: 1rem;
