@@ -1,22 +1,25 @@
+import mongoose from 'mongoose'; 
 import dotenv from 'dotenv';
 import express from 'express';
 import userRoute from './routes/user.route.js';
-import mongoose from 'mongoose';
+import locationRoute from './routes/location.route.js';  
 import cors from 'cors';
 
-dotenv.config()
+dotenv.config();
 
-//creates the server
-const app = express(); 
+// create the server
+const app = express();
 
-//allows us to accept JSON data in req.body
+// allows us to accept JSON data in req.body
 app.use(express.json());
 
-//allows to server to interact with the front end
+// allows the server to interact with the front end
 app.use(cors());
 
-//application functions
-app.use('',userRoute);
+// application routes
+app.use('', locationRoute);
+app.use('', userRoute);  
+
 
 //creates server on port 8080 and connects to mongodb database
 app.listen(process.env.PORT || 8080, '0.0.0.0', () => {
