@@ -43,7 +43,7 @@ router.delete('/:id', async (req,res) =>{
     const {id} = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)){
-        return res.status(404).json({sucess: false, message: 'Invalid User Id'});
+        return res.status(404).json({success: false, message: 'Invalid User Id'});
     }
 
     try {
@@ -60,7 +60,7 @@ router.post('/',async (req,res) => {
     const user = req.body;
 
     if (!user.name || !user.email){
-        return res.status(400).json({sucess:false, message: 'Please provide all fields'});
+        return res.status(400).json({success:false, message: 'Please provide all fields'});
     };
 
     const newUser = new User(user);
@@ -70,7 +70,7 @@ router.post('/',async (req,res) => {
         res.status(201).json({success: true, data: newUser});
     } catch(error) {
         console.log("Error in creating user: ", error.message);
-        res.status(500).json({sucess: false, message: "Server Error"});
+        res.status(500).json({success: false, message: "Server Error"});
     }
 });
 
@@ -81,7 +81,7 @@ router.put('/:id', async (req,res) => {
     const user = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(id)){
-        return res.status(404).json({sucess: false, message: 'Invalid Id'});
+        return res.status(404).json({success: false, message: 'Invalid Id'});
     }
 
     try {
@@ -97,7 +97,7 @@ router.post('/register',async (req,res) => {
     const {name,email,password}= req.body;
 
     if (!name || !email || !password){
-        return res.status(400).json({sucess:false, message: 'Please provide all fields'});
+        return res.status(400).json({success:false, message: 'Please provide all fields'});
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -110,7 +110,7 @@ router.post('/register',async (req,res) => {
     } catch(error) {
         console.log("Error in creating user: ", error.message);
         if (error.code == 11000){
-            res.status(409).json({sucess: false, message: "Duplicate email"});
+            res.status(409).json({success: false, message: "Duplicate email"});
             return;
         };
         res.status(500).json({success: false, message: "Server Error"});
@@ -125,13 +125,13 @@ router.post('/login',async (req,res) =>{
     const user = await User.findOne({email});
 
     if (!user){
-        return res.status(400).json({sucess:false, message: 'Invalid Credentials'});
+        return res.status(400).json({success:false, message: 'Invalid Credentials'});
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch){
-        return res.status(400).json({sucess:false, message: 'Invalid Credentials'});
+        return res.status(400).json({success:false, message: 'Invalid Credentials'});
     }
 
     const payload = {name: user.name,email: email};
@@ -142,7 +142,7 @@ router.post('/login',async (req,res) =>{
 router.post('/feedback',async (req,res) =>{
     const {email, feedback} = req.body;
     if (!email || !feedback){
-        return res.status(400).json({sucess:false, message: 'Please provide all fields'});
+        return res.status(400).json({success:false, message: 'Please provide all fields'});
     }
     const newFeedback = new Feedback({email,feedback});
  
