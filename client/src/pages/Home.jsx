@@ -28,7 +28,7 @@ function Home() {
 
     return (
         <div>
-            <NavBar />
+            <NavBar/>
             <h1>Welcome, {name}</h1>
         </div>
     );
