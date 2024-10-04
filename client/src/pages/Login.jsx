@@ -71,7 +71,7 @@ function Login() {
                     </div>
                 </Form>
             </div>
-            <Toast onClose={() => setShowToast(false)} show={showToast} delay={3000} className="toast-top-right" bg='danger' autohide>
+            <Toast onClose={() => setShowToast(false)} show={showToast} delay={3000} className="toast-bottom-right" bg='danger' autohide>
                 <Toast.Header>
                     <strong className="me-auto">Alert</strong>
                 </Toast.Header>

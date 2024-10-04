@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 import userRoute from './routes/user.route.js';
 import locationRoute from './routes/location.route.js';  
+import feedbackRoute from './routes/feedback.route.js';  
 import cors from 'cors';
 
 dotenv.config();
@@ -18,6 +19,7 @@ app.use(cors());
 
 // application routes
 app.use('', locationRoute);
+app.use('', feedbackRoute);
 app.use('', userRoute);  
 
 
