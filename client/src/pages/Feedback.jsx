@@ -10,7 +10,8 @@ function Feedback() {
     const [isAuthenticated,setIsAuthenticated] = useState(false);
     const [userEmail, setUserEmail] = useState('');
     const [userFeedback, setUserFeedback] = useState('');
-    const [showToast, setShowToast] = useState(false);
+    const [showToastError, setShowToastError] = useState(false);
+    const [showToastSuccess, setShowToastSuccess] = useState(false);
     const [message, setMessage] = useState('');
 
     useEffect(() => {
@@ -37,14 +38,16 @@ function Feedback() {
         }).then(response => response.json())
         .then(data => {
             if (data.success) {
-                setShowToast(true);
+                setShowToastSuccess(true);
                 setMessage(data.message);
                 setUserFeedback('');
             } else {
+                setShowToastError(true);
                 setMessage('Feedback failed to send: '+ data.message);
             }
         })
         .catch(error => {
+            setShowToastError(true);
             setMessage('Error: '+ error);
         });
 
@@ -76,7 +79,13 @@ function Feedback() {
                     </div>
                 </Form> 
             </div>
-            <Toast onClose={() => setShowToast(false)} show={showToast} delay={3000} className="toast-bottom-right" bg='success' autohide>
+            <Toast onClose={() => setShowToastSuccess(false)} show={showToastSuccess} delay={3000} className="toast-bottom-right" bg='success' autohide>
+                <Toast.Header>
+                    <strong className="me-auto">Alert</strong>
+                </Toast.Header>
+                <Toast.Body>{message}</Toast.Body>
+            </Toast>
+            <Toast onClose={() => setShowToastError(false)} show={showToastError} delay={3000} className="toast-bottom-right" bg='danger' autohide>
                 <Toast.Header>
                     <strong className="me-auto">Alert</strong>
                 </Toast.Header>
