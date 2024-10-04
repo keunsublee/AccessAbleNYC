@@ -6,7 +6,7 @@ const router = express.Router();
 router.post('/feedback',async (req,res) =>{
     const {email, feedback} = req.body;
     if (!email || !feedback){
-        return res.status(400).json({sucess:false, message: 'Please provide all fields'});
+        return res.status(400).json({success:false, message: 'Please provide all fields'});
     }
     const newFeedback = new Feedback({email,feedback});
  
