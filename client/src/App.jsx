@@ -5,12 +5,15 @@ import Register from './pages/Register.jsx';
 import Profile from './pages/Profile.jsx';
 import Feedback from './pages/Feedback.jsx';
 import { BrowserRouter as Router, Routes, Route} from "react-router-dom";
-import Footer from "./pages/Footer.jsx";
+import Footer from "./components/Footer.jsx";
+import NavBar from './components/NavBar.jsx';
+
 function App() {
     return(
         //Creates routes to other pages
         <Router>
-           <Routes>
+            <NavBar/>
+            <Routes>
                 <Route path='/' element={<Home/>}/>
                 <Route path='/login' element={<Login/>}/>
                 <Route path='/register' element={<Register/>}/>

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import Form from 'react-bootstrap/Form';
-import NavBar from '../components/NavBar.jsx';
 import Button from 'react-bootstrap/Button';
 import '../style/Feedback.css';
 import Toast from 'react-bootstrap/Toast';
@@ -56,7 +55,6 @@ function Feedback() {
 
     return (
         <div>
-            <NavBar/>
             <div className='outer-div'>
                 <Form onSubmit={handleSubmit}>
                 {isAuthenticated ? (

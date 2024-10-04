@@ -1,5 +1,4 @@
 import React, {useState, useEffect} from 'react';
-import NavBar from '../components/NavBar.jsx';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import '../style/AuthUI.css';
@@ -52,7 +51,6 @@ function Register() {
 
     return(
         <div>
-            <NavBar/>
             <div className='outer-div'>
                 <Form onSubmit={handleSubmit}>
                     <Form.Group className="mb-3 label" controlId="formGroupName">

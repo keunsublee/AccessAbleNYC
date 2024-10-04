@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import '../style/Footer.css';
-import Modal from './Modal';
+import Modal from './Modal.jsx';
+import { Link } from 'react-router-dom';
 
 
 const Footer = () => {
@@ -42,15 +43,15 @@ const Footer = () => {
             <h1 className="footer-title">AccessAble NYC.</h1>
             <nav className="nav">
             <div>
-                <a href="/website" className="website-item">Website</a>
+                <p className="website-item">Website</p>
                 <div className="link-container">
                 <a href="#" onClick={()=>handleLinkClick('About Us', aboutContent)} className="about-item">About us</a>
-                <a href="/" className="home-item">Home</a>
+                <Link to="/" className="home-item">Home</Link>
                 </div>
             </div>
 
             <div>
-                <a href="/contact" className="contact-item">Contact</a>
+                <p className="contact-item">Contact</p>
                 <div className="link-container2">
                 <a href="#" onClick={()=>handleLinkClick('Contact Information','Email us at:  accessablenyc@gmail.com')} className="email-item">Email</a>
                 <a href="#" onClick={()=>handleLinkClick('Contact Information','Phone:  N/A')} className="phone-item">Phone</a>
@@ -58,9 +59,9 @@ const Footer = () => {
             </div>
 
             <div>
-                <a href="/more" className="more-item">More</a>
+                <p className="more-item">More</p>
                 <div className="link-container3">
-                <a href="/feedback" className="feedback-item">Feedback</a>
+                <Link to='/feedback' className="feedback-item">Feedback</Link>
                 <a href="#" onClick={()=>handleLinkClick('Help & FAQs',helpContent)} className="help-item">Help/FAQs</a>
                 </div>
             </div>

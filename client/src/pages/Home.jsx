@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import NavBar from '../components/NavBar.jsx';
 import '../style/Home.css';
 
 //homepage which is the main page the user lands on
@@ -28,7 +27,6 @@ function Home() {
 
     return (
         <div>
-            <NavBar/>
             <h1>Welcome, {name}</h1>
         </div>
     );
