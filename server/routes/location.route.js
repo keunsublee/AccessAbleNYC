@@ -3,7 +3,7 @@ import Location from '../models/location.model.js';
 
 const router = express.Router();
 
-router.get('/', async (req, res) => {
+router.get('/locations', async (req, res) => {
     try {
         const locations = await Location.find();  
         res.status(200).json(locations);

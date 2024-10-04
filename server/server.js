@@ -16,8 +16,8 @@ app.use(express.json());
 // allows the server to interact with the front end
 app.use(cors());
 
-// spplication routes
-app.use('/locations', locationRoute); 
+// application routes
+app.use('', locationRoute);
 app.use('', userRoute);  
 
 
