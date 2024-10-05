@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from 'react';
+import NavBar from '../components/NavBar.jsx';
 
 //user profile
 function Profile() {
@@ -17,6 +18,7 @@ function Profile() {
 
     return (
         <div>
+            <NavBar/>
             <h1 className='title-text'>{name} {email}</h1>
         </div>
     );

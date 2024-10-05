@@ -4,6 +4,7 @@ import Button from 'react-bootstrap/Button';
 import '../style/AuthUI.css';
 import { useNavigate } from 'react-router-dom';
 import Toast from 'react-bootstrap/Toast';
+import NavBar from '../components/NavBar.jsx';
 
 //user login page
 function Login() {
@@ -54,6 +55,7 @@ function Login() {
 
     return(
         <div>
+            <NavBar/>
             <div className='outer-div'>
                 <Form onSubmit={handleSubmit}>
                     <Form.Group className="mb-3 label" controlId="formGroupEmail">
