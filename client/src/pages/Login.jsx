@@ -1,10 +1,10 @@
 import React, {useState, useEffect} from 'react';
-import NavBar from '../components/NavBar.jsx';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import '../style/AuthUI.css';
 import { useNavigate } from 'react-router-dom';
 import Toast from 'react-bootstrap/Toast';
+import NavBar from '../components/NavBar.jsx';
 
 //user login page
 function Login() {
