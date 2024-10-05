@@ -125,34 +125,27 @@ const Footer = () => {
     const[helpFAQOpen,setHelpFAQOpen]=useState(false);
 
     return (
-        <footer className="footer">
-            <h1 className="footer-title">AccessAble NYC.</h1>
-            <nav className="nav">
-            <div>
-                <p className="website-item">Website</p>
-                <div className="link-container">
-                <a href="#" onClick={() => setAboutUsModalOpen(true)} className="about-item">About us</a>
-                <Link to="/" className="home-item">Home</Link>
+        <div>
+            <footer className="footer">
+                <h1 className='footer-container'>AccessAble NYC.</h1>
+                <div className='footer-container'>
+                    <p className='footer-title'>Website</p>
+                    <a href="#" onClick={() => setAboutUsModalOpen(true)} className='footer-items'>About us</a>
+                    <Link to="/" className='footer-items'>Home</Link>
                 </div>
-            </div>
 
-            <div>
-                <p className="contact-item">Contact</p>
-                <div className="link-container2">
-                <a href="#" onClick={() => setEmailModalOpen(true)} className="email-item">Email</a>
-                <a href="#" onClick={() => setPhoneModalOpen(true)} className="phone-item">Phone</a>
+                <div className='footer-container'>
+                    <p className='footer-title'>Contact</p>
+                    <a href="#" onClick={() => setEmailModalOpen(true)} className='footer-items'>Email</a>
+                    <a href="#" onClick={() => setPhoneModalOpen(true)} className='footer-items'>Phone</a>
                 </div>
-            </div>
 
-            <div>
-                <p className="more-item">More</p>
-                <div className="link-container3">
-                <Link to='/feedback' className="feedback-item">Feedback</Link>
-                <a href="#" onClick={() => setHelpFAQOpen(true)} className="help-item">Help/FAQs</a>
+                <div className='footer-container'>
+                    <p className='footer-title'>More</p>
+                    <Link to='/feedback' className='footer-items'>Feedback</Link>
+                    <a href="#" onClick={() => setHelpFAQOpen(true) } className='footer-items'>Help/FAQs</a>
                 </div>
-            </div>
-
-            </nav>
+            </footer>
             <AboutUsModal
                 show={aboutUsModalOpen}
                 onHide={() => setAboutUsModalOpen(false)}
@@ -169,8 +162,7 @@ const Footer = () => {
                 show={helpFAQOpen}
                 onHide={() => setHelpFAQOpen(false)}
             />
-        </footer>
-        
+        </div>
     );
 };
 
