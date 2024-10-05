@@ -18,6 +18,10 @@ function AboutUsModal(props) {
             </Modal.Title>
         </Modal.Header>
         <Modal.Body>
+            <h4>Who Are We?</h4>
+            <p>
+            Hunter College students.
+            </p>
             <h4>What is AccessAble NYC?</h4>
             <p>
             AccessAble NYC is a web application designed to improve accessibility for individuals with disabilities by helping them find accessible locations across New York City. 
@@ -103,11 +107,13 @@ function HelpFAQModal(props) {
             </p>
             <h4>How do I navigate the interactive map?</h4>
             <p>
-            You can zoom in and out on the map to view different areas of NYC. Click on the markers to see more details about each location, including accessibility features and hours of operation.
+            You can zoom in and out on the map to view different areas of NYC. Click on the markers to see more details about each location, including accessibility features 
+            and hours of operation.
             </p>
             <h4>Where does the data come from?</h4>
             <p>
-            Our data is sourced from NYC Open Data, which provides public datasets on accessible facilities in the city. We regularly update our platform to ensure that the information is current and reliable.
+            Our data is sourced from NYC Open Data, which provides public datasets on accessible facilities in the city. We regularly update our platform to ensure that the 
+            information is current and reliable.
             </p>
         </Modal.Body>
         <Modal.Footer>
