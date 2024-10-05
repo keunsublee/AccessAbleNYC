@@ -1,10 +1,10 @@
 import React, {useState, useEffect} from 'react';
-import NavBar from '../components/NavBar.jsx';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import '../style/AuthUI.css';
 import { useNavigate } from 'react-router-dom';
 import Toast from 'react-bootstrap/Toast';
+import NavBar from '../components/NavBar.jsx';
 
 //register page
 function Register() {
@@ -72,7 +72,7 @@ function Register() {
                     </div>
                 </Form>
             </div>
-            <Toast onClose={() => setShowToast(false)} show={showToast} delay={3000} className="toast-top-right" bg='danger' autohide>
+            <Toast onClose={() => setShowToast(false)} show={showToast} delay={3000} className="toast-bottom-right" bg='danger' autohide>
                 <Toast.Header>
                     <strong className="me-auto">Alert</strong>
                 </Toast.Header>

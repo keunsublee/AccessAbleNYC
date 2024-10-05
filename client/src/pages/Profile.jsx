@@ -18,7 +18,7 @@ function Profile() {
 
     return (
         <div>
-            <NavBar />
+            <NavBar/>
             <h1 className='title-text'>{name} {email}</h1>
         </div>
     );
