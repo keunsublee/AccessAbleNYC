@@ -131,8 +131,7 @@ const Footer = () => {
     const[helpFAQOpen,setHelpFAQOpen]=useState(false);
 
     return (
-        <div>
-            <footer className="footer">
+            <footer>
                 <h1 className='footer-container'>AccessAble NYC.</h1>
                 <div className='footer-container'>
                     <p className='footer-title'>Website</p>
@@ -151,24 +150,23 @@ const Footer = () => {
                     <Link to='/feedback' className='footer-items'>Feedback</Link>
                     <a href="#" onClick={() => setHelpFAQOpen(true) } className='footer-items'>Help/FAQs</a>
                 </div>
-            </footer>
-            <AboutUsModal
+                <AboutUsModal
                 show={aboutUsModalOpen}
                 onHide={() => setAboutUsModalOpen(false)}
-            />
-            <EmailModal
-                show={emailModalOpen}
-                onHide={() => setEmailModalOpen(false)}
-            />
-            <PhoneModal
-                show={phoneModalOpen}
-                onHide={() => setPhoneModalOpen(false)}
-            />
-            <HelpFAQModal
-                show={helpFAQOpen}
-                onHide={() => setHelpFAQOpen(false)}
-            />
-        </div>
+                />
+                <EmailModal
+                    show={emailModalOpen}
+                    onHide={() => setEmailModalOpen(false)}
+                />
+                <PhoneModal
+                    show={phoneModalOpen}
+                    onHide={() => setPhoneModalOpen(false)}
+                />
+                <HelpFAQModal
+                    show={helpFAQOpen}
+                    onHide={() => setHelpFAQOpen(false)}
+                />
+            </footer>
     );
 };
 
