@@ -1,8 +1,12 @@
+.footer-bottom{
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
 footer {
-    position: fixed; 
-    bottom: 0; 
-    left: 0; 
-    width: 100vw;
+    margin-top: auto;
+    width: 100%;
     background-color: #f8f9fa;
     padding-top: 15px; 
     padding-bottom: 30px; 

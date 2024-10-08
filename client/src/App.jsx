@@ -10,16 +10,18 @@ import Footer from "./components/Footer.jsx";
 function App() {
     return(
         //Creates routes to other pages
-        <Router>
-            <Routes>
-                <Route path='/' element={<Home/>}/>
-                <Route path='/login' element={<Login/>}/>
-                <Route path='/register' element={<Register/>}/>
-                <Route path='/profile' element={<Profile/>}/>
-                <Route path='/feedback' element={<Feedback/>}/>
-            </Routes> 
-            <Footer />
-        </Router>
+        <div className='footer-bottom'>
+            <Router>
+                <Routes>
+                    <Route path='/' element={<Home/>}/>
+                    <Route path='/login' element={<Login/>}/>
+                    <Route path='/register' element={<Register/>}/>
+                    <Route path='/profile' element={<Profile/>}/>
+                    <Route path='/feedback' element={<Feedback/>}/>
+                </Routes> 
+                <Footer />
+            </Router>
+        </div>  
     )
 }
 

@@ -73,23 +73,38 @@ router.post('/',async (req,res) => {
     }
 });
 
-//updates user
-router.put('/:id', async (req,res) => {
+//updates user password
+router.put('/:id/password', async (req,res) => {
     const {id} = req.params;
 
-    const user = req.body;
+    const {currentPassword, newPassword} = req.body;
+    if (!currentPassword || !newPassword){
+        return res.status(400).json({success:false, message: 'Please provide all fields'});
+    }
 
     if (!mongoose.Types.ObjectId.isValid(id)){
         return res.status(404).json({success: false, message: 'Invalid Id'});
     }
+    
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
 
+    const user = await User.findById(id);
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch){
+        return res.status(400).json({success:false, message: 'Invalid Credentials'});
+    }
+    const newUser =  {name: user.name, email: user.email, password: hashedPassword};
+    
     try {
-        const updatedUser = await User.findByIdAndUpdate(id, user, {new:true});
-        res.status(200).json({ success:true, data: updatedUser});
+        const updatedUser = await User.findByIdAndUpdate(id, newUser, {new:true});
+        res.status(200).json({ success:true, data: updatedUser, message: 'Password updated'});
     } catch (error) {
         res.status(500).json({success:false, message: 'Server Error'});
     }
 });
+
+
 
 //register api
 router.post('/register',async (req,res) => {
@@ -133,7 +148,7 @@ router.post('/login',async (req,res) =>{
         return res.status(400).json({success:false, message: 'Invalid Credentials'});
     }
 
-    const payload = {name: user.name,email: email};
+    const payload = {name: user.name,email: email, id: user._id};
     const token = jwt.sign(payload,process.env.SECRET_ACCESS_TOKEN);
     res.json({token: token});
 });

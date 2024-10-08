@@ -14,9 +14,15 @@ router.post('/feedback',async (req,res) =>{
         await newFeedback.save();
         res.status(201).json({success: true, data: newFeedback, message: "Feedback Sent"});
     } catch(error) {
+        if (error.code == 11000){
+            res.status(409).json({success: false, message: "Feedback already sent"});
+            return;
+        };
         console.log("Error in saving feedback: ", error.message);
         res.status(500).json({success: false, message: "Server Error"});
+    
     }
+
 
 });
 
