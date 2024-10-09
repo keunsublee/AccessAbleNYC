@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../style/Home.css';
 import NavBar from '../components/NavBar.jsx';
+import MapComponent from '../components/MapComponent'; 
 
 //homepage which is the main page the user lands on
 function Home() {
@@ -64,10 +65,11 @@ function Home() {
 
     return (
         <div>
-            <NavBar/>
+            <NavBar />
             <h1>Welcome, {name}</h1>
-
-        
+            
+            {/* Pass locations and nearbyLocations to the MapComponent */}
+            <MapComponent locations={locations} nearbyLocations={nearbyLocations} />
         </div>
     );
 }
