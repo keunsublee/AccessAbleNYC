@@ -6,6 +6,7 @@ import Profile from './pages/Profile.jsx';
 import Feedback from './pages/Feedback.jsx';
 import { BrowserRouter as Router, Routes, Route} from "react-router-dom";
 import Footer from "./components/Footer.jsx";
+import 'leaflet/dist/leaflet.css';
 
 function App() {
     return(
