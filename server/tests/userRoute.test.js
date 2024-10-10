@@ -7,7 +7,11 @@ import bcrypt from 'bcrypt';
 // Create an Express application for testing
 const app = express();
 app.use(express.json());
+<<<<<<< HEAD
 app.use("/", userRoute);
+=======
+app.use("", userRoute);
+>>>>>>> 91a09425f846e9ade461c48bc76e5e61329511aa
 
 jest.mock('../models/users.model.js')
 jest.mock('bcrypt');
@@ -32,18 +36,28 @@ describe('POST /register', () => {
 
         expect(res.status).toBe(400);
         expect(res.body.success).toBe(false);
+<<<<<<< HEAD
 
     });
     it('should send a 409 response status if the email are duplicates', async () => {
         User.mockImplementation(() => ({
             save: jest.fn().mockRejectedValue({code:11000})
         }));
+=======
+    });
+    it('should send a 409 response status if the email are duplicates', async () => {
+        User.mockImplementation(() => ({
+            save: jest.fn().mockRejectedValue({ code: 11000 })
+        }));
+            
+>>>>>>> 91a09425f846e9ade461c48bc76e5e61329511aa
 
         const res = await request(app).post("/register").send({
             name: 'example',
             email: 'hehe@gmail.com',
             password: 'example'
         });
+<<<<<<< HEAD
 
         expect(res.status).toBe(409);
         expect(res.body.success).toBe(false);
@@ -61,5 +75,12 @@ describe('POST /register', () => {
 
         expect(res.status).toBe(500);
         expect(res.body.success).toBe(false);
+=======
+        console.log('Response:', res.body); 
+        console.log('Response:', res.statusCode); 
+        expect(res.status).toBe(409);
+        expect(res.body.success).toBe(false);
+
+>>>>>>> 91a09425f846e9ade461c48bc76e5e61329511aa
     });
 })
