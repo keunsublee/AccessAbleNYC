@@ -10,7 +10,6 @@ app.use(express.json());
 app.use(locationRoutes);  
 
 describe('Location Routes', () => {
-
     describe('GET /locations', () => {
         beforeEach(() => {
             jest.clearAllMocks();
@@ -38,7 +37,3 @@ describe('Location Routes', () => {
         });
     });
 });
-
-
-
-
