@@ -1,37 +1,18 @@
-name: Test Coverage
-
+name: 'coverage'
 on:
-  pull_request:
-    branches:
-      - main
+      pull_request:
+      branches:
+          - master
+          - main
 jobs:
-  test:
-    runs-on: ubuntu-latest
+    coverage:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout repository
+            uses: actions/checkout@v3
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+          - name: Install dependencies
+            run: npm install
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '16.x'
-
-    - name: Install dependencies
-      run: npm install
-
-    - name: Install jest
-      run: npm install --save-dev jest
-
-    - name: Install supertest
-      run: npm install supertest --save-dev
-    
-    - name: Install supertest
-      run:  npm install --save-dev @babel/preset-env
-
-    - name: Run tests with coverage
-      run: npm test -- --coverage
-      working-directory: ./server
-
-    - name: Jest coverage report
-      uses: ArtiomTr/jest-coverage-report-action@v2.3.1
+          - name: Jest Coverage Report
+            uses: ArtiomTr/jest-coverage-report-action@v2
