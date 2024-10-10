@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -19,15 +20,19 @@ jobs:
 
     - name: Install dependencies
       run: npm install
+      working-directory: ./server
 
     - name: Install jest
       run: npm install --save-dev jest
+      working-directory: ./server
 
     - name: Install supertest
       run: npm install supertest --save-dev
+      working-directory: ./server
     
-    - name: Install supertest
-      run:  npm install --save-dev @babel/preset-env
+    - name: Install @babel/preset-env
+      run: npm install --save-dev @babel/preset-env
+      working-directory: ./server
 
     - name: Run tests with coverage
       run: npm test -- --coverage
