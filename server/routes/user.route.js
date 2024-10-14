@@ -153,3 +153,62 @@ router.post('/login',async (req,res) =>{
     res.json({token: token});
 });
 export default router;
+
+router.put('/:id/addFavoriteLocation',async (req,res) => {
+    const {id} = req.params;
+    const { locationId } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)){
+        return res.status(404).json({success: false, message: 'Invalid Id'});
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(locationId)){
+        return res.status(404).json({success: false, message: 'Invalid Location'});
+    }
+
+    try {
+        const user = await User.findById(id);
+        user.favoriteLocations.push(locationId);
+        await user.save();
+        res.status(200).json({ success:true, message: 'New favorite location added'});
+    } catch (error) {
+        res.status(500).json({success:false, message: 'Server Error'});
+    }
+});
+
+router.put('/:id/deleteFavoriteLocation',async (req,res) => {
+    const {id} = req.params;
+    const { locationId } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)){
+        return res.status(404).json({success: false, message: 'Invalid Id'});
+    }
+
+    try {
+        const user = await User.findById(id);
+        if (!user.favoriteLocations.includes(locationId)) {
+            return res.status(404).json({ success: false, message: 'Location not found in favorites' });
+        }
+        user.favoriteLocations.pull(locationId);
+        await user.save();
+        res.status(200).json({ success:true, message: 'Location removed from favorite locations'});
+    } catch (error) {
+        res.status(500).json({success:false, message: 'Server Error'});
+    }
+});
+
+router.get('/:id/favoriteLocations',async (req,res) => {
+    const {id} = req.params;
+    
+    if (!mongoose.Types.ObjectId.isValid(id)){
+        return res.status(404).json({success: false, message: 'Invalid Id'});
+    }
+
+    try {
+        const user = await User.findById(id);
+        const favoriteLocations = user.favoriteLocations;
+        res.status(200).json({ success:true, locations: favoriteLocations});
+    } catch (error) {
+        res.status(500).json({success:false, message: 'Server Error'});
+    }
+});

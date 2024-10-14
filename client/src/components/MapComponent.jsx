@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState , useEffect} from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -80,11 +80,6 @@ const MapComponent = ({ locations, nearbyLocations = [] }) => {
     const filteredLocations = filter === 'all' 
         ? locationsToShow 
         : locationsToShow.filter(location => location.location_type === filter);
-
-    // Check if any locations exist to render
-    if ((!locations || locations.length === 0) && (!nearbyLocations || nearbyLocations.length === 0)) {
-        return <p>Loading map data...</p>;
-    }
 
     return (
         <div>
