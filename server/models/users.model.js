@@ -14,6 +14,10 @@ const userSchema = new mongoose.Schema({
     password: {
         type:String,
         required: true
+    },
+    favoriteLocations: {
+        type: [String],
+        default: []
     }
 }, {
     timestamps: true
