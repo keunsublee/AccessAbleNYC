@@ -1,55 +1,65 @@
-import Router from '../routes/user.route.js';
+import request from 'supertest'
+import express from 'express';
+import userRoute from '../routes/user.route.js'; // Adjust the path if necessary
 import User from '../models/users.model.js';
-import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 
+// Create an Express application for testing
+const app = express();
+app.use(express.json());
+app.use("/", userRoute);
 
-jest.mock('../models/users.model.js');
+jest.mock('../models/users.model.js')
 jest.mock('bcrypt');
+
 describe('POST /register', () => {
-    let req, res; 
-    beforeEach(() => {
-        req = {
-            body: {}
-        };
-        res = {
-            status: jest.fn().mockReturnThis(),
-            json: jest.fn()
-        };
-        console.error = jest.fn(); 
-    });
-    afterEach(() => {
-        jest.clearAllMocks();
-        console.error.mockRestore();
+    it('should send a 201 response status when a new user is created', async () => {
+        const res = await request(app).post("/register").send({
+            name: 'example',
+            email: 'hehe@gmail.com',
+            password: 'example'
+        });
+
+        expect(res.status).toBe(201);
+        expect(res.body.success).toBe(true);
     });
     it('should send a 400 response status if any of the fields are missing', async () => {
-        const userInfo = { 
+        const res = await request(app).post("/register").send({
             name: '',
             email: '',
             password: ''
-        };
+        });
 
-        req.body = userInfo;
-        
-        await Router.handle({ method: 'POST', url: '/register', ...req }, res);
+        expect(res.status).toBe(400);
+        expect(res.body.success).toBe(false);
 
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Please provide all fields' });
     });
-    it('should send a 201 response status if the user is created', async () => {
-        const userInfo = { 
-            name: 'lmfao',
-            email: 'lmfao@gmail.com',
-            password: 'lmfao'
-        };
+    it('should send a 409 response status if the email are duplicates', async () => {
+        User.mockImplementation(() => ({
+            save: jest.fn().mockRejectedValue({code:11000})
+        }));
 
-        req.body = userInfo;
-        
-        expect(userInfo.save).toHaveBeenCalled();
+        const res = await request(app).post("/register").send({
+            name: 'example',
+            email: 'hehe@gmail.com',
+            password: 'example'
+        });
 
-        await Router.handle({ method: 'POST', url: '/register', ...req }, res);
+        expect(res.status).toBe(409);
+        expect(res.body.success).toBe(false);
+    });
+    it('should send a 500 response status if its a server error', async () => {
+        User.mockImplementation(() => ({
+            save: jest.fn().mockRejectedValue("Server Error")
+        }));
 
-        expect(res.status).toHaveBeenCalledWith(201);
-        expect(res.json).toHaveBeenCalledWith({success: true, data: expect.any(Object)});
+        const res = await request(app).post("/register").send({
+            name: 'example',
+            email: 'hehe@gmail.com',
+            password: 'example'
+        });
+
+        expect(res.status).toBe(500);
+        expect(res.body.success).toBe(false);
     });
 })
