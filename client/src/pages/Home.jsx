@@ -63,13 +63,15 @@ function Home() {
         } else {
             alert('Geolocation is not supported by this browser.');
         }
+    }, []);
 
+    useEffect(()=>{
         if ((!locations || locations.length === 0) && (!nearbyLocations || nearbyLocations.length === 0)) {
             setShowNoLocation(true);
         } else {
             setShowNoLocation(false);
         }
-    }, [locations,nearbyLocations]);
+    }, [locations,nearbyLocations])
 
     return (
         <div>
