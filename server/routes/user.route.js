@@ -104,6 +104,44 @@ router.put('/:id/password', async (req,res) => {
     }
 });
 
+//updates user email
+router.put('/:id/email',async(req,res)=>{
+    const {id}= req.params;
+
+    const{password, newEmail}=req.body;
+
+    if(!password || !newEmail){
+        return res.status(400).json({success:false, message: 'Please provide all fields'});
+    }
+
+    if(!mongoose.Types.ObjectId.isValid(id)){
+        return res.status(404).json({success: false, message: 'Invalid Id'});
+    }
+
+    const user=await User.findById(id);
+
+    const isMatch= await bcrypt.compare(password,user.password);
+
+    if(!isMatch){
+        return res.status(400).json({success:false, message: 'Invalid Credentials'});
+    }
+
+    if (user.email === newEmail) {
+        return res.status(400).json({ success: false, message: 'New email cannot be the same as the current email' });
+    }
+
+    const newUser={name:user.name,email:newEmail,password:user.password};
+
+    try{
+        const updatedUser=await User.findByIdAndUpdate(id,newUser,{new:true});
+        res.status(200).json({ success:true, data: updatedUser, message: 'Email updated'});
+    }catch (error) {
+        res.status(500).json({success:false, message: 'Server Error'});
+    }
+
+
+});
+
 
 
 //register api
