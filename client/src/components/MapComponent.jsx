@@ -1,4 +1,4 @@
-import React, { useState , useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -71,9 +71,9 @@ const getIconByLocationType = (type) => {
 
 const MapComponent = ({ locations, nearbyLocations = [] }) => {
     const [filter, setFilter] = useState('all');  // State for filtering location types
-    const [showNearby, setShowNearby] = useState(false);  // State for showing nearby locations
+    const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby locations
 
-    // Filter the locations based on the selected filter
+    // Determine the locations to show based on the showNearby state
     const locationsToShow = showNearby ? nearbyLocations : locations;
 
     // Filter the locations based on the selected filter (e.g., playground, beach, etc.)
@@ -100,7 +100,7 @@ const MapComponent = ({ locations, nearbyLocations = [] }) => {
                 </select>
 
                 {/* Checkbox to toggle between showing all or nearby locations */}
-                <label htmlFor="showNearby">
+                <label htmlFor="showNearby" style={{ marginLeft: '10px' }}>
                     <input
                         id="showNearby"
                         type="checkbox"
@@ -133,8 +133,7 @@ const MapComponent = ({ locations, nearbyLocations = [] }) => {
                             >
                                 <Popup>
                                     {/* Display information in the popup for each location */}
-                                    <strong>{location.Name}</strong> <br/>
-                                    <strong>{location.name}</strong> <br/>
+                                    <strong>{location.Name || 'Unnamed Location'}</strong> <br/>
                                     Type: {location.location_type} <br/>
                                 </Popup>
                             </Marker>
