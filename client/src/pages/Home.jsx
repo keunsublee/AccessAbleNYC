@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../style/Home.css';
 import NavBar from '../components/NavBar.jsx';
 import MapComponent from '../components/MapComponent'; 
@@ -10,8 +10,12 @@ function Home() {
     const [locations, setLocations] = useState([]);
     const [nearbyLocations, setNearbyLocations] = useState([]);
     const [showNoLocation, setShowNoLocation] = useState(false); // State to show no location to render
+    const effectRan = useRef(false);
 
     useEffect(() => {
+        if (effectRan.current) return;
+        effectRan.current = true;
+        
         const token = localStorage.getItem('token');
         if (token) {
             const decodedToken = JSON.parse(atob(token.split('.')[1]));
