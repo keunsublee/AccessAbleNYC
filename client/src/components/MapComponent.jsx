@@ -1,4 +1,4 @@
-import React, { useState , useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -71,9 +71,9 @@ const getIconByLocationType = (type) => {
 
 const MapComponent = ({ locations, nearbyLocations = [] }) => {
     const [filter, setFilter] = useState('all');  // State for filtering location types
-    const [showNearby, setShowNearby] = useState(false);  // State for showing nearby locations
+    const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby locations
 
-    // Filter the locations based on the selected filter
+    // Determine the locations to show based on the showNearby state
     const locationsToShow = showNearby ? nearbyLocations : locations;
 
     // Filter the locations based on the selected filter (e.g., playground, beach, etc.)
@@ -100,7 +100,7 @@ const MapComponent = ({ locations, nearbyLocations = [] }) => {
                 </select>
 
                 {/* Checkbox to toggle between showing all or nearby locations */}
-                <label htmlFor="showNearby">
+                <label htmlFor="showNearby" style={{ marginLeft: '10px' }}>
                     <input
                         id="showNearby"
                         type="checkbox"
@@ -131,11 +131,69 @@ const MapComponent = ({ locations, nearbyLocations = [] }) => {
                                 position={[lat, lon]} 
                                 icon={getIconByLocationType(location.location_type)}
                             >
-                                <Popup>
-                                    {/* Display information in the popup for each location */}
-                                    <strong>{location.Name}</strong> <br/>
-                                    <strong>{location.name}</strong> <br/>
-                                    Type: {location.location_type} <br/>
+                               <Popup>
+                                    {/* Display different information based on the location_type */}
+                                    {location.location_type === 'beach' && (
+                                        <div>
+                                            <strong>{location.Name || 'Unnamed Beach'}</strong><br />
+                                            <strong>Location:</strong> {location.Location}<br />
+                                            <strong>Accessible:</strong> {location.Accessible}<br />
+                                            <strong>Barbecue Allowed:</strong> {location.Barbecue_Allowed}<br />
+                                            <strong>Concession Stand:</strong> {location.Concession_Stand}<br />
+                                            <strong>Description:</strong> <div dangerouslySetInnerHTML={{ __html: location.Description }}></div><br />
+                                            <strong>Directions:</strong> <div dangerouslySetInnerHTML={{ __html: location.Directions }}></div>
+                                        </div>
+                                    )}
+                                    {location.location_type === 'subway_stop' && (
+                                        <div>
+                                            <strong>{location.Name || 'Unnamed Subway Station'}</strong><br />
+                                            <strong>Location:</strong> {location.Location}<br />
+                                            <strong>ADA Status:</strong> {location.ADA_Status}<br />
+                                            <strong>Lines:</strong> {location.line}<br />
+                                            <strong>Accessible:</strong> {location.Accessible}<br />
+                                        </div>
+                                    )}
+                                    {location.location_type === 'restroom' && (
+                                        <div>
+                                            <strong>{location.facility_name || 'Unnamed Restroom'}</strong><br />
+                                            <strong>Location:</strong> {location.Location}<br />
+                                            <strong>Operator:</strong> {location.operator}<br />
+                                            <strong>Hours of Operation:</strong> {location.hours_of_operation}<br />
+                                            <strong>Status:</strong> {location.status}<br />
+                                            <strong>Accessible:</strong> {location.Accessible ? 'Yes' : 'No'}<br />
+                                        </div>
+                                    )}
+                                    {location.location_type === 'playground' && (
+                                        <div>
+                                            <strong>{location.Name || 'Unnamed Playground'}</strong><br />
+                                            <strong>Location:</strong> {location.Location}<br />
+                                            <strong>Accessible:</strong> {location.Accessible}<br />
+                                            <strong>Sensory-Friendly:</strong> {location['Sensory-Friendly'] === 'Y' ? 'Yes' : 'No'}<br />
+                                            <strong>ADA Accessible Comfort Station:</strong> {location.ADA_Accessible_Comfort_Station}<br />
+                                        </div>
+                                    )}
+                                    {location.location_type === 'pedestrian_signal' && (
+                                        <div>
+                                            <strong>{location.Location || 'Unnamed Pedestrian Signal'}</strong><br />
+                                            <strong>Borough:</strong> {location.borough}<br />
+                                            <strong>Installation Date:</strong> {new Date(location.date_insta).toLocaleDateString()}<br />
+                                            <strong>FEMA Flood Zone:</strong> {location.femafldt}<br />
+                                            <strong>Accessible:</strong> {location.Accessible}<br />
+                                        </div>
+                                    )}
+                                    {/* For unknown location types */}
+                                    {location.location_type !== 'beach' &&
+                                    location.location_type !== 'subway_stop' &&
+                                    location.location_type !== 'restroom' &&
+                                    location.location_type !== 'playground' &&
+                                    location.location_type !== 'pedestrian_signal' && (
+                                        <div>
+                                            <strong>{location.Name || 'Unnamed Location'}</strong><br />
+                                            <strong>Location:</strong> {location.Location}<br />
+                                            <strong>Type:</strong> {location.location_type}<br />
+                                            <strong>Accessible:</strong> {location.Accessible}<br />
+                                        </div>
+                                    )}
                                 </Popup>
                             </Marker>
                         );
