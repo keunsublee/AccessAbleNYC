@@ -1,7 +1,7 @@
 .search-bar {
     position: relative;
-    padding: 10px;
-    width: 70%;
+    left: 45%;
+    width: 54%;
 }
 /*button*/
 .custom-b{
@@ -10,8 +10,8 @@
 }
 
 .custom-b:hover {
-    background-color: #7f81e8; /* Change to your desired hover color */
-    color: white; /* Change text color if needed */
+    background-color: #7f81e8; 
+    color: white; 
 }
 
 .dropdown-menu {
