@@ -1,32 +1,60 @@
 import React, { useState } from 'react';
+import '../style/Search.css';
 
 const SearchBar = ({ onSearch }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
 
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
-  };
+    const handleSearch = async (event) => {
+        setSearchTerm(event.target.value);
+        if (event.target.value) {
+            try {
+                const response = await fetch(`${import.meta.env.VITE_PORT}/search?type=${event.target.value}`);
+                if (!response.ok) {
+                    throw new Error('Error fetching locations');
+                }
+                const data = await response.json();
+                setSearchResults(data);
+            } catch (error) {
+                console.error('Error fetching locations:', error);
+            }
+        } else {
+            setSearchResults([]);
+        }
+    };
 
-  const handleSearchSubmit = (event) => {
-    event.preventDefault();
-    onSearch(searchTerm);  
-  };
+    const handleSearchSubmit = (event) => {
+        event.preventDefault();
+        onSearch(searchTerm);
+    };
 
-  return (
-    <form className="d-flex" onSubmit={handleSearchSubmit}>
-      <input
-        className="form-control me-2"
-        type="search"
-        placeholder="Search"
-        aria-label="Search"
-        value={searchTerm}
-        onChange={handleSearchChange}
-      />
-      <button className="btn btn-outline-success" type="submit">
-        Search
-      </button>
-    </form>
-  );
+    return (
+        <div className="search-bar">
+            <form className="d-flex" onSubmit={handleSearchSubmit}>
+                <input
+                    className="form-control me-2"
+                    type="search"
+                    placeholder="Search"
+                    aria-label="Search"
+                    value={searchTerm}
+                    onChange={handleSearch}
+                    style={{ borderRadius: '20px' }}
+                />
+                <button className="btn btn-outline-success custom-b" type="submit" >
+                    Search
+                </button>
+            </form>
+            {searchResults.length > 0 && (
+                <div className="dropdown-menu show position-absolute">
+                    {searchResults.map((result, index) => (
+                        <button key={index} className="dropdown-item" onClick={() => onSearch(result.Name)}>
+                            {result.Name}
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
 };
 
 export default SearchBar;
