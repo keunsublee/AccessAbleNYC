@@ -11,7 +11,12 @@ function Home() {
     const [locations, setLocations] = useState([]);
     const [nearbyLocations, setNearbyLocations] = useState([]);
     const [showNoLocation, setShowNoLocation] = useState(false); //State to show no location to render
-    const handleSearch = (searchTerm) => {};
+    const [selectedLocation, setSelectedLocation] = useState('');
+
+    //user selected locations
+    const handleSearch = (searchTerm) => {
+        setSelectedLocation(searchTerm);
+    };
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -80,8 +85,10 @@ function Home() {
             <NavBar />
             <h1>Welcome, {name}</h1>
             <SearchBar onSearch={handleSearch} />
-            {/* Pass locations and nearbyLocations to the MapComponent */}
-            <MapComponent locations={locations} nearbyLocations={nearbyLocations} />
+            {/* Pass locations and nearbyLocations to the MapComponent */
+            /* Additionally, pass on the location selected by the user from the search bar*/
+            }
+            <MapComponent locations={locations} nearbyLocations={nearbyLocations} selectedLocation={selectedLocation} />
             <Toast onClose={() => setShowNoLocation(false)} show={showNoLocation} delay={3000} className="toast-bottom-right" bg='danger'>
                 <Toast.Header>
                     <strong className="me-auto">Alert</strong>
