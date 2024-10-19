@@ -94,6 +94,7 @@ function Home() {
             <MapComponent 
                 locations={locations} 
                 nearbyLocations={nearbyLocations} 
+                selectedLocation={selectedLocation}
             />
 
             <Toast 
