@@ -14,3 +14,26 @@
 label{
     width: 400px;
 }
+
+.addButton{
+    width:200px;
+}
+
+.add-dropdown-menu {
+    width: 275px;
+    z-index: 2000;
+    max-height: 300px; 
+    overflow-y: auto;  
+    background-color: white;
+    border: 1px solid gray;
+    border-radius: 5px;
+    margin-top: 40px;
+}
+
+.dropdown-item {
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background-color: #a7c8e9;
+}

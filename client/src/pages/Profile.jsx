@@ -28,6 +28,9 @@ function Profile() {
     const[changeEmailModalOpen,setChangeEmailModalOpen]=useState(false);
     const[changePasswordModalOpen,setChangePasswordModalOpen]=useState(false);
     const[deleteAccountModalOpen,setDeleteAccountModalOpen]=useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [searchId, setSearchId] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -61,6 +64,56 @@ function Profile() {
             });
         }
     }, [userId, showToastSuccess]);
+
+    const handleSearch = async (event) => {
+        setSearchTerm(event.target.value);
+        if (event.target.value) {
+            try {
+                const response = await fetch(`${import.meta.env.VITE_PORT}/search?type=${event.target.value}`);
+                if (!response.ok) {
+                    throw new Error('Error fetching locations');
+                }
+                const data = await response.json();
+                setSearchResults(data);
+            } catch (error) {
+                console.error('Error fetching locations:', error);
+            }
+        } else {
+            setSearchResults([]);
+        }
+    };
+
+    const handleAddLocation = (event) => {
+        const userQuery = {locationId:searchId};
+        event.preventDefault();
+        fetch(`${import.meta.env.VITE_PORT}/${userId}/addFavoriteLocation`,{
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(userQuery)
+        }).then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                setSearchTerm('');
+                setShowToastSuccess(true);
+                setMessage(data.message);
+            } else {
+                setSearchTerm('');
+                setShowToastError(true);
+                setMessage('Unable to delete location: '+ data.message);
+            }
+        })
+        .catch(error => {
+            setSearchTerm('');
+            setShowToastError(true);
+            setMessage('Error: '+ error);
+        });
+    };
+
+    const handleLocationSelection = (location) => {
+        setSearchId(location._id);
+        setSearchTerm(location.Name); 
+        setSearchResults([]);
+    };
 
     const handleDeleteFavoriteLocation = (locationId) => {
         const userQuery = {locationId: locationId};
@@ -106,10 +159,36 @@ function Profile() {
                 className="mb-3 rowAdj"
                 >
                     <Tab eventKey="profile" title="Profile">
-                        <p>Your Favorite Locations: </p>
+                        <div className="d-flex align-items-center justify-content-between my-3">
+                            <p className="mb-0 mr-2">Your Favorite Locations:</p>
+                            <Form className="d-flex" onSubmit={handleAddLocation}>
+                                <Form.Control
+                                type="search"
+                                placeholder="Search"
+                                className="me-2"
+                                aria-label="Search"
+                                value={searchTerm}
+                                style={{ borderRadius: '20px' }}
+                                onChange={handleSearch}
+                                />
+                                {searchResults.length > 0 && (
+                                <div className="add-dropdown-menu show position-absolute">
+                                    {searchResults.map((result, index) => (
+                                        <button key={index} className="dropdown-item" onClick={() => handleLocationSelection(result)}>
+                                            {result.Name}
+                                        </button>
+                                    ))}
+                                </div>
+                                )}
+                                <Button variant="outline-success" className='addButton' style={{ borderRadius: '20px' }} type="submit">Add Location</Button>
+                            </Form>
+                        </div>
                         <ListGroup className="scrollable-list">
                             {favoriteLocations.map((location, index) => (
-                                <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">{location.facility_name || location.Name || location.ntaname || 'No Name'}<Button variant="outline-danger" onClick={() => handleDeleteFavoriteLocation(location._id)}>Delete</Button></ListGroup.Item>
+                                <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">
+                                    {location.facility_name || location.Name || location.ntaname || 'No Name'}
+                                    <Button variant="outline-danger" onClick={() => handleDeleteFavoriteLocation(location._id)}>Delete</Button>
+                                </ListGroup.Item>
                             ))}
                         </ListGroup>
                     </Tab>
