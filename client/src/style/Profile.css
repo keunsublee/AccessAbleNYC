@@ -1,0 +1,16 @@
+.rowAdj{
+    padding-top: 60px;
+}
+
+.scrollable-list {
+    height: 200px; /* Adjust the height as needed */
+    overflow-y: auto;
+}
+
+.custom-width {
+    width: 125px;
+}
+
+label{
+    width: 400px;
+}

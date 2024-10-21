@@ -4,6 +4,7 @@ import express from 'express';
 import User from '../models/users.model.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import Location from '../models/location.model.js'
 
 dotenv.config()
 
@@ -41,8 +42,22 @@ router.get('/:id', async (req,res) => {
 router.delete('/:id', async (req,res) =>{
     const {id} = req.params;
 
+    const{password}=req.body;
+
+    if(!password){
+        return res.status(400).json({success:false, message: 'Please provide all fields'});
+    }
+
     if (!mongoose.Types.ObjectId.isValid(id)){
         return res.status(404).json({success: false, message: 'Invalid User Id'});
+    }
+
+    const user = await User.findById(id);
+    
+    const isMatch= await bcrypt.compare(password,user.password);
+
+    if(!isMatch){
+        return res.status(400).json({success:false, message: 'Invalid Credentials'});
     }
 
     try {
@@ -90,10 +105,16 @@ router.put('/:id/password', async (req,res) => {
 
     const user = await User.findById(id);
 
-    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    let isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch){
         return res.status(400).json({success:false, message: 'Invalid Credentials'});
     }
+
+    isMatch = await bcrypt.compare(newPassword, user.password);
+    if (isMatch){
+        return res.status(400).json({success:false, message: 'New password cannot match old password'});
+    }
+
     const newUser =  {name: user.name, email: user.email, password: hashedPassword};
     
     try {
@@ -130,6 +151,12 @@ router.put('/:id/email',async(req,res)=>{
         return res.status(400).json({ success: false, message: 'New email cannot be the same as the current email' });
     }
 
+    const existingUser = await User.findOne({ email: newEmail });
+
+    if (existingUser) {
+        return res.status(400).json({ success: false, message: 'Email already in use' });
+    }
+
     const newUser={name:user.name,email:newEmail,password:user.password};
 
     try{
@@ -141,8 +168,6 @@ router.put('/:id/email',async(req,res)=>{
 
 
 });
-
-
 
 //register api
 router.post('/register',async (req,res) => {
@@ -169,7 +194,6 @@ router.post('/register',async (req,res) => {
     }
 });
 
-
 //login api
 router.post('/login',async (req,res) =>{
     const {email,password}=req.body;
@@ -186,7 +210,7 @@ router.post('/login',async (req,res) =>{
         return res.status(400).json({success:false, message: 'Invalid Credentials'});
     }
 
-    const payload = {name: user.name,email: email, id: user._id};
+    const payload = {name: user.name,email: email, id: user._id, joined: user.createdAt, updated: user.updatedAt};
     const token = jwt.sign(payload,process.env.SECRET_ACCESS_TOKEN);
     res.json({token: token});
 });
@@ -206,6 +230,9 @@ router.put('/:id/addFavoriteLocation',async (req,res) => {
 
     try {
         const user = await User.findById(id);
+        if (user.favoriteLocations.includes(locationId)) {
+            return res.status(400).json({ success: false, message: 'Location already added to favorites' });
+        }
         user.favoriteLocations.push(locationId);
         await user.save();
         res.status(200).json({ success:true, message: 'New favorite location added'});
@@ -244,7 +271,10 @@ router.get('/:id/favoriteLocations',async (req,res) => {
 
     try {
         const user = await User.findById(id);
-        const favoriteLocations = user.favoriteLocations;
+        const favoriteLocations = await Promise.all(user.favoriteLocations.map(async (locationId) => {
+            const location = await Location.findById(locationId);
+            return location;
+        }));      
         res.status(200).json({ success:true, locations: favoriteLocations});
     } catch (error) {
         res.status(500).json({success:false, message: 'Server Error'});
