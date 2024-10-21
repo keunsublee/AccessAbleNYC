@@ -72,6 +72,10 @@ const getIconByLocationType = (type) => {
 const MapComponent = ({ locations, nearbyLocations = [], selectedLocation }) => {
     const [filter, setFilter] = useState('all');  // State for filtering location types
     const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby locations
+    
+    useEffect(() => {
+        selectedLocation ? setShowNearby(false) : setShowNearby(true);
+    }, [selectedLocation]);
 
     // Determine the locations to show based on the showNearby state
     const locationsToShow = showNearby ? nearbyLocations : locations;
