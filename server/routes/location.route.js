@@ -51,22 +51,50 @@ router.get('/locations/nearby', async (req, res) => {
         const latNumber = parseFloat(lat);
         const lonNumber = parseFloat(lon);
 
-        // Query for documents with lat/lon fields
+        // Query for documents with lat/lon or latitude/longitude fields
         // $ symbol for MongoDB query operations 
         const nearbyLocations = await Location.find({
-            lat: { $exists: true },
-            lon: { $exists: true },
+            $or: [
+                { lat: { $exists: true }, lon: { $exists: true } },
+                { latitude: { $exists: true }, longitude: { $exists: true } }
+            ],
             // Calculate the Euclidean distance (Haversine approximation in degrees)
-            //sqrt( (lat1 - lat2)^2 + (lon1 - lon2)^2 ) < (distance / 111320)
+            // Formula: sqrt((lat1 - lat2)^2 + (lon1 - lon2)^2) < (distance / 111320)
             $expr: {
                 $lt: [
                     {
                         $sqrt: {
                             $add: [
-                                // (lat1 - lat2)^2
-                                { $pow: [{ $subtract: [{ $toDouble: "$lat" }, latNumber] }, 2] },
-                                 // (lon1 - lon2)^2
-                                { $pow: [{ $subtract: [{ $toDouble: "$lon" }, lonNumber] }, 2] }
+                                {
+                                    $pow: [
+                                        { 
+                                            $subtract: [
+                                                { 
+                                                    $cond: [
+                                                        { $ifNull: ["$lat", false] },
+                                                        { $toDouble: "$lat" },
+                                                        { $toDouble: "$latitude" }
+                                                    ]
+                                                }, latNumber 
+                                            ] 
+                                        }, 2
+                                    ]
+                                },
+                                {
+                                    $pow: [
+                                        { 
+                                            $subtract: [
+                                                { 
+                                                    $cond: [
+                                                        { $ifNull: ["$lon", false] },
+                                                        { $toDouble: "$lon" },
+                                                        { $toDouble: "$longitude" }
+                                                    ]
+                                                }, lonNumber 
+                                            ] 
+                                        }, 2
+                                    ]
+                                }
                             ]
                         }
                     },
@@ -85,6 +113,7 @@ router.get('/locations/nearby', async (req, res) => {
         res.status(500).json({ message: 'Error fetching nearby locations', error });
     }
 });
+
 
 router.get('/filter', async (req, res) => {
     try {
