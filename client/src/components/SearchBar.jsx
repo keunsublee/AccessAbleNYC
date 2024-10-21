@@ -28,6 +28,13 @@ const SearchBar = ({ onSearch }) => {
         onSearch(searchTerm);
     };
 
+    const handleLocationSelection = (location) => {
+        setSearchTerm(location); //location rather name location.name; allows the search bar to be autofilled with the name of the location the user selects
+        onSearch(location);
+        setSearchResults([]);
+    };
+
+
     return (
         <div className="search-bar">
             <form className="d-flex" onSubmit={handleSearchSubmit}>
@@ -47,7 +54,7 @@ const SearchBar = ({ onSearch }) => {
             {searchResults.length > 0 && (
                 <div className="dropdown-menu show position-absolute">
                     {searchResults.map((result, index) => (
-                        <button key={index} className="dropdown-item" onClick={() => onSearch(result.Name)}>
+                        <button key={index} className="dropdown-item" onClick={() => handleLocationSelection(result.Name)}>
                             {result.Name}
                         </button>
                     ))}
