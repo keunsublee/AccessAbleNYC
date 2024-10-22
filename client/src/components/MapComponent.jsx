@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -58,7 +58,7 @@ const getIconByLocationType = (type) => {
         case 'subway_stop':
             return subwayIcon;
         case 'restroom':
-            return restroomIcon;  
+            return restroomIcon;
         default:
             return L.icon({
                 iconUrl: '',  // No image URL, broken image icon
@@ -69,23 +69,49 @@ const getIconByLocationType = (type) => {
     }
 };
 
-const MapComponent = ({ locations, nearbyLocations = [], selectedLocation }) => {
+// Function to calculate the center of nearby locations
+const calculateCenter = (nearbyLocations) => {
+    if (nearbyLocations.length === 0) {
+        // Default to NYC center if no nearby locations are available
+        return [40.7128, -74.0060];
+    }
+
+    let totalLat = 0;
+    let totalLon = 0;
+
+    nearbyLocations.forEach(location => {
+        totalLat += location.lat || location.latitude;
+        totalLon += location.lon || location.longitude;
+    });
+
+    return [
+        totalLat / nearbyLocations.length,
+        totalLon / nearbyLocations.length
+    ];
+};
+
+// This component updates the map's center when nearby locations change
+const MapCenterUpdater = ({ nearbyLocations }) => {
+    const map = useMap();
+    useEffect(() => {
+        const newCenter = calculateCenter(nearbyLocations);
+        map.setView(newCenter);  // Update the map's center
+    }, [nearbyLocations, map]);
+
+    return null;
+};
+
+const MapComponent = ({ locations, nearbyLocations = [] }) => {
     const [filter, setFilter] = useState('all');  // State for filtering location types
     const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby locations
-    
-    useEffect(() => {
-        selectedLocation ? setShowNearby(false) : setShowNearby(true);
-    }, [selectedLocation]);
 
     // Determine the locations to show based on the showNearby state
     const locationsToShow = showNearby ? nearbyLocations : locations;
 
     // Filter the locations based on the selected filter (e.g., playground, beach, etc.)
-    const filteredLocations = selectedLocation
-        ? locationsToShow.filter(location => location.Name === selectedLocation)
-        : filter === 'all'
-            ? locationsToShow
-            : locationsToShow.filter(location => location.location_type === filter);
+    const filteredLocations = filter === 'all'
+        ? locationsToShow
+        : locationsToShow.filter(location => location.location_type === filter);
 
     return (
         <div>
@@ -117,16 +143,17 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation }) => 
                 </label>
             </div>
 
-            <MapContainer center={[40.7128, -74.0060]} zoom={13} style={{ height: '400px', width: '100%' }}>
+            <MapContainer center={[40.7128, -74.0060]} zoom={13} style={{ height: '100vh', width: '100vw' }}>
                 {/* Add OpenStreetMap tile layer */}
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 />
-                
+                {/* This component will update the map center when nearbyLocations changes */}
+                <MapCenterUpdater nearbyLocations={nearbyLocations} />
+
                 {/* Render Markers for filtered locations */}
                 {filteredLocations.map((location, index) => {
-                    // Ensure both lat and lon are available before rendering the marker
                     const lat = location.lat || location.latitude;
                     const lon = location.lon || location.longitude;
 

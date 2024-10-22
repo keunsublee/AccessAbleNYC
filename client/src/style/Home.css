@@ -2,3 +2,15 @@
     margin-left: 2%;
     margin-top: 1%;
 }
+
+html, body, #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  
+  #map {
+    height: 100vh; /* 100% of the viewport height */
+    width: 100vw;  /* 100% of the viewport width */
+  }
+  
