@@ -87,7 +87,6 @@ function Home() {
     return (
         <div>
             <NavBar />
-            <h1>Welcome, {name}</h1>
             <SearchBar onSearch={handleSearch} />
             {/* Pass locations and nearbyLocations to the MapComponent */}
             
