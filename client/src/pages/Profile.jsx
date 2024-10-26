@@ -99,7 +99,7 @@ function Profile() {
             } else {
                 setSearchTerm('');
                 setShowToastError(true);
-                setMessage('Unable to delete location: '+ data.message);
+                setMessage('Unable to add location: '+ data.message);
             }
         })
         .catch(error => {
