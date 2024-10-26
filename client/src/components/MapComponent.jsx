@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -99,16 +99,19 @@ const calculateCenter = (nearbyLocations, selectedLocation) => {
 
 const RoutingMachine = () => {
     const map = useMap();
-    useEffect(() => {
+    const routingControlRef = useRef(null);
   
-      L.Routing.control({
-        waypoints: [
-          L.latLng(51.505, -0.09),
-          L.latLng(51.51, -0.1)
-        ],
-        routeWhileDragging: true
-      }).addTo(map);
-    }, []);
+    useEffect(() => {
+      if (!routingControlRef.current) {
+        routingControlRef.current = L.Routing.control({
+          waypoints: [
+            L.latLng(51.505, -0.09),
+            L.latLng(51.51, -0.1)
+          ],
+          routeWhileDragging: true
+        }).addTo(map);
+      }
+    }, [map]);
   
     return null;
   };
@@ -184,8 +187,8 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation }) => 
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 />
                 {/* This component will update the map center when nearbyLocations changes */}
-                <RoutingMachine />
                 <MapCenterUpdater nearbyLocations={nearbyLocations} selectedLocation={selectedLocation}  />
+                <RoutingMachine />
                 {/* Render Markers for filtered locations */}
                 {filteredLocations.map((location, index) => {
                     const lat = location.lat || location.latitude;
