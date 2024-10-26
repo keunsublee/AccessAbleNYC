@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import 'leaflet-routing-machine';
+import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 
 // Def custom icons for each location type
 const beachIconUrl = '/assets/beach.png';
@@ -95,6 +97,22 @@ const calculateCenter = (nearbyLocations, selectedLocation) => {
     ];
 };
 
+const RoutingMachine = () => {
+    const map = useMap();
+    useEffect(() => {
+  
+      L.Routing.control({
+        waypoints: [
+          L.latLng(51.505, -0.09),
+          L.latLng(51.51, -0.1)
+        ],
+        routeWhileDragging: true
+      }).addTo(map);
+    }, []);
+  
+    return null;
+  };
+
 // This component updates the map's center when nearby locations change
 const MapCenterUpdater = ({ nearbyLocations, selectedLocation}) => {
     const map = useMap(); 
@@ -108,7 +126,6 @@ const MapCenterUpdater = ({ nearbyLocations, selectedLocation}) => {
         map.setView(newCenter);  // Update the map's center
         }
     }, [nearbyLocations, selectedLocation, map]);
-
     return null;
 };
 
@@ -167,8 +184,8 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation }) => 
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 />
                 {/* This component will update the map center when nearbyLocations changes */}
+                <RoutingMachine />
                 <MapCenterUpdater nearbyLocations={nearbyLocations} selectedLocation={selectedLocation}  />
-
                 {/* Render Markers for filtered locations */}
                 {filteredLocations.map((location, index) => {
                     const lat = location.lat || location.latitude;
