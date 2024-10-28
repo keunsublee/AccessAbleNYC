@@ -3,7 +3,8 @@ import '../style/Home.css';
 import NavBar from '../components/NavBar.jsx';
 import MapComponent from '../components/MapComponent'; 
 import Toast from 'react-bootstrap/Toast';
-import SearchBar from '../components/SearchBar'
+import SearchBar from '../components/SearchBar';
+import { useLocation } from 'react-router-dom';
 
 // Homepage which is the main page the user lands on
 function Home() {
@@ -13,7 +14,9 @@ function Home() {
     const [showNoLocation, setShowNoLocation] = useState(false); // State to show no location to render
     const effectRan = useRef(false);
     const [selectedLocation, setSelectedLocation] = useState('');
-
+    const location = useLocation();
+    const params = new URLSearchParams(location.search);
+    
     //user selected locations
     const handleSearch = (searchTerm) => {
         setSelectedLocation(searchTerm);
@@ -74,6 +77,8 @@ function Home() {
         } else {
             alert('Geolocation is not supported by this browser.');
         }
+
+        setSelectedLocation(params.get('location'));
     }, []);
 
     useEffect(() => {

@@ -139,8 +139,8 @@ function Profile() {
         });
     };
 
-    const handlePathTo = (event) => {
-        navigate('/');
+    const handleShow = (selectedLocation) => {
+        navigate(`/?location=${selectedLocation}`);
     };
     
     return (
@@ -193,7 +193,7 @@ function Profile() {
                                 <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">
                                     {location.facility_name || location.Name || location.ntaname || 'No Name'}
                                     <div>
-                                        <Button variant="outline-success" onClick={handlePathTo}>Path To</Button>
+                                        <Button variant="outline-success" onClick={() => handleShow(location.Name)}>Show</Button>
                                         <Button variant="outline-danger" className='marginbutton' onClick={() => handleDeleteFavoriteLocation(location._id)}>Delete</Button>
                                     </div>
                                 </ListGroup.Item>

@@ -105,10 +105,12 @@ const RoutingMachine = () => {
       if (!routingControlRef.current) {
         routingControlRef.current = L.Routing.control({
           waypoints: [
-            L.latLng(51.505, -0.09),
-            L.latLng(51.51, -0.1)
+            L.latLng(40.71880300107709, -74.00019299927328),
+            L.latLng(40.690648119969794, -73.98177094440949),
+            L.latLng(40.877839385172024, -73.86613410538703)
           ],
-          routeWhileDragging: true
+          routeWhileDragging: false,
+          createMarker: function() { return null; }
         }).addTo(map);
       }
     }, [map]);
