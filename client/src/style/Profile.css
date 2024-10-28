@@ -37,3 +37,7 @@ label{
 .dropdown-item:hover {
     background-color: #a7c8e9;
 }
+
+.marginbutton{
+    margin-left: 5px;
+}

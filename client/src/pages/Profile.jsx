@@ -31,6 +31,7 @@ function Profile() {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchId, setSearchId] = useState('');
     const [searchResults, setSearchResults] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -137,6 +138,10 @@ function Profile() {
             setMessage('Error: '+ error);
         });
     };
+
+    const handlePathTo = (event) => {
+        navigate('/');
+    };
     
     return (
         <div>
@@ -187,7 +192,10 @@ function Profile() {
                             {favoriteLocations.map((location, index) => (
                                 <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">
                                     {location.facility_name || location.Name || location.ntaname || 'No Name'}
-                                    <Button variant="outline-danger" onClick={() => handleDeleteFavoriteLocation(location._id)}>Delete</Button>
+                                    <div>
+                                        <Button variant="outline-success" onClick={handlePathTo}>Path To</Button>
+                                        <Button variant="outline-danger" className='marginbutton' onClick={() => handleDeleteFavoriteLocation(location._id)}>Delete</Button>
+                                    </div>
                                 </ListGroup.Item>
                             ))}
                         </ListGroup>
