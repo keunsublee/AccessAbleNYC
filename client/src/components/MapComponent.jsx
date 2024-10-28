@@ -120,15 +120,17 @@ const RoutingMachine = () => {
 
 // This component updates the map's center when nearby locations change
 const MapCenterUpdater = ({ nearbyLocations, selectedLocation}) => {
-    const map = useMap(); 
+    const map = useMap();
+    console.log(selectedLocation[0]);
     useEffect(() => {
-        if (selectedLocation && selectedLocation.lat && selectedLocation.lon) {
+        if (selectedLocation[0] && (selectedLocation[0].lat || selectedLocation[0].latitude) && (selectedLocation[0].lon || selectedLocation[0].longitude)) {
             // Check selected location
-            const newCenter = [selectedLocation.lat, selectedLocation.lon];
+            const newCenter = [selectedLocation[0].lat || selectedLocation[0].latitude, selectedLocation[0].lon || selectedLocation[0].longitude];
+            console.log(newCenter);
             map.setView(newCenter, 13); // Center map on the selected location
         } else {
             const newCenter = calculateCenter(nearbyLocations);
-        map.setView(newCenter);  // Update the map's center
+            map.setView(newCenter);  // Update the map's center
         }
     }, [nearbyLocations, selectedLocation, map]);
     return null;
@@ -189,7 +191,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation }) => 
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 />
                 {/* This component will update the map center when nearbyLocations changes */}
-                <MapCenterUpdater nearbyLocations={nearbyLocations} selectedLocation={selectedLocation}  />
+                <MapCenterUpdater nearbyLocations={nearbyLocations} selectedLocation={filteredLocations}  />
                 <RoutingMachine />
                 {/* Render Markers for filtered locations */}
                 {filteredLocations.map((location, index) => {
