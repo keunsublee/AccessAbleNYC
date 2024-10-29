@@ -16,6 +16,8 @@ function Home() {
     const [selectedLocation, setSelectedLocation] = useState('');
     const location = useLocation();
     const params = new URLSearchParams(location.search);
+    const [userCoord, setUserCoord] = useState({ lat: null, lon:  null});
+    const [destination, setDestination] = useState({ lat: null, lon:  null});
     
     //user selected locations
     const handleSearch = (searchTerm) => {
@@ -30,6 +32,10 @@ function Home() {
         if (token) {
             const decodedToken = JSON.parse(atob(token.split('.')[1]));
             setName(decodedToken.name);
+        }
+
+        if(params.get('lat') && params.get('lon')){
+            setDestination({lat: params.get('lat'), lon: params.get('lon')});
         }
 
         // Fetch all locations
@@ -53,6 +59,7 @@ function Home() {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     const { latitude, longitude } = position.coords;
+                    setUserCoord({lat: latitude, lon: longitude});
                     console.log('User Coordinates: ', { latitude, longitude });
 
                     fetch(`${import.meta.env.VITE_PORT}/locations/nearby?lat=${latitude}&lon=${longitude}`)
@@ -99,6 +106,8 @@ function Home() {
                 locations={locations} 
                 nearbyLocations={nearbyLocations} 
                 selectedLocation={selectedLocation}
+                userCoord = {userCoord}
+                destination={destination}
             />
 
             <Toast 

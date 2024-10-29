@@ -97,36 +97,33 @@ const calculateCenter = (nearbyLocations, selectedLocation) => {
     ];
 };
 
-const RoutingMachine = () => {
+const RoutingMachine = ({start, routeTo}) => {
     const map = useMap();
     const routingControlRef = useRef(null);
-  
     useEffect(() => {
-      if (!routingControlRef.current) {
-        routingControlRef.current = L.Routing.control({
-          waypoints: [
-            L.latLng(40.71880300107709, -74.00019299927328),
-            L.latLng(40.690648119969794, -73.98177094440949),
-            L.latLng(40.877839385172024, -73.86613410538703)
-          ],
-          routeWhileDragging: false,
-          createMarker: function() { return null; }
-        }).addTo(map);
-      }
-    }, [map]);
+        if (start.lat!=null && start.lon!=null && routeTo.lat!=null && routeTo.lon!=null){
+            if (!routingControlRef.current) {
+                routingControlRef.current = L.Routing.control({
+                waypoints: [
+                    L.latLng(start.lat, start.lon),
+                    L.latLng(routeTo.lat, routeTo.lon)
+                ],
+                routeWhileDragging: false,
+                }).addTo(map);
+            } 
+        }
+    }, [map, start, routeTo]);
   
     return null;
-  };
+};
 
 // This component updates the map's center when nearby locations change
 const MapCenterUpdater = ({ nearbyLocations, selectedLocation}) => {
     const map = useMap();
-    console.log(selectedLocation[0]);
     useEffect(() => {
         if (selectedLocation[0] && (selectedLocation[0].lat || selectedLocation[0].latitude) && (selectedLocation[0].lon || selectedLocation[0].longitude)) {
             // Check selected location
             const newCenter = [selectedLocation[0].lat || selectedLocation[0].latitude, selectedLocation[0].lon || selectedLocation[0].longitude];
-            console.log(newCenter);
             map.setView(newCenter, 13); // Center map on the selected location
         } else {
             const newCenter = calculateCenter(nearbyLocations);
@@ -136,7 +133,7 @@ const MapCenterUpdater = ({ nearbyLocations, selectedLocation}) => {
     return null;
 };
 
-const MapComponent = ({ locations, nearbyLocations = [], selectedLocation }) => {
+const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , userCoord, destination}) => {
     const [filter, setFilter] = useState('all');  // State for filtering location types
     const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby locations
 
@@ -192,7 +189,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation }) => 
                 />
                 {/* This component will update the map center when nearbyLocations changes */}
                 <MapCenterUpdater nearbyLocations={nearbyLocations} selectedLocation={filteredLocations}  />
-                <RoutingMachine />
+                <RoutingMachine start={userCoord} routeTo={destination}/>
                 {/* Render Markers for filtered locations */}
                 {filteredLocations.map((location, index) => {
                     const lat = location.lat || location.latitude;

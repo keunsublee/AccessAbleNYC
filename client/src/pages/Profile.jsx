@@ -142,6 +142,10 @@ function Profile() {
     const handleShow = (selectedLocation) => {
         navigate(`/?location=${selectedLocation}`);
     };
+
+    const handlePathTo = (destination) => {
+        navigate(`/?lat=${destination.lat || destination.latitude}&lon=${destination.lon || destination.longitude}`);
+    };
     
     return (
         <div>
@@ -194,6 +198,7 @@ function Profile() {
                                     {location.facility_name || location.Name || location.ntaname || 'No Name'}
                                     <div>
                                         <Button variant="outline-success" onClick={() => handleShow(location.Name)}>Show</Button>
+                                        <Button variant="outline-success" className='marginbutton' onClick={() => handlePathTo(location)}>Path to</Button>
                                         <Button variant="outline-danger" className='marginbutton' onClick={() => handleDeleteFavoriteLocation(location._id)}>Delete</Button>
                                     </div>
                                 </ListGroup.Item>
