@@ -3,7 +3,8 @@ import '../style/Home.css';
 import NavBar from '../components/NavBar.jsx';
 import MapComponent from '../components/MapComponent'; 
 import Toast from 'react-bootstrap/Toast';
-import SearchBar from '../components/SearchBar'
+import SearchBar from '../components/SearchBar';
+import { useLocation } from 'react-router-dom';
 
 // Homepage which is the main page the user lands on
 function Home() {
@@ -13,7 +14,11 @@ function Home() {
     const [showNoLocation, setShowNoLocation] = useState(false); // State to show no location to render
     const effectRan = useRef(false);
     const [selectedLocation, setSelectedLocation] = useState('');
-
+    const location = useLocation();
+    const params = new URLSearchParams(location.search);
+    const [userCoord, setUserCoord] = useState({ lat: null, lon:  null});
+    const [destination, setDestination] = useState({ lat: null, lon:  null});
+    
     //user selected locations
     const handleSearch = (searchTerm) => {
         setSelectedLocation(searchTerm);
@@ -27,6 +32,10 @@ function Home() {
         if (token) {
             const decodedToken = JSON.parse(atob(token.split('.')[1]));
             setName(decodedToken.name);
+        }
+
+        if(params.get('lat') && params.get('lon')){
+            setDestination({lat: params.get('lat'), lon: params.get('lon')});
         }
 
         // Fetch all locations
@@ -50,6 +59,7 @@ function Home() {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     const { latitude, longitude } = position.coords;
+                    setUserCoord({lat: latitude, lon: longitude});
                     console.log('User Coordinates: ', { latitude, longitude });
 
                     fetch(`${import.meta.env.VITE_PORT}/locations/nearby?lat=${latitude}&lon=${longitude}`)
@@ -74,6 +84,8 @@ function Home() {
         } else {
             alert('Geolocation is not supported by this browser.');
         }
+
+        setSelectedLocation(params.get('location'));
     }, []);
 
     useEffect(() => {
@@ -94,6 +106,8 @@ function Home() {
                 locations={locations} 
                 nearbyLocations={nearbyLocations} 
                 selectedLocation={selectedLocation}
+                userCoord = {userCoord}
+                destination={destination}
             />
 
             <Toast 
