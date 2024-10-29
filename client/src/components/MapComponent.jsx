@@ -72,12 +72,7 @@ const getIconByLocationType = (type) => {
 };
 
 // Function to calculate the center of nearby locations
-const calculateCenter = (nearbyLocations, selectedLocation) => {
-    if (selectedLocation) {
-            return [selectedLocation.lat, selectedLocation.lon];
-        }
-    
-
+const calculateCenter = (nearbyLocations) => {
     if (nearbyLocations.length === 0) {
         // Default to NYC center if no nearby locations are available
         return [40.7128, -74.0060];
