@@ -33,6 +33,7 @@ function Profile() {
     const [searchId, setSearchId] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const navigate = useNavigate();
+    const [suggestLocations, setSuggestLocations] = useState([]);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -79,7 +80,6 @@ function Profile() {
                 return response.json();
             })
             .then(data=> {
-                console.log('Data received:', data);
                 setSuggestLocations(data.suggestedLocations);
             })
             .catch((error) => {
@@ -264,9 +264,13 @@ function Profile() {
                                     suggestLocations.map((location,index)=>(
                                         <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">
                                             {location.facility_name||location.Name||'No Name'}
-                                            <Button variant ="outline-success" onClick={()=>handleAddLocation1(location._id)}>Add</Button>
-
-
+                                            <div className="d-flex gap-2"> 
+                                                <Button variant="outline-success" onClick={() => handleShow(location.Name)}>Show</Button>
+                                                <Button variant="outline-success" className='marginbutton' onClick={() => handlePathTo(location)}>Path to</Button>
+                                                <Button variant="outline-danger" className="marginbutton" onClick={() => handleAddLocation1(location._id)}
+                                                    >Add
+                                                </Button>
+                                            </div>
                                         </ListGroup.Item>
 
                                     ))
