@@ -32,11 +32,7 @@ function Profile() {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchId, setSearchId] = useState('');
     const [searchResults, setSearchResults] = useState([]);
-<<<<<<< Updated upstream
     const navigate = useNavigate();
-=======
-    const [suggestLocations, setSuggestLocations] = useState([]);
->>>>>>> Stashed changes
 
     useEffect(() => {
         const token = localStorage.getItem('token');

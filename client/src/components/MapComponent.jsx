@@ -112,7 +112,6 @@ const RoutingMachine = ({start, routeTo}) => {
     return null;
 };
 
-<<<<<<< Updated upstream
 // This component updates the map's center when nearby locations change
 const MapCenterUpdater = ({ nearbyLocations, selectedLocation}) => {
     const map = useMap();
@@ -130,9 +129,6 @@ const MapCenterUpdater = ({ nearbyLocations, selectedLocation}) => {
 };
 
 const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , userCoord, destination}) => {
-=======
-const MapComponent = ({ locations, nearbyLocations = [], selectedLocation}) => {
->>>>>>> Stashed changes
     const [filter, setFilter] = useState('all');  // State for filtering location types
     const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby location
 
