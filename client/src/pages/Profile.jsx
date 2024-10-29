@@ -13,6 +13,7 @@ import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import { useNavigate } from 'react-router-dom';
 
+
 //user profile
 function Profile() {
     const [name, setName] = useState('');
@@ -31,7 +32,11 @@ function Profile() {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchId, setSearchId] = useState('');
     const [searchResults, setSearchResults] = useState([]);
+<<<<<<< Updated upstream
     const navigate = useNavigate();
+=======
+    const [suggestLocations, setSuggestLocations] = useState([]);
+>>>>>>> Stashed changes
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -65,6 +70,29 @@ function Profile() {
             });
         }
     }, [userId, showToastSuccess]);
+
+
+    useEffect(() => {
+        if (userId){
+            fetch(`${import.meta.env.VITE_PORT}/${userId}/suggestLocations`)
+            .then((response)=>{
+                if(!response.ok){
+                    throw new Error('Error fetching suggested locations');
+                }
+
+                return response.json();
+            })
+            .then(data=> {
+                console.log('Data received:', data);
+                setSuggestLocations(data.suggestedLocations);
+            })
+            .catch((error) => {
+                console.error('Error fetching suggest locations:', error);
+            });
+        }
+},[userId]);
+
+
 
     const handleSearch = async (event) => {
         setSearchTerm(event.target.value);
@@ -107,6 +135,31 @@ function Profile() {
             setSearchTerm('');
             setShowToastError(true);
             setMessage('Error: '+ error);
+        });
+    };
+
+    const handleAddLocation1 = (locationId) => {
+        const userQuery = { locationId: locationId };
+        fetch(`${import.meta.env.VITE_PORT}/${userId}/addFavoriteLocation`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userQuery)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                setShowToastSuccess(true);
+                setMessage(data.message);
+              
+            
+            } else {
+                setShowToastError(true);
+                setMessage('Unable to add location: ' + data.message);
+            }
+        })
+        .catch(error => {
+            setShowToastError(true);
+            setMessage('Error: ' + error);
         });
     };
 
@@ -204,7 +257,31 @@ function Profile() {
                                 </ListGroup.Item>
                             ))}
                         </ListGroup>
+
+                        <div className="spacing"></div> 
+                        
+                        {suggestLocations.length > 0 && (
+                            <h2 className="suggestions-header">Suggested Locations Based on Favorites</h2>
+                        )}
+                        <ListGroup className="scrollable-list">
+                                {suggestLocations.length>0?(
+                                    suggestLocations.map((location,index)=>(
+                                        <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">
+                                            {location.facility_name||location.Name||'No Name'}
+                                            <Button variant ="outline-success" onClick={()=>handleAddLocation1(location._id)}>Add</Button>
+
+
+                                        </ListGroup.Item>
+
+                                    ))
+                                ):(
+                                
+                                <ListGroup.Item>No suggested locations available</ListGroup.Item>
+                                )}
+                        </ListGroup>
+                    
                     </Tab>
+
                     <Tab eventKey="account" title="Account">
                         <Row>
                             <Col className="d-flex justify-content-between align-items-center px-4 my-3"><p>Change Account Email (<b>{email}</b>):</p><Button variant="outline-primary" className='custom-width' onClick={() => setChangeEmailModalOpen(true)}>Change</Button></Col>

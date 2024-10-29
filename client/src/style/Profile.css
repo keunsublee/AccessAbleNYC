@@ -38,6 +38,19 @@ label{
     background-color: #a7c8e9;
 }
 
+<<<<<<< Updated upstream
 .marginbutton{
     margin-left: 5px;
+=======
+
+.suggestions-header {
+    font-size: 1.5rem; 
+    margin-bottom: 10px;
+    color: #111111; 
+}
+
+
+.spacing {
+    margin: 20px 0; 
+>>>>>>> Stashed changes
 }

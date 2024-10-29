@@ -280,3 +280,56 @@ router.get('/:id/favoriteLocations',async (req,res) => {
         res.status(500).json({success:false, message: 'Server Error'});
     }
 });
+
+
+//Suggested Location api
+router.get('/:id/suggestLocations',async (req,res) => {
+    const {id} =req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id))
+    {
+        return res.status(404).json({success: false, message: 'Invalid Id'});
+    }
+
+    try
+    {
+        const currentUser=await User.findById(id);
+
+        if(!currentUser)
+        {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        
+        const currentUserFavorites=currentUser.favoriteLocations;
+        
+
+        //Other users who shares at least one common favorite location with the current user.
+        const otherUsers = await User.find({
+            _id: { $ne: id },  // Exclude current user
+            favoriteLocations: { $in: currentUserFavorites } //check for overlap
+        });
+
+        let suggestLocationId= new Set();
+        otherUsers.forEach(user=>{
+            user.favoriteLocations.forEach(locationId=>{
+                if(!currentUserFavorites.includes(locationId))
+                {
+                    suggestLocationId.add(locationId.toString());
+                }
+            });
+        });
+
+        const suggestedLocations=await Location.find({
+            _id:{$in :Array.from(suggestLocationId)}
+        });
+
+        res.status(200).json({ success: true, suggestedLocations });
+    } 
+    
+    catch (error) 
+    {
+        console.error('Error fetching suggested locations:', error);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+
+});

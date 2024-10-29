@@ -112,6 +112,7 @@ const RoutingMachine = ({start, routeTo}) => {
     return null;
 };
 
+<<<<<<< Updated upstream
 // This component updates the map's center when nearby locations change
 const MapCenterUpdater = ({ nearbyLocations, selectedLocation}) => {
     const map = useMap();
@@ -129,8 +130,12 @@ const MapCenterUpdater = ({ nearbyLocations, selectedLocation}) => {
 };
 
 const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , userCoord, destination}) => {
+=======
+const MapComponent = ({ locations, nearbyLocations = [], selectedLocation}) => {
+>>>>>>> Stashed changes
     const [filter, setFilter] = useState('all');  // State for filtering location types
-    const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby locations
+    const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby location
+
 
     useEffect(() => {
         selectedLocation ? setShowNearby(false) : setShowNearby(true);
@@ -208,6 +213,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                             <strong>Concession Stand:</strong> {location.Concession_Stand}<br />
                                             <strong>Description:</strong> <div dangerouslySetInnerHTML={{ __html: location.Description }}></div><br />
                                             <strong>Directions:</strong> <div dangerouslySetInnerHTML={{ __html: location.Directions }}></div>
+                                            
                                         </div>
                                     )}
                                     {location.location_type === 'subway_stop' && (
