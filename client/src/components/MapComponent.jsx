@@ -132,6 +132,44 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
     const [filter, setFilter] = useState('all');  // State for filtering location types
     const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby location
 
+    const [userId, setUserId] = useState('');
+   
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+
+
+        if (token) {
+            const decodedToken = JSON.parse(atob(token.split('.')[1]));
+            setUserId(decodedToken.id);
+        }
+    }, []);
+
+
+    const handleAddLocation1 = (locationId) => {
+        if (!userId) {
+            alert('User ID is not set. Please Log in first.');
+            return;
+        }
+        const userQuery = { locationId: locationId };
+   
+        fetch(`${import.meta.env.VITE_PORT}/${userId}/addFavoriteLocation`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userQuery)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+            } else {
+                alert('Unable to add location: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('Error: ' + error);
+        });
+    };
+
 
     useEffect(() => {
         selectedLocation ? setShowNearby(false) : setShowNearby(true);
@@ -209,6 +247,12 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                             <strong>Concession Stand:</strong> {location.Concession_Stand}<br />
                                             <strong>Description:</strong> <div dangerouslySetInnerHTML={{ __html: location.Description }}></div><br />
                                             <strong>Directions:</strong> <div dangerouslySetInnerHTML={{ __html: location.Directions }}></div>
+                                            <div className="button-container">
+                                                <button className="add-favorite-button" onClick={() => handleAddLocation1(location._id)}>
+                                                    Add to Favorite
+                                                </button>
+                                            </div>
+
                                             
                                         </div>
                                     )}
@@ -219,6 +263,12 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                             <strong>ADA Status:</strong> {location.ADA_Status}<br />
                                             <strong>Lines:</strong> {location.line}<br />
                                             <strong>Accessible:</strong> {location.Accessible}<br />
+                                            <div className="button-container">
+                                                <button className="add-favorite-button" onClick={() => handleAddLocation1(location._id)}>
+                                                    Add to Favorite
+                                                </button>
+                                            </div>
+
                                         </div>
                                     )}
                                     {location.location_type === 'restroom' && (
@@ -229,6 +279,12 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                             <strong>Hours of Operation:</strong> {location.hours_of_operation}<br />
                                             <strong>Status:</strong> {location.status}<br />
                                             <strong>Accessible:</strong> {location.Accessible ? 'Yes' : 'No'}<br />
+                                            <div className="button-container">
+                                                <button className="add-favorite-button" onClick={() => handleAddLocation1(location._id)}>
+                                                    Add to Favorite
+                                                </button>
+                                            </div>
+
                                         </div>
                                     )}
                                     {location.location_type === 'playground' && (
@@ -238,6 +294,12 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                             <strong>Accessible:</strong> {location.Accessible}<br />
                                             <strong>Sensory-Friendly:</strong> {location['Sensory-Friendly'] === 'Y' ? 'Yes' : 'No'}<br />
                                             <strong>ADA Accessible Comfort Station:</strong> {location.ADA_Accessible_Comfort_Station}<br />
+                                            <div className="button-container">
+                                                <button className="add-favorite-button" onClick={() => handleAddLocation1(location._id)}>
+                                                    Add to Favorite
+                                                </button>
+                                            </div>
+
                                         </div>
                                     )}
                                     {location.location_type === 'pedestrian_signal' && (
@@ -247,6 +309,12 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                             <strong>Installation Date:</strong> {new Date(location.date_insta).toLocaleDateString()}<br />
                                             <strong>FEMA Flood Zone:</strong> {location.femafldt}<br />
                                             <strong>Accessible:</strong> {location.Accessible}<br />
+                                            <div className="button-container">
+                                                <button className="add-favorite-button" onClick={() => handleAddLocation1(location._id)}>
+                                                    Add to Favorite
+                                                </button>
+                                            </div>
+
                                         </div>
                                     )}
                                     {/* For unknown location types */}
@@ -260,6 +328,12 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                             <strong>Location:</strong> {location.Location}<br />
                                             <strong>Type:</strong> {location.location_type}<br />
                                             <strong>Accessible:</strong> {location.Accessible}<br />
+                                            <div className="button-container">
+                                                <button className="add-favorite-button" onClick={() => handleAddLocation1(location._id)}>
+                                                    Add to Favorite
+                                                </button>
+                                            </div>
+
                                         </div>
                                     )}
                                 </Popup>
