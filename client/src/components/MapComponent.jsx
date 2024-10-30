@@ -130,7 +130,8 @@ const MapCenterUpdater = ({ nearbyLocations, selectedLocation}) => {
 
 const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , userCoord, destination}) => {
     const [filter, setFilter] = useState('all');  // State for filtering location types
-    const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby locations
+    const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby location
+
 
     useEffect(() => {
         selectedLocation ? setShowNearby(false) : setShowNearby(true);
@@ -208,6 +209,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                             <strong>Concession Stand:</strong> {location.Concession_Stand}<br />
                                             <strong>Description:</strong> <div dangerouslySetInnerHTML={{ __html: location.Description }}></div><br />
                                             <strong>Directions:</strong> <div dangerouslySetInnerHTML={{ __html: location.Directions }}></div>
+                                            
                                         </div>
                                     )}
                                     {location.location_type === 'subway_stop' && (
