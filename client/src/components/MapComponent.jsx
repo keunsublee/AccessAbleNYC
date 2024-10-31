@@ -1,52 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
+import L, { icon } from 'leaflet';
 import 'leaflet-routing-machine';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 
 // Def custom icons for each location type
-const beachIconUrl = '/assets/beach.png';
-const playgroundIconUrl = '/assets/playground.png';
-const signalIconUrl = '/assets/signal.png';
-const subwayIconUrl = '/assets/subway.png';
-const restroomIconUrl = '/assets/restroom.png';
-
-// Create Leaflet icons for specific location types
-const beachIcon = L.icon({
-    iconUrl: beachIconUrl,
-    iconSize: [30, 30],
-    iconAnchor: [15, 30],
-    popupAnchor: [0, -30],
-});
-
-const playgroundIcon = L.icon({
-    iconUrl: playgroundIconUrl,
-    iconSize: [30, 30],
-    iconAnchor: [15, 30],
-    popupAnchor: [0, -30],
-});
-
-const signalIcon = L.icon({
-    iconUrl: signalIconUrl,
-    iconSize: [30, 30],
-    iconAnchor: [15, 30],
-    popupAnchor: [0, -30],
-});
-
-const subwayIcon = L.icon({
-    iconUrl: subwayIconUrl,
-    iconSize: [30, 30],
-    iconAnchor: [15, 30],
-    popupAnchor: [0, -30],
-});
-
-const restroomIcon = L.icon({
-    iconUrl: restroomIconUrl,
-    iconSize: [30, 30],
-    iconAnchor: [15, 30],
-    popupAnchor: [0, -30],
-});
+const beachIconUrl = '/assets/beach-100.png';
+const playgroundIconUrl = '/assets/playground-100.png';
+const signalIconUrl = '/assets/traffic-light-100.png';
+const subwayIconUrl = '/assets/subway-100.png';
+const restroomIconUrl = '/assets/restroom-100.png';
 
 // Bounds for the map to stay within NYC
 const nycBounds = [
@@ -55,7 +19,43 @@ const nycBounds = [
 ];
 
 // Function to select the correct icon based on the location type
-const getIconByLocationType = (type) => {
+const getIconByLocationType = (type, iconSize) => {
+    // Create Leaflet icons for specific location types
+    const beachIcon = L.icon({
+        iconUrl: beachIconUrl,
+        iconSize: iconSize,
+        iconAnchor: [15, 30],
+        popupAnchor: [0, -30],
+    });
+
+    const playgroundIcon = L.icon({
+        iconUrl: playgroundIconUrl,
+        iconSize: iconSize,
+        iconAnchor: [15, 30],
+        popupAnchor: [0, -30],
+    });
+
+    const signalIcon = L.icon({
+        iconUrl: signalIconUrl,
+        iconSize: iconSize,
+        iconAnchor: [15, 30],
+        popupAnchor: [0, -30],
+    });
+
+    const subwayIcon = L.icon({
+        iconUrl: subwayIconUrl,
+        iconSize: iconSize,
+        iconAnchor: [15, 30],
+        popupAnchor: [0, -30],
+    });
+
+    const restroomIcon = L.icon({
+        iconUrl: restroomIconUrl,
+        iconSize: iconSize,
+        iconAnchor: [15, 30],
+        popupAnchor: [0, -30],
+    });
+
     switch (type) {
         case 'beach':
             return beachIcon;
@@ -70,7 +70,7 @@ const getIconByLocationType = (type) => {
         default:
             return L.icon({
                 iconUrl: '',  // No image URL, broken image icon
-                iconSize: [30, 30],  
+                iconSize: iconSize,  
                 iconAnchor: [15, 30],  
                 popupAnchor: [0, -30],  
             });
@@ -139,6 +139,8 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
     const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby location
 
     const [userId, setUserId] = useState('');
+    const [iconSize, setIconSize] = useState([30, 30]);
+
    
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -176,6 +178,26 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
         });
     };
 
+    // DynamicMarker component to rescale the marker accordingly to the zoom of the map
+    const DynamicMarker = ({ position, locationType, children }) => {
+        const map = useMap();
+
+        useEffect(() => {
+            const handleZoom = () => {
+                const newSize = Math.max(30, map.getZoom() * 3);
+                setIconSize([newSize, newSize]);
+            };
+
+            map.on('zoom', handleZoom);
+            return () => map.off('zoom', handleZoom);
+        }, [map]);
+
+        return (
+            <Marker position={position} icon={getIconByLocationType(locationType, iconSize)} >
+                {children}
+            </Marker>
+        );
+    };
 
     useEffect(() => {
         selectedLocation ? setShowNearby(false) : setShowNearby(true);
@@ -241,10 +263,15 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
 
                     if (lat && lon) {
                         return (
-                            <Marker 
+                            // <Marker 
+                            //     key={index} 
+                            //     position={[lat, lon]} 
+                            //     icon={getIconByLocationType(location.location_type)}
+                            // >
+                            <DynamicMarker 
                                 key={index} 
                                 position={[lat, lon]} 
-                                icon={getIconByLocationType(location.location_type)}
+                                locationType={location.location_type}
                             >
                                <Popup>
                                     {/* Display different information based on the location_type */}
@@ -347,7 +374,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                         </div>
                                     )}
                                 </Popup>
-                            </Marker>
+                            </DynamicMarker>
                         );
                     }
                     return null;  // Skip the marker if location coordinates are not available
