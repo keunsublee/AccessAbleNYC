@@ -48,6 +48,12 @@ const restroomIcon = L.icon({
     popupAnchor: [0, -30],
 });
 
+// Bounds for the map to stay within NYC
+const nycBounds = [
+    [40.490064, -74.273467],  // Southwest coordinates
+    [40.923342, -73.672258],  // Northeast coordinates
+];
+
 // Function to select the correct icon based on the location type
 const getIconByLocationType = (type) => {
     switch (type) {
@@ -215,7 +221,11 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                 </label>
             </div>
 
-            <MapContainer center={[40.7128, -74.0060]} zoom={13} style={{ height: '75vh', width: '100vw' }}>
+            <MapContainer 
+            center={[40.7128, -74.0060]} zoom={13} 
+            maxBounds={nycBounds} 
+            maxBoundsViscosity={1.0}
+            style={{ height: '75vh', width: '100vw' }}>
                 {/* Add OpenStreetMap tile layer */}
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
