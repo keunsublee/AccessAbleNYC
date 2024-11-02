@@ -14,8 +14,8 @@ const restroomIconUrl = '/assets/restroom-100.png';
 
 // Bounds for the map to stay within NYC
 const nycBounds = [
-    [40.490064, -74.273467],  // Southwest coordinates
-    [40.923342, -73.672258],  // Northeast coordinates
+    [39, -75],  // Even more southwest
+    [42, -70]  // Even more northeast
 ];
 
 // Function to select the correct icon based on the location type
