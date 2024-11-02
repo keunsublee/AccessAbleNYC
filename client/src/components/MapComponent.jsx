@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import L, { icon } from 'leaflet';
+import L from 'leaflet';
 import 'leaflet-routing-machine';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 
@@ -79,6 +79,7 @@ const getIconByLocationType = (type, iconSize) => {
 
 // Function to calculate the center of nearby locations
 const calculateCenter = (nearbyLocations) => {
+    console.log("calculateCenter called")
     if (nearbyLocations.length === 0) {
         // Default to NYC center if no nearby locations are available
         return [40.7128, -74.0060];
@@ -120,13 +121,17 @@ const RoutingMachine = ({start, routeTo}) => {
 
 // This component updates the map's center when nearby locations change
 const MapCenterUpdater = ({ nearbyLocations, selectedLocation}) => {
+    console.log("MapCenterUpdater called")
     const map = useMap();
+
     useEffect(() => {
         if (selectedLocation[0] && (selectedLocation[0].lat || selectedLocation[0].latitude) && (selectedLocation[0].lon || selectedLocation[0].longitude)) {
             // Check selected location
+            console.log("selectedLocation[0]: ", selectedLocation[0]);
             const newCenter = [selectedLocation[0].lat || selectedLocation[0].latitude, selectedLocation[0].lon || selectedLocation[0].longitude];
-            map.setView(newCenter, 13); // Center map on the selected location
+            map.setView(newCenter); // Center map on the selected location
         } else {
+            console.log("nearbyLocations: ", nearbyLocations);
             const newCenter = calculateCenter(nearbyLocations);
             map.setView(newCenter);  // Update the map's center
         }
@@ -139,19 +144,16 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
     const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby location
 
     const [userId, setUserId] = useState('');
-    const [iconSize, setIconSize] = useState([30, 30]);
-
+    const [iconSize, setIconSize] = useState([35, 35]);
    
     useEffect(() => {
         const token = localStorage.getItem('token');
-
 
         if (token) {
             const decodedToken = JSON.parse(atob(token.split('.')[1]));
             setUserId(decodedToken.id);
         }
     }, []);
-
 
     const handleAddLocation1 = (locationId) => {
         if (!userId) {
@@ -244,7 +246,8 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
             </div>
 
             <MapContainer 
-            center={[40.7128, -74.0060]} zoom={13} 
+            center={[40.7128, -74.0060]} 
+            zoom={13} 
             maxBounds={nycBounds} 
             maxBoundsViscosity={1.0}
             style={{ height: '75vh', width: '100vw' }}>
@@ -263,16 +266,16 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
 
                     if (lat && lon) {
                         return (
-                            // <Marker 
+                            // <DynamicMarker 
                             //     key={index} 
                             //     position={[lat, lon]} 
-                            //     icon={getIconByLocationType(location.location_type)}
+                            //     locationType={location.location_type}
                             // >
-                            <DynamicMarker 
+                             <Marker 
                                 key={index} 
                                 position={[lat, lon]} 
-                                locationType={location.location_type}
-                            >
+                                icon={getIconByLocationType(location.location_type, iconSize)}
+                               >
                                <Popup>
                                     {/* Display different information based on the location_type */}
                                     {location.location_type === 'beach' && (
@@ -374,7 +377,9 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                         </div>
                                     )}
                                 </Popup>
-                            </DynamicMarker>
+                            {/* </DynamicMarker>  */}
+                            </Marker>
+
                         );
                     }
                     return null;  // Skip the marker if location coordinates are not available
