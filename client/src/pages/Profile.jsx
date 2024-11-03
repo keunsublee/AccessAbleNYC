@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import NavBar from '../components/NavBar.jsx';
+import {ThemeProvider, useTheme} from '../components/ThemeContext.jsx';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -11,8 +12,10 @@ import Button from 'react-bootstrap/Button';
 import Toast from 'react-bootstrap/Toast';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
+import ToggleButton from 'react-bootstrap/ToggleButton';
+import ToggleButtonGroup from 'react-bootstrap/ToggleButtonGroup';
+import { FaRegSun, FaRegMoon } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
-
 
 //user profile
 function Profile() {
@@ -34,6 +37,8 @@ function Profile() {
     const [searchResults, setSearchResults] = useState([]);
     const navigate = useNavigate();
     const [suggestLocations, setSuggestLocations] = useState([]);
+    const {theme, setLightTheme, setDarkTheme} = useTheme();
+    console.log('Theme:', theme);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -86,9 +91,7 @@ function Profile() {
                 console.error('Error fetching suggest locations:', error);
             });
         }
-},[userId]);
-
-
+    },[userId]);
 
     const handleSearch = async (event) => {
         setSearchTerm(event.target.value);
@@ -197,7 +200,7 @@ function Profile() {
     };
     
     return (
-        <div>
+        <div className={`${theme}`}>
             <NavBar/>
             <Container>
                 <Row className='rowAdj'>
@@ -297,7 +300,19 @@ function Profile() {
                         </Row>
                     </Tab>
                     <Tab eventKey="settings" title="Settings">
-                        Tab content for Settings
+                        <Row>
+                            <Col className="d-flex justify-content-between align-items-center px-4 my-3">
+                                <p>Theme:</p>
+                                <ToggleButtonGroup className='' name='themes' defaultValue={"light"} type='radio'>
+                                    <ToggleButton id='light-mode' value={"light"} className='custom-width' onClick={setLightTheme}>
+                                        Light <FaRegSun />
+                                    </ToggleButton>
+                                    <ToggleButton id='dark-mode' value={"dark"} className='custom-width' onClick={setDarkTheme}>
+                                        Dark <FaRegMoon />
+                                    </ToggleButton>
+                                </ToggleButtonGroup>
+                            </Col>
+                        </Row>
                     </Tab>
                 </Tabs>
             </Container>
