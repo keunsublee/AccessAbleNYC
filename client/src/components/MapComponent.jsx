@@ -9,6 +9,7 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import { useNavigate } from 'react-router-dom';
+import '../style/MapComponent.css';
 
 // Def custom icons for each location type
 const beachIconUrl = '/assets/beach-100.png';
@@ -103,30 +104,38 @@ const calculateCenter = (nearbyLocations) => {
     ];
 };
 
-const RoutingMachine = ({ start, routeTo }) => {
+const RoutingMachine = ({start, routeTo}) => {
     const map = useMap();
     const routingControlRef = useRef(null);
-
     useEffect(() => {
-        if (start.lat != null && start.lon != null && routeTo.lat != null && routeTo.lon != null) {
+        if (start.lat!=null && start.lon!=null && routeTo.lat!=null && routeTo.lon!=null){
             if (!routingControlRef.current) {
                 routingControlRef.current = L.Routing.control({
-                    waypoints: [
-                        L.latLng(start.lat, start.lon),
-                        L.latLng(routeTo.lat, routeTo.lon)
-                    ],
-                    routeWhileDragging: false,
-                }).addTo(map);
-            } else {
-                routingControlRef.current.setWaypoints([
+                waypoints: [
                     L.latLng(start.lat, start.lon),
                     L.latLng(routeTo.lat, routeTo.lon)
-                ]);
-            }
+                ],
+                routeWhileDragging: false,
+                }).addTo(map);
+            } 
         }
     }, [map, start, routeTo]);
+  
 
-    return null;
+//Clear the route that the user has open
+    const handleClearRoute = () => {
+        if(routingControlRef.current){
+            routingControlRef.current.setWaypoints([]);
+        }
+    };
+        return (
+            <div>
+                <button className="clear-route-button" onClick={handleClearRoute}>
+                    Clear Route
+                </button>
+            </div>
+        );
+
 };
 
 
