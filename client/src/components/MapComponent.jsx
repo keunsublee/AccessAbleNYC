@@ -104,38 +104,52 @@ const calculateCenter = (nearbyLocations) => {
     ];
 };
 
-const RoutingMachine = ({start, routeTo}) => {
+const RoutingMachine = ({ start, routeTo }) => {
     const map = useMap();
     const routingControlRef = useRef(null);
+    const navigate = useNavigate();
+    const close =useRef(null);
+
     useEffect(() => {
-        if (start.lat!=null && start.lon!=null && routeTo.lat!=null && routeTo.lon!=null){
+        if (start.lat != null && start.lon != null && routeTo.lat != null && routeTo.lon != null) {
             if (!routingControlRef.current) {
                 routingControlRef.current = L.Routing.control({
-                waypoints: [
+                    waypoints: [
+                        L.latLng(start.lat, start.lon),
+                        L.latLng(routeTo.lat, routeTo.lon)
+                    ],
+                    routeWhileDragging: false,
+                    lineOptions: {
+                        styles: [{ color: 'blue', weight: 4 }]
+                    }
+                }).addTo(map);
+
+                const closeControl = L.control({ position: 'topright' });
+                closeControl.onAdd = function () {
+                    const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+                    div.innerHTML = 'Close Route';
+                    div.style.backgroundColor = '#ffcccc';
+                    div.style.padding = '5px';
+                    div.style.cursor = 'pointer';
+                    div.onclick = function () {
+                        navigate('');
+                        map.removeControl(routingControlRef.current);
+                        routingControlRef.current = null;
+                        map.removeControl(closeControl);
+                    };
+                    return div;
+                };
+                closeControl.addTo(map);
+            } else {
+                routingControlRef.current.setWaypoints([
                     L.latLng(start.lat, start.lon),
                     L.latLng(routeTo.lat, routeTo.lon)
-                ],
-                routeWhileDragging: false,
-                }).addTo(map);
-            } 
+                ]);
+            }
         }
     }, [map, start, routeTo]);
-  
 
-//Clear the route that the user has open
-    const handleClearRoute = () => {
-        if(routingControlRef.current){
-            routingControlRef.current.setWaypoints([]);
-        }
-    };
-        return (
-            <div>
-                <button className="clear-route-button" onClick={handleClearRoute}>
-                    Clear Route
-                </button>
-            </div>
-        );
-
+    return null;
 };
 
 
