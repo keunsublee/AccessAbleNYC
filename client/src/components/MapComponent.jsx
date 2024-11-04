@@ -6,50 +6,56 @@ import 'leaflet-routing-machine';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 
 // Def custom icons for each location type
-const beachIconUrl = '/assets/beach.png';
-const playgroundIconUrl = '/assets/playground.png';
-const signalIconUrl = '/assets/signal.png';
-const subwayIconUrl = '/assets/subway.png';
-const restroomIconUrl = '/assets/restroom.png';
+const beachIconUrl = '/assets/beach-100.png';
+const playgroundIconUrl = '/assets/playground-100.png';
+const signalIconUrl = '/assets/traffic-light-100.png';
+const subwayIconUrl = '/assets/subway-100.png';
+const restroomIconUrl = '/assets/restroom-100.png';
 
-// Create Leaflet icons for specific location types
-const beachIcon = L.icon({
-    iconUrl: beachIconUrl,
-    iconSize: [30, 30],
-    iconAnchor: [15, 30],
-    popupAnchor: [0, -30],
-});
-
-const playgroundIcon = L.icon({
-    iconUrl: playgroundIconUrl,
-    iconSize: [30, 30],
-    iconAnchor: [15, 30],
-    popupAnchor: [0, -30],
-});
-
-const signalIcon = L.icon({
-    iconUrl: signalIconUrl,
-    iconSize: [30, 30],
-    iconAnchor: [15, 30],
-    popupAnchor: [0, -30],
-});
-
-const subwayIcon = L.icon({
-    iconUrl: subwayIconUrl,
-    iconSize: [30, 30],
-    iconAnchor: [15, 30],
-    popupAnchor: [0, -30],
-});
-
-const restroomIcon = L.icon({
-    iconUrl: restroomIconUrl,
-    iconSize: [30, 30],
-    iconAnchor: [15, 30],
-    popupAnchor: [0, -30],
-});
+// Bounds for the map to stay within NYC
+const nycBounds = [
+    [39, -75],  // Even more southwest
+    [42, -70]  // Even more northeast
+];
 
 // Function to select the correct icon based on the location type
-const getIconByLocationType = (type) => {
+const getIconByLocationType = (type, iconSize) => {
+    // Create Leaflet icons for specific location types
+    const beachIcon = L.icon({
+        iconUrl: beachIconUrl,
+        iconSize: iconSize,
+        iconAnchor: [15, 30],
+        popupAnchor: [0, -30],
+    });
+
+    const playgroundIcon = L.icon({
+        iconUrl: playgroundIconUrl,
+        iconSize: iconSize,
+        iconAnchor: [15, 30],
+        popupAnchor: [0, -30],
+    });
+
+    const signalIcon = L.icon({
+        iconUrl: signalIconUrl,
+        iconSize: iconSize,
+        iconAnchor: [15, 30],
+        popupAnchor: [0, -30],
+    });
+
+    const subwayIcon = L.icon({
+        iconUrl: subwayIconUrl,
+        iconSize: iconSize,
+        iconAnchor: [15, 30],
+        popupAnchor: [0, -30],
+    });
+
+    const restroomIcon = L.icon({
+        iconUrl: restroomIconUrl,
+        iconSize: iconSize,
+        iconAnchor: [15, 30],
+        popupAnchor: [0, -30],
+    });
+
     switch (type) {
         case 'beach':
             return beachIcon;
@@ -64,7 +70,7 @@ const getIconByLocationType = (type) => {
         default:
             return L.icon({
                 iconUrl: '',  // No image URL, broken image icon
-                iconSize: [30, 30],  
+                iconSize: iconSize,  
                 iconAnchor: [15, 30],  
                 popupAnchor: [0, -30],  
             });
@@ -73,6 +79,7 @@ const getIconByLocationType = (type) => {
 
 // Function to calculate the center of nearby locations
 const calculateCenter = (nearbyLocations) => {
+    console.log("calculateCenter called")
     if (nearbyLocations.length === 0) {
         // Default to NYC center if no nearby locations are available
         return [40.7128, -74.0060];
@@ -114,36 +121,39 @@ const RoutingMachine = ({start, routeTo}) => {
 
 // This component updates the map's center when nearby locations change
 const MapCenterUpdater = ({ nearbyLocations, selectedLocation}) => {
+    console.log("MapCenterUpdater called")
     const map = useMap();
-    useEffect(() => {
-        if (selectedLocation[0] && (selectedLocation[0].lat || selectedLocation[0].latitude) && (selectedLocation[0].lon || selectedLocation[0].longitude)) {
-            // Check selected location
-            const newCenter = [selectedLocation[0].lat || selectedLocation[0].latitude, selectedLocation[0].lon || selectedLocation[0].longitude];
-            map.setView(newCenter, 13); // Center map on the selected location
+
+    useEffect(() => { 
+        let newCenter;
+        let zoomLevel = 12;
+
+        if (selectedLocation && selectedLocation.lat && selectedLocation.lon) {
+            newCenter = [selectedLocation.lat, selectedLocation.lon];
         } else {
-            const newCenter = calculateCenter(nearbyLocations);
-            map.setView(newCenter);  // Update the map's center
+            newCenter = calculateCenter(nearbyLocations);
+        }
+        if (newCenter) {
+            map.setView(newCenter, zoomLevel);
         }
     }, [nearbyLocations, selectedLocation, map]);
     return null;
 };
 
-const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , userCoord, destination}) => {
-    const [filter, setFilter] = useState('all');  // State for filtering location types
+const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , userCoord, destination, filterCriteria}) => {
     const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby location
 
     const [userId, setUserId] = useState('');
+    const [iconSize, setIconSize] = useState([35, 35]);
    
     useEffect(() => {
         const token = localStorage.getItem('token');
-
 
         if (token) {
             const decodedToken = JSON.parse(atob(token.split('.')[1]));
             setUserId(decodedToken.id);
         }
     }, []);
-
 
     const handleAddLocation1 = (locationId) => {
         if (!userId) {
@@ -170,41 +180,44 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
         });
     };
 
+    // DynamicMarker component to rescale the marker accordingly to the zoom of the map
+    const DynamicMarker = ({ position, locationType, children }) => {
+        const map = useMap();
 
-    useEffect(() => {
-        selectedLocation ? setShowNearby(false) : setShowNearby(true);
-    }, [selectedLocation]);
+        useEffect(() => {
+            const handleZoom = () => {
+                const newSize = Math.max(30, map.getZoom() * 3);
+                setIconSize([newSize, newSize]);
+            };
 
-    // Determine the locations to show based on the showNearby state
-    const locationsToShow = showNearby ? nearbyLocations : locations;
+            map.on('zoom', handleZoom);
+            return () => map.off('zoom', handleZoom);
+        }, [map]);
 
-    // Filter the locations based on the selected filter (e.g., playground, beach, etc.)
-    const filteredLocations = selectedLocation
-    ? locationsToShow.filter(location => location.Name === selectedLocation)
-    : filter === 'all'
-        ? locationsToShow
-        : locationsToShow.filter(location => location.location_type === filter);
+        return (
+            <Marker position={position} icon={getIconByLocationType(locationType, iconSize)} >
+                {children}
+            </Marker>
+        );
+    };
+    // Filter locations based on the criteria
+    const filteredNearbyLocations = nearbyLocations.filter(location =>
+        Object.keys(filterCriteria).every(key => !filterCriteria[key] || location[key] === filterCriteria[key])
+    );
 
+    const filteredLocations = locations.filter(location =>
+        Object.keys(filterCriteria).every(key => !filterCriteria[key] || location[key] === filterCriteria[key])
+    );
+
+    // Determine locations to show based on the selected filter and nearby toggle
+    const locationsToShow = showNearby
+        ? (selectedLocation ? filteredNearbyLocations.filter(loc => loc.Name === selectedLocation) : filteredNearbyLocations)
+        : (selectedLocation ? filteredLocations.filter(loc => loc.Name === selectedLocation) : filteredLocations);
+ 
     return (
         <div>
-            {/* Dropdown filter to choose which location type to display */}
-            <div>
-                <label htmlFor="filter">Filter by Location Type: </label>
-                <select 
-                    id="filter" 
-                    value={filter} 
-                    onChange={(e) => setFilter(e.target.value)}
-                >
-                    <option value="all">All</option>
-                    <option value="playground">Playgrounds</option>
-                    <option value="pedestrian_signal">Pedestrian Signals</option>
-                    <option value="beach">Beaches</option>
-                    <option value="subway_stop">Subway Stops</option>
-                    <option value="restroom">Restrooms</option>
-                </select>
-
-                {/* Checkbox to toggle between showing all or nearby locations */}
-                <label htmlFor="showNearby" style={{ marginLeft: '10px' }}>
+            {/* Checkbox to toggle between showing all or nearby locations */}
+            <label htmlFor="showNearby" style={{ marginLeft: '10px' }}>
                     <input
                         id="showNearby"
                         type="checkbox"
@@ -212,30 +225,38 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                         onChange={() => setShowNearby(!showNearby)}
                     />
                     Show Nearby Locations Only
-                </label>
-            </div>
-
-            <MapContainer center={[40.7128, -74.0060]} zoom={13} style={{ height: '75vh', width: '100vw' }}>
+            </label>
+            <MapContainer 
+            center={[40.7128, -74.0060]} 
+            zoom={13} 
+            maxBounds={nycBounds} 
+            maxBoundsViscosity={1.0}
+            style={{ height: '75vh', width: '100vw' }}>
                 {/* Add OpenStreetMap tile layer */}
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 />
                 {/* This component will update the map center when nearbyLocations changes */}
-                <MapCenterUpdater nearbyLocations={nearbyLocations} selectedLocation={filteredLocations}  />
+                <MapCenterUpdater nearbyLocations={nearbyLocations} selectedLocation={selectedLocation ? [selectedLocation] : filteredLocations} />
                 <RoutingMachine start={userCoord} routeTo={destination}/>
                 {/* Render Markers for filtered locations */}
-                {filteredLocations.map((location, index) => {
+                {locationsToShow.map((location, index) => {
                     const lat = location.lat || location.latitude;
                     const lon = location.lon || location.longitude;
 
                     if (lat && lon) {
                         return (
-                            <Marker 
+                            // <DynamicMarker 
+                            //     key={index} 
+                            //     position={[lat, lon]} 
+                            //     locationType={location.location_type}
+                            // >
+                             <Marker 
                                 key={index} 
                                 position={[lat, lon]} 
-                                icon={getIconByLocationType(location.location_type)}
-                            >
+                                icon={getIconByLocationType(location.location_type, iconSize)}
+                               >
                                <Popup>
                                     {/* Display different information based on the location_type */}
                                     {location.location_type === 'beach' && (
@@ -337,7 +358,9 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                         </div>
                                     )}
                                 </Popup>
+                            {/* </DynamicMarker>  */}
                             </Marker>
+
                         );
                     }
                     return null;  // Skip the marker if location coordinates are not available
