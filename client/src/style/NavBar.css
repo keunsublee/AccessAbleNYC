@@ -1,3 +1,13 @@
+.light {
+    color: #111111;
+    background-color: #f8f9fa;
+}
+
+.dark {
+    color: #f8f9fa;
+    background-color:#111111;
+}
+
 .same-btn {
     width: 100px;
     margin-left: 10px;

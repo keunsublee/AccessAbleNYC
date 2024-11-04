@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import NavBar from '../components/NavBar.jsx';
-import {ThemeProvider, useTheme} from '../components/ThemeContext.jsx';
+import {useTheme} from '../components/ThemeContext.jsx';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';

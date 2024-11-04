@@ -2,12 +2,12 @@ label{
     width: 400px;
 }
 
-body.light {
+.light {
     color: #111111;
     background-color: #f8f9fa;
 }
 
-body.dark {
+.dark {
     color: #f8f9fa;
     background-color:#111111;
 }
