@@ -11,7 +11,27 @@ const playgroundIconUrl = '/assets/playground-100.png';
 const signalIconUrl = '/assets/traffic-light-100.png';
 const subwayIconUrl = '/assets/subway-100.png';
 const restroomIconUrl = '/assets/restroom-100.png';
+const beachIconUrl = '/assets/beach-100.png';
+const playgroundIconUrl = '/assets/playground-100.png';
+const signalIconUrl = '/assets/traffic-light-100.png';
+const subwayIconUrl = '/assets/subway-100.png';
+const restroomIconUrl = '/assets/restroom-100.png';
 
+// Bounds for the map to stay within NYC
+const nycBounds = [
+    [39, -75],  // Even more southwest
+    [42, -70]  // Even more northeast
+];
+
+// Function to select the correct icon based on the location type
+const getIconByLocationType = (type, iconSize) => {
+    // Create Leaflet icons for specific location types
+    const beachIcon = L.icon({
+        iconUrl: beachIconUrl,
+        iconSize: iconSize,
+        iconAnchor: [15, 30],
+        popupAnchor: [0, -30],
+    });
 // Bounds for the map to stay within NYC
 const nycBounds = [
     [39, -75],  // Even more southwest
@@ -34,7 +54,19 @@ const getIconByLocationType = (type, iconSize) => {
         iconAnchor: [15, 30],
         popupAnchor: [0, -30],
     });
+    const playgroundIcon = L.icon({
+        iconUrl: playgroundIconUrl,
+        iconSize: iconSize,
+        iconAnchor: [15, 30],
+        popupAnchor: [0, -30],
+    });
 
+    const signalIcon = L.icon({
+        iconUrl: signalIconUrl,
+        iconSize: iconSize,
+        iconAnchor: [15, 30],
+        popupAnchor: [0, -30],
+    });
     const signalIcon = L.icon({
         iconUrl: signalIconUrl,
         iconSize: iconSize,
@@ -48,7 +80,19 @@ const getIconByLocationType = (type, iconSize) => {
         iconAnchor: [15, 30],
         popupAnchor: [0, -30],
     });
+    const subwayIcon = L.icon({
+        iconUrl: subwayIconUrl,
+        iconSize: iconSize,
+        iconAnchor: [15, 30],
+        popupAnchor: [0, -30],
+    });
 
+    const restroomIcon = L.icon({
+        iconUrl: restroomIconUrl,
+        iconSize: iconSize,
+        iconAnchor: [15, 30],
+        popupAnchor: [0, -30],
+    });
     const restroomIcon = L.icon({
         iconUrl: restroomIconUrl,
         iconSize: iconSize,
@@ -71,6 +115,7 @@ const getIconByLocationType = (type, iconSize) => {
             return L.icon({
                 iconUrl: '',  // No image URL, broken image icon
                 iconSize: iconSize,  
+                iconSize: iconSize,  
                 iconAnchor: [15, 30],  
                 popupAnchor: [0, -30],  
             });
@@ -79,6 +124,7 @@ const getIconByLocationType = (type, iconSize) => {
 
 // Function to calculate the center of nearby locations
 const calculateCenter = (nearbyLocations) => {
+    console.log("calculateCenter called")
     console.log("calculateCenter called")
     if (nearbyLocations.length === 0) {
         // Default to NYC center if no nearby locations are available
@@ -122,7 +168,15 @@ const RoutingMachine = ({start, routeTo}) => {
 // This component updates the map's center when nearby locations change
 const MapCenterUpdater = ({ nearbyLocations, selectedLocation}) => {
     console.log("MapCenterUpdater called")
+    console.log("MapCenterUpdater called")
     const map = useMap();
+
+    useEffect(() => {
+        if (selectedLocation[0] && (selectedLocation[0].lat || selectedLocation[0].latitude) && (selectedLocation[0].lon || selectedLocation[0].longitude)) {
+            // Check selected location
+            console.log("selectedLocation[0]: ", selectedLocation[0]);
+            const newCenter = [selectedLocation[0].lat || selectedLocation[0].latitude, selectedLocation[0].lon || selectedLocation[0].longitude];
+            map.setView(newCenter); // Center map on the selected location
 
     useEffect(() => { 
         let newCenter;
@@ -131,6 +185,9 @@ const MapCenterUpdater = ({ nearbyLocations, selectedLocation}) => {
         if (selectedLocation && selectedLocation.lat && selectedLocation.lon) {
             newCenter = [selectedLocation.lat, selectedLocation.lon];
         } else {
+            console.log("nearbyLocations: ", nearbyLocations);
+            const newCenter = calculateCenter(nearbyLocations);
+            map.setView(newCenter);  // Update the map's center
             newCenter = calculateCenter(nearbyLocations);
         }
         if (newCenter) {
@@ -144,6 +201,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
     const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby location
 
     const [userId, setUserId] = useState('');
+    const [iconSize, setIconSize] = useState([35, 35]);
     const [iconSize, setIconSize] = useState([35, 35]);
    
     useEffect(() => {
@@ -200,6 +258,26 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
             </Marker>
         );
     };
+    // DynamicMarker component to rescale the marker accordingly to the zoom of the map
+    const DynamicMarker = ({ position, locationType, children }) => {
+        const map = useMap();
+
+        useEffect(() => {
+            const handleZoom = () => {
+                const newSize = Math.max(30, map.getZoom() * 3);
+                setIconSize([newSize, newSize]);
+            };
+
+            map.on('zoom', handleZoom);
+            return () => map.off('zoom', handleZoom);
+        }, [map]);
+
+        return (
+            <Marker position={position} icon={getIconByLocationType(locationType, iconSize)} >
+                {children}
+            </Marker>
+        );
+    };
     // Filter locations based on the criteria
     const filteredNearbyLocations = nearbyLocations.filter(location =>
         Object.keys(filterCriteria).every(key => !filterCriteria[key] || location[key] === filterCriteria[key])
@@ -225,6 +303,15 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                         onChange={() => setShowNearby(!showNearby)}
                     />
                     Show Nearby Locations Only
+                </label>
+            </div>
+
+            <MapContainer 
+            center={[40.7128, -74.0060]} 
+            zoom={13} 
+            maxBounds={nycBounds} 
+            maxBoundsViscosity={1.0}
+            style={{ height: '75vh', width: '100vw' }}>
             </label>
             <MapContainer 
             center={[40.7128, -74.0060]} 
@@ -253,8 +340,16 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                             //     locationType={location.location_type}
                             // >
                              <Marker 
+                            // <DynamicMarker 
+                            //     key={index} 
+                            //     position={[lat, lon]} 
+                            //     locationType={location.location_type}
+                            // >
+                             <Marker 
                                 key={index} 
                                 position={[lat, lon]} 
+                                icon={getIconByLocationType(location.location_type, iconSize)}
+                               >
                                 icon={getIconByLocationType(location.location_type, iconSize)}
                                >
                                <Popup>
@@ -359,7 +454,9 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                     )}
                                 </Popup>
                             {/* </DynamicMarker>  */}
+                            {/* </DynamicMarker>  */}
                             </Marker>
+
 
                         );
                     }
