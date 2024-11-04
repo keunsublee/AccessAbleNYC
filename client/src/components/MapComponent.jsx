@@ -116,6 +116,9 @@ const RoutingMachine = ({ start, routeTo }) => {
                         L.latLng(routeTo.lat, routeTo.lon)
                     ],
                     routeWhileDragging: false,
+                    lineOptions: {
+                        styles: [{ color: 'blue', weight: 4 }]
+                    }
                 }).addTo(map);
             } else {
                 routingControlRef.current.setWaypoints([
