@@ -9,7 +9,6 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import { useNavigate } from 'react-router-dom';
-import '../style/MapComponent.css';
 
 // Def custom icons for each location type
 const beachIconUrl = '/assets/beach-100.png';
@@ -107,8 +106,8 @@ const calculateCenter = (nearbyLocations) => {
 const RoutingMachine = ({ start, routeTo }) => {
     const map = useMap();
     const routingControlRef = useRef(null);
+    const closeControlRef = useRef(null);
     const navigate = useNavigate();
-    const close =useRef(null);
 
     useEffect(() => {
         if (start.lat != null && start.lon != null && routeTo.lat != null && routeTo.lon != null) {
@@ -124,22 +123,23 @@ const RoutingMachine = ({ start, routeTo }) => {
                     }
                 }).addTo(map);
 
-                const closeControl = L.control({ position: 'topright' });
-                closeControl.onAdd = function () {
+                closeControlRef.current = L.control({ position: 'topright' });
+                closeControlRef.current.onAdd = function () {
                     const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
                     div.innerHTML = 'Close Route';
                     div.style.backgroundColor = '#ffcccc';
                     div.style.padding = '5px';
                     div.style.cursor = 'pointer';
                     div.onclick = function () {
-                        navigate('');
                         map.removeControl(routingControlRef.current);
                         routingControlRef.current = null;
-                        map.removeControl(closeControl);
+                        map.removeControl(closeControlRef.current);
+                        closeControlRef.current = null;
+                        navigate('');
                     };
                     return div;
                 };
-                closeControl.addTo(map);
+                closeControlRef.current.addTo(map);
             } else {
                 routingControlRef.current.setWaypoints([
                     L.latLng(start.lat, start.lon),
