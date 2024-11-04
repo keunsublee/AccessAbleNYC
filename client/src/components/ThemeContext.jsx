@@ -10,6 +10,7 @@ export const ThemeProvider = ({ children }) => {
         const storedTheme = localStorage.getItem('theme');
         if (storedTheme) {
             setTheme(storedTheme);
+            document.body.classList.add(storedTheme);
         }
     }, []);
 

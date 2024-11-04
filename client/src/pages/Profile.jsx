@@ -38,7 +38,6 @@ function Profile() {
     const navigate = useNavigate();
     const [suggestLocations, setSuggestLocations] = useState([]);
     const {theme, setLightTheme, setDarkTheme} = useTheme();
-    console.log('Theme:', theme);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -198,6 +197,16 @@ function Profile() {
     const handlePathTo = (destination) => {
         navigate(`/?lat=${destination.lat || destination.latitude}&lon=${destination.lon || destination.longitude}`);
     };
+
+    const handleTheme = (newTheme) => {
+        if(theme !== newTheme){
+            if(newTheme === 'light'){
+                setLightTheme();
+            } else {
+                setDarkTheme();
+            }
+        }
+    }
     
     return (
         <div className={`${theme}`}>
@@ -304,10 +313,10 @@ function Profile() {
                             <Col className="d-flex justify-content-between align-items-center px-4 my-3">
                                 <p>Theme:</p>
                                 <ToggleButtonGroup className='' name='themes' defaultValue={"light"} type='radio'>
-                                    <ToggleButton id='light-mode' value={"light"} className={`custom-width ${theme === 'light' ? 'light-active' : 'light'}`} onClick={setLightTheme}>
+                                    <ToggleButton id='light-mode' value={"light"} className={`custom-width ${theme === 'light' ? 'light-active' : 'light'}`} onClick={() => handleTheme('light')}>
                                         Light <FaRegSun />
                                     </ToggleButton>
-                                    <ToggleButton id='dark-mode' value={"dark"} className={`custom-width ${theme === 'dark' ? 'dark-active' : 'dark'}`} onClick={setDarkTheme}>
+                                    <ToggleButton id='dark-mode' value={"dark"} className={`custom-width ${theme === 'dark' ? 'dark-active' : 'dark'}`} onClick={() => handleTheme('dark')}>
                                         Dark <FaRegMoon />
                                     </ToggleButton>
                                 </ToggleButtonGroup>
