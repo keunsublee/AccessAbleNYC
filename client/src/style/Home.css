@@ -4,25 +4,26 @@
 }
 
 html, body, #root {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-  }
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Hide horizontal scrollbar */ 
+}
   
-  #map {
-    height: 100vh; /* 100% of the viewport height */
-    width: 100vw;  /* 100% of the viewport width */
-  }
-  
-  .add-favorite-button {
-    background-color: #28a745;  /* Green background */
-    color: white;               /* White text */
-    border: none;               /* No border */
-    padding: 10px 15px;         /* Padding around the text */
-    font-size: 16px;            /* Font size */
-    border-radius: 5px;         /* Rounded corners */
-    cursor: pointer;            /* Pointer cursor on hover */
-    transition: background-color 0.3s, transform 0.3s; /* Smooth transitions */
+#map {
+  height: 100vh; /* 100% of the viewport height */
+  width: 100vw;  /* 100% of the viewport width */
+}
+
+.add-favorite-button {
+  background-color: #28a745;  /* Green background */
+  color: white;               /* White text */
+  border: none;               /* No border */
+  padding: 10px 15px;         /* Padding around the text */
+  font-size: 16px;            /* Font size */
+  border-radius: 5px;         /* Rounded corners */
+  cursor: pointer;            /* Pointer cursor on hover */
+  transition: background-color 0.3s, transform 0.3s; /* Smooth transitions */
 }
 
 .add-favorite-button:hover {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTheme } from './ThemeContext';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -145,6 +146,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
 
     const [userId, setUserId] = useState('');
     const [iconSize, setIconSize] = useState([35, 35]);
+    const { theme } = useTheme();
    
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -224,6 +226,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                     id="filter" 
                     value={filter} 
                     onChange={(e) => setFilter(e.target.value)}
+                    className={`${theme} m-1`}
                 >
                     <option value="all">All</option>
                     <option value="playground">Playgrounds</option>

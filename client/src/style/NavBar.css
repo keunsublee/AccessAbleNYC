@@ -8,6 +8,10 @@
     background-color:#111111;
 }
 
+.dark:hover {
+    color: #f8f9fa;
+}
+
 .same-btn {
     width: 100px;
     margin-left: 10px;

@@ -226,7 +226,7 @@ function Profile() {
                                 <Form.Control
                                 type="search"
                                 placeholder="Search"
-                                className="me-2"
+                                className={`me-2 ${theme}`}
                                 aria-label="Search"
                                 value={searchTerm}
                                 style={{ borderRadius: '20px' }}
@@ -235,7 +235,7 @@ function Profile() {
                                 {searchResults.length > 0 && (
                                 <div className="add-dropdown-menu show position-absolute">
                                     {searchResults.map((result, index) => (
-                                        <button key={index} className="dropdown-item" onClick={() => handleLocationSelection(result)}>
+                                        <button key={index} className={`dropdown-item ${theme}`} onClick={() => handleLocationSelection(result)}>
                                             {result.Name}
                                         </button>
                                     ))}
@@ -246,7 +246,7 @@ function Profile() {
                         </div>
                         <ListGroup className="scrollable-list">
                             {favoriteLocations.map((location, index) => (
-                                <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">
+                                <ListGroup.Item key={index} className={`d-flex justify-content-between align-items-center ${theme}`}>
                                     {location.facility_name || location.Name || location.ntaname || 'No Name'}
                                     <div>
                                         <Button variant="outline-success" onClick={() => handleShow(location.Name)}>Show</Button>
@@ -260,12 +260,12 @@ function Profile() {
                         <div className="spacing"></div> 
                         
                         {suggestLocations.length > 0 && (
-                            <h2 className="suggestions-header">Suggested Locations Based on Favorites</h2>
+                            <h2 className={`suggestions-header ${theme === 'light' ? '' : 'text-light'}`}>Suggested Locations Based on Favorites</h2>
                         )}
                         <ListGroup className="scrollable-list">
                                 {suggestLocations.length>0?(
                                     suggestLocations.map((location,index)=>(
-                                        <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">
+                                        <ListGroup.Item key={index} className={`d-flex justify-content-between align-items-center ${theme}`}>
                                             {location.facility_name||location.Name||'No Name'}
                                             <div className="d-flex gap-2"> 
                                                 <Button variant="outline-success" onClick={() => handleShow(location.Name)}>Show</Button>

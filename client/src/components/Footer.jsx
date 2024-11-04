@@ -136,27 +136,27 @@ const Footer = () => {
             <footer className={`${theme}`}>
                 <h1 className='footer-container'>AccessAble NYC.</h1>
                 <div className='footer-container'>
-                    <p className={ theme === 'light' ? `footer-title text-light-theme` : `footer-title text-dark-theme`}>Website</p>
+                    <p className={`footer-title ${theme === 'light' ? 'text-light-theme' : 'text-dark-theme'}`}>Website</p>
                     <a href="#" onClick={() => setAboutUsModalOpen(true)} 
-                    className={ theme === 'light' ? `footer-items text-light-theme` : `footer-items text-dark-theme`}>About us</a>
+                    className={`footer-items ${theme === 'light' ? 'text-light-theme' : 'text-dark-theme'}`}>About us</a>
                     <Link to="/"
-                    className={ theme === 'light' ? `footer-items text-light-theme` : `footer-items text-dark-theme`}>Home</Link>
+                    className={`footer-items ${theme === 'light' ? 'text-light-theme' : 'text-dark-theme'}`}>Home</Link>
                 </div>
 
                 <div className='footer-container'>
-                    <p className={ theme === 'light' ? `footer-title text-light-theme` : `footer-title text-dark-theme`}>Contact</p>
+                    <p className={`footer-title ${theme === 'light' ? 'text-light-theme' : 'text-dark-theme'}`}>Contact</p>
                     <a href="#" onClick={() => setEmailModalOpen(true)}
-                    className={ theme === 'light' ? `footer-items text-light-theme` : `footer-items text-dark-theme`}>Email</a>
+                    className={`footer-items ${theme === 'light' ? 'text-light-theme' : 'text-dark-theme'}`}>Email</a>
                     <a href="#" onClick={() => setPhoneModalOpen(true)}
-                    className={ theme === 'light' ? `footer-items text-light-theme` : `footer-items text-dark-theme`}>Phone</a>
+                    className={`footer-items ${theme === 'light' ? 'text-light-theme' : 'text-dark-theme'}`}>Phone</a>
                 </div>
 
                 <div className='footer-container'>
-                    <p className={ theme === 'light' ? `footer-title text-light-theme` : `footer-title text-dark-theme`}>More</p>
+                    <p className={`footer-title ${theme === 'light' ? 'text-light-theme' : 'text-dark-theme'}`}>More</p>
                     <Link to='/feedback' 
-                    className={ theme === 'light' ? `footer-items text-light-theme` : `footer-items text-dark-theme`}>Feedback</Link>
+                    className={`footer-items ${theme === 'light' ? 'text-light-theme' : 'text-dark-theme'}`}>Feedback</Link>
                     <a href="#" onClick={() => setHelpFAQOpen(true) }
-                    className={ theme === 'light' ? `footer-items text-light-theme` : `footer-items text-dark-theme`}>Help/FAQs</a>
+                    className={`footer-items ${theme === 'light' ? 'text-light-theme' : 'text-dark-theme'}`}>Help/FAQs</a>
                 </div>
                 <AboutUsModal
                 show={aboutUsModalOpen}

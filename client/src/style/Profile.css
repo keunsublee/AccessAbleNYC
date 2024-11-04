@@ -7,9 +7,26 @@ label{
     background-color: #f8f9fa;
 }
 
+.text-light {
+    color: #f8f9fa;
+}
+
 .dark {
     color: #f8f9fa;
     background-color:#111111;
+}
+
+.dark input:focus {
+    background-color: #111111;
+    color: #f8f9fa;
+}
+
+.dark input::placeholder {
+    color: #f8f9fa;
+}
+
+.dark:hover {
+    color: #f8f9fa;
 }
 
 .rowAdj{
@@ -32,8 +49,10 @@ label{
 .add-dropdown-menu {
     width: 275px;
     z-index: 2000;
+    max-width: 300px;
     max-height: 300px; 
     overflow-y: auto;  
+    overflow-x: hidden;
     background-color: white;
     border: 1px solid gray;
     border-radius: 5px;
@@ -42,6 +61,7 @@ label{
 
 .dropdown-item {
     cursor: pointer;
+    white-space: normal;
 }
 
 .dropdown-item:hover {
