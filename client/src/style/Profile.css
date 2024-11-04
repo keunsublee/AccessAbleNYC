@@ -7,6 +7,18 @@ label{
     background-color: #f8f9fa;
 }
 
+.custom-width.light:hover {
+    background-color: #e4e4e4;
+    color: #383838;
+}
+
+.custom-width.light-active {
+    /* !important to have it override bootstrap default styling */
+    background-color: #bababa !important; 
+    color: #333 !important;
+    border-color: #f8f9fa;
+}
+
 .text-light {
     color: #f8f9fa;
 }
@@ -14,6 +26,17 @@ label{
 .dark {
     color: #f8f9fa;
     background-color:#111111;
+}
+
+.custom-width.dark:hover{
+    color: #e4e4e4;
+    background-color: #383838;
+}
+
+.custom-width.dark-active {
+    background-color: #333 !important;
+    color: #bababa !important;
+    border-color: #111111;
 }
 
 .dark input:focus {

@@ -304,10 +304,10 @@ function Profile() {
                             <Col className="d-flex justify-content-between align-items-center px-4 my-3">
                                 <p>Theme:</p>
                                 <ToggleButtonGroup className='' name='themes' defaultValue={"light"} type='radio'>
-                                    <ToggleButton id='light-mode' value={"light"} className='custom-width' onClick={setLightTheme}>
+                                    <ToggleButton id='light-mode' value={"light"} className={`custom-width ${theme === 'light' ? 'light-active' : 'light'}`} onClick={setLightTheme}>
                                         Light <FaRegSun />
                                     </ToggleButton>
-                                    <ToggleButton id='dark-mode' value={"dark"} className='custom-width' onClick={setDarkTheme}>
+                                    <ToggleButton id='dark-mode' value={"dark"} className={`custom-width ${theme === 'dark' ? 'dark-active' : 'dark'}`} onClick={setDarkTheme}>
                                         Dark <FaRegMoon />
                                     </ToggleButton>
                                 </ToggleButtonGroup>
