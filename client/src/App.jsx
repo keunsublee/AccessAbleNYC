@@ -7,6 +7,7 @@ import Feedback from './pages/Feedback.jsx';
 import { BrowserRouter as Router, Routes, Route} from "react-router-dom";
 import Footer from "./components/Footer.jsx";
 import 'leaflet/dist/leaflet.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
     return(
