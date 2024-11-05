@@ -5,6 +5,11 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import 'leaflet-routing-machine';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
+import Toast from 'react-bootstrap/Toast';
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
+import Form from 'react-bootstrap/Form';
+import { useNavigate } from 'react-router-dom';
 
 // Def custom icons for each location type
 const beachIconUrl = '/assets/beach-100.png';
@@ -80,7 +85,6 @@ const getIconByLocationType = (type, iconSize) => {
 
 // Function to calculate the center of nearby locations
 const calculateCenter = (nearbyLocations) => {
-    console.log("calculateCenter called")
     if (nearbyLocations.length === 0) {
         // Default to NYC center if no nearby locations are available
         return [40.7128, -74.0060];
@@ -100,49 +104,83 @@ const calculateCenter = (nearbyLocations) => {
     ];
 };
 
-const RoutingMachine = ({start, routeTo}) => {
+const RoutingMachine = ({ start, routeTo }) => {
     const map = useMap();
     const routingControlRef = useRef(null);
+    const closeControlRef = useRef(null);
+    const navigate = useNavigate();
+
     useEffect(() => {
-        if (start.lat!=null && start.lon!=null && routeTo.lat!=null && routeTo.lon!=null){
+        if (start.lat != null && start.lon != null && routeTo.lat != null && routeTo.lon != null) {
             if (!routingControlRef.current) {
                 routingControlRef.current = L.Routing.control({
-                waypoints: [
+                    waypoints: [
+                        L.latLng(start.lat, start.lon),
+                        L.latLng(routeTo.lat, routeTo.lon)
+                    ],
+                    routeWhileDragging: false,
+                    lineOptions: {
+                        styles: [{ color: 'blue', weight: 4 }]
+                    }
+                }).addTo(map);
+
+                closeControlRef.current = L.control({ position: 'topright' });
+                closeControlRef.current.onAdd = function () {
+                    const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+                    div.innerHTML = 'Close Route';
+                    div.style.backgroundColor = '#ffcccc';
+                    div.style.padding = '5px';
+                    div.style.cursor = 'pointer';
+                    div.onclick = function () {
+                        map.removeControl(routingControlRef.current);
+                        routingControlRef.current = null;
+                        map.removeControl(closeControlRef.current);
+                        closeControlRef.current = null;
+                        navigate('');
+                    };
+                    return div;
+                };
+                closeControlRef.current.addTo(map);
+            } else {
+                routingControlRef.current.setWaypoints([
                     L.latLng(start.lat, start.lon),
                     L.latLng(routeTo.lat, routeTo.lon)
-                ],
-                routeWhileDragging: false,
-                }).addTo(map);
-            } 
+                ]);
+            }
         }
     }, [map, start, routeTo]);
-  
+
     return null;
 };
 
+
 // This component updates the map's center when nearby locations change
 const MapCenterUpdater = ({ nearbyLocations, selectedLocation}) => {
-    console.log("MapCenterUpdater called")
     const map = useMap();
 
-    useEffect(() => {
-        if (selectedLocation[0] && (selectedLocation[0].lat || selectedLocation[0].latitude) && (selectedLocation[0].lon || selectedLocation[0].longitude)) {
-            // Check selected location
-            console.log("selectedLocation[0]: ", selectedLocation[0]);
-            const newCenter = [selectedLocation[0].lat || selectedLocation[0].latitude, selectedLocation[0].lon || selectedLocation[0].longitude];
-            map.setView(newCenter); // Center map on the selected location
+    useEffect(() => { 
+        let newCenter;
+        let zoomLevel = 12;
+
+        if (selectedLocation && selectedLocation.lat && selectedLocation.lon) {
+            newCenter = [selectedLocation.lat, selectedLocation.lon];
         } else {
-            console.log("nearbyLocations: ", nearbyLocations);
-            const newCenter = calculateCenter(nearbyLocations);
-            map.setView(newCenter);  // Update the map's center
+            newCenter = calculateCenter(nearbyLocations);
+        }
+        if (newCenter) {
+            map.setView(newCenter, zoomLevel);
         }
     }, [nearbyLocations, selectedLocation, map]);
     return null;
 };
 
-const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , userCoord, destination}) => {
-    const [filter, setFilter] = useState('all');  // State for filtering location types
+const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , userCoord, destination, filterCriteria}) => {
     const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby location
+    const [showToastError, setShowToastError] = useState(false);
+    const [showToastSuccess, setShowToastSuccess] = useState(false);
+    const [message, setMessage] = useState('');
+    const[directionModalOpen,setDirectionModalOpen]=useState(false);
+    const [recentlyOpened, setRecentlyOpened] = useState('');
 
     const [userId, setUserId] = useState('');
     const [iconSize, setIconSize] = useState([35, 35]);
@@ -159,7 +197,8 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
 
     const handleAddLocation1 = (locationId) => {
         if (!userId) {
-            alert('User ID is not set. Please Log in first.');
+            setMessage('User ID is not set. Please Log in first.');
+            setShowToastError(true);
             return;
         }
         const userQuery = { locationId: locationId };
@@ -172,13 +211,16 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert(data.message);
+                setMessage(data.message);
+                setShowToastSuccess(true);
             } else {
-                alert('Unable to add location: ' + data.message);
+                setMessage('Unable to add location: ' + data.message);
+                setShowToastError(true);
             }
         })
         .catch(error => {
-            alert('Error: ' + error);
+            setMessage('Error: ' + error);
+            setShowToastError(true);
         });
     };
 
@@ -202,68 +244,49 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
             </Marker>
         );
     };
+    // Filter locations based on the criteria
+    const filteredNearbyLocations = nearbyLocations.filter(location =>
+        Object.keys(filterCriteria).every(key => !filterCriteria[key] || location[key] === filterCriteria[key])
+    );
 
-    useEffect(() => {
-        selectedLocation ? setShowNearby(false) : setShowNearby(true);
-    }, [selectedLocation]);
+    const filteredLocations = locations.filter(location =>
+        Object.keys(filterCriteria).every(key => !filterCriteria[key] || location[key] === filterCriteria[key])
+    );
 
-    // Determine the locations to show based on the showNearby state
-    const locationsToShow = showNearby ? nearbyLocations : locations;
-
-    // Filter the locations based on the selected filter (e.g., playground, beach, etc.)
-    const filteredLocations = selectedLocation
-    ? locationsToShow.filter(location => location.Name === selectedLocation)
-    : filter === 'all'
-        ? locationsToShow
-        : locationsToShow.filter(location => location.location_type === filter);
-
+    // Determine locations to show based on the selected filter and nearby toggle
+    const locationsToShow = showNearby
+        ? (selectedLocation ? filteredNearbyLocations.filter(loc => loc.Name === selectedLocation) : filteredNearbyLocations)
+        : (selectedLocation ? filteredLocations.filter(loc => loc.Name === selectedLocation) : filteredLocations);
+ 
     return (
         <div>
-            {/* Dropdown filter to choose which location type to display */}
-            <div>
-                <label htmlFor="filter">Filter by Location Type: </label>
-                <select 
-                    id="filter" 
-                    value={filter} 
-                    onChange={(e) => setFilter(e.target.value)}
-                    className={`${theme} m-1`}
-                >
-                    <option value="all">All</option>
-                    <option value="playground">Playgrounds</option>
-                    <option value="pedestrian_signal">Pedestrian Signals</option>
-                    <option value="beach">Beaches</option>
-                    <option value="subway_stop">Subway Stops</option>
-                    <option value="restroom">Restrooms</option>
-                </select>
-
-                {/* Checkbox to toggle between showing all or nearby locations */}
-                <label htmlFor="showNearby" style={{ marginLeft: '10px' }}>
+            {/* Checkbox to toggle between showing all or nearby locations */}
+            <label htmlFor="showNearby" style={{ marginLeft: '10px' }} >
                     <input
                         id="showNearby"
                         type="checkbox"
+                        // className={`${theme}`}
                         checked={showNearby}
                         onChange={() => setShowNearby(!showNearby)}
                     />
                     Show Nearby Locations Only
-                </label>
-            </div>
-
+            </label>
             <MapContainer 
             center={[40.7128, -74.0060]} 
             zoom={13} 
             maxBounds={nycBounds} 
             maxBoundsViscosity={1.0}
-            style={{ height: '75vh', width: '100vw' }}>
+            style={{ height: '71vh', width: '100vw' }}>
                 {/* Add OpenStreetMap tile layer */}
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 />
                 {/* This component will update the map center when nearbyLocations changes */}
-                <MapCenterUpdater nearbyLocations={nearbyLocations} selectedLocation={filteredLocations}  />
+                <MapCenterUpdater nearbyLocations={nearbyLocations} selectedLocation={selectedLocation ? [selectedLocation] : filteredLocations} />
                 <RoutingMachine start={userCoord} routeTo={destination}/>
                 {/* Render Markers for filtered locations */}
-                {filteredLocations.map((location, index) => {
+                {locationsToShow.map((location, index) => {
                     const lat = location.lat || location.latitude;
                     const lon = location.lon || location.longitude;
 
@@ -278,6 +301,9 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                 key={index} 
                                 position={[lat, lon]} 
                                 icon={getIconByLocationType(location.location_type, iconSize)}
+                                eventHandlers={{
+                                    click: () => setRecentlyOpened(location)
+                                }}
                                >
                                <Popup>
                                     {/* Display different information based on the location_type */}
@@ -293,6 +319,9 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                             <div className="button-container">
                                                 <button className="add-favorite-button" onClick={() => handleAddLocation1(location._id)}>
                                                     Add to Favorite
+                                                </button>
+                                                <button className="add-favorite-button" onClick={() => setDirectionModalOpen(true)}>
+                                                    Directions
                                                 </button>
                                             </div>
 
@@ -310,8 +339,10 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                                 <button className="add-favorite-button" onClick={() => handleAddLocation1(location._id)}>
                                                     Add to Favorite
                                                 </button>
+                                                <button className="add-favorite-button" onClick={() => setDirectionModalOpen(true)}>
+                                                    Directions
+                                                </button>
                                             </div>
-
                                         </div>
                                     )}
                                     {location.location_type === 'restroom' && (
@@ -325,6 +356,9 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                             <div className="button-container">
                                                 <button className="add-favorite-button" onClick={() => handleAddLocation1(location._id)}>
                                                     Add to Favorite
+                                                </button>
+                                                <button className="add-favorite-button" onClick={() => setDirectionModalOpen(true)}>
+                                                    Directions
                                                 </button>
                                             </div>
 
@@ -341,8 +375,10 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                                 <button className="add-favorite-button" onClick={() => handleAddLocation1(location._id)}>
                                                     Add to Favorite
                                                 </button>
+                                                <button className="add-favorite-button" onClick={() => setDirectionModalOpen(true)}>
+                                                    Directions
+                                                </button>
                                             </div>
-
                                         </div>
                                     )}
                                     {location.location_type === 'pedestrian_signal' && (
@@ -356,8 +392,10 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                                 <button className="add-favorite-button" onClick={() => handleAddLocation1(location._id)}>
                                                     Add to Favorite
                                                 </button>
+                                                <button className="add-favorite-button" onClick={() => setDirectionModalOpen(true)}>
+                                                    Directions
+                                                </button>
                                             </div>
-
                                         </div>
                                     )}
                                     {/* For unknown location types */}
@@ -375,8 +413,10 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                                 <button className="add-favorite-button" onClick={() => handleAddLocation1(location._id)}>
                                                     Add to Favorite
                                                 </button>
+                                                <button className="add-favorite-button" onClick={() => setDirectionModalOpen(true)}>
+                                                    Directions
+                                                </button>
                                             </div>
-
                                         </div>
                                     )}
                                 </Popup>
@@ -388,8 +428,128 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                     return null;  // Skip the marker if location coordinates are not available
                 })}
             </MapContainer>
+            <Toast onClose={() => setShowToastSuccess(false)} show={showToastSuccess} delay={3000} className="toast-bottom-right" bg='success' autohide>
+                <Toast.Header>
+                    <strong className="me-auto">Alert</strong>
+                </Toast.Header>
+                <Toast.Body>{message}</Toast.Body>
+            </Toast>
+            <Toast onClose={() => setShowToastError(false)} show={showToastError} delay={3000} className="toast-bottom-right" bg='danger' autohide>
+                <Toast.Header>
+                    <strong className="me-auto">Alert</strong>
+                </Toast.Header>
+                <Toast.Body>{message}</Toast.Body>
+            </Toast>
+            <DirectionModal
+            show={directionModalOpen}
+            onHide={() => setDirectionModalOpen(false)}
+            final = {recentlyOpened}
+            />
         </div>
     );
 };
+
+function DirectionModal(props) {
+    const [showToastError, setShowToastError] = useState(false);
+    const [message, setMessage] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [search, setSearch] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const navigate = useNavigate();
+
+    const handlePathTo = (start, destination) => {
+        if (start){
+            navigate(`/?lat=${destination.lat || destination.latitude}&lon=${destination.lon || destination.longitude}&preflat=${start.lat || start.latitude}&preflon=${start.lon || start.longitude}`);
+        }
+        else{
+            navigate(`/?lat=${destination.lat || destination.latitude}&lon=${destination.lon || destination.longitude}`);
+        }
+        props.onHide();
+        setSearchTerm('');
+        setSearch('');
+    };
+
+    const handleSearch = async (event) => {
+        setSearchTerm(event.target.value);
+        if (event.target.value) {
+            try {
+                const response = await fetch(`${import.meta.env.VITE_PORT}/search?type=${event.target.value}`);
+                if (!response.ok) {
+                    throw new Error('Error fetching locations');
+                }
+                const data = await response.json();
+                setSearchResults(data);
+            } catch (error) {
+                console.error('Error fetching locations:', error);
+            }
+        } else {
+            setSearchResults([]);
+        }
+    };
+
+    const handleLocationSelection = (location) => {
+        setSearch(location);
+        setSearchTerm(location.Name); 
+        setSearchResults([]);
+    };
+
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        if(!searchTerm){
+            setMessage("Error: Please provide an input location");
+            setShowToastError(true);
+            return;
+        }
+        handlePathTo(search, props.final);
+    };
+
+    return (
+        <Modal
+            {...props}
+            size="lg"
+            aria-labelledby="contained-modal-title-vcenter"
+            centered
+        >
+            <Modal.Header closeButton>
+                <Modal.Title id="contained-modal-title-vcenter">
+                    Directions
+                </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <Form className="d-flex" onSubmit={handleSubmit}>
+                    <Form.Control
+                        type="search"
+                        placeholder="Search a starting point"
+                        className="me-2"
+                        aria-label="Search"
+                        value={searchTerm}
+                        style={{ borderRadius: '20px' }}
+                        onChange={handleSearch}
+                    />
+                    {searchResults.length > 0 && (
+                        <div className="add-dropdown-menu show position-absolute">
+                            {searchResults.map((result, index) => (
+                                <button key={index} className="dropdown-item" onClick={() => handleLocationSelection(result)}>
+                                    {result.Name}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                    <Button variant="outline-primary" className='addButton' style={{ borderRadius: '20px' }} onClick={() => setSearchTerm('Your Location')}>Your Location</Button>
+                    <Button variant="outline-success" className='addButton' style={{ borderRadius: '20px' }} type="submit">Find Route</Button>
+                </Form>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button onClick={props.onHide}>Close</Button>
+            </Modal.Footer>
+            <Toast onClose={() => setShowToastError(false)} show={showToastError} delay={3000} className="toast-bottom-right" bg='danger' autohide>
+                <Toast.Header>
+                    <strong className="me-auto">Alert</strong>
+                </Toast.Header>
+                <Toast.Body>{message}</Toast.Body>
+            </Toast>
+        </Modal>
+    );
+}
 
 export default MapComponent;

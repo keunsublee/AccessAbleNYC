@@ -8,6 +8,7 @@ import { BrowserRouter as Router, Routes, Route} from "react-router-dom";
 import { ThemeProvider } from './components/ThemeContext.jsx';
 import Footer from "./components/Footer.jsx";
 import 'leaflet/dist/leaflet.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
     return(

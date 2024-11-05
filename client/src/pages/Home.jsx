@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import '../style/Home.css';
 import NavBar from '../components/NavBar.jsx';
-import MapComponent from '../components/MapComponent'; 
+import MapComponent from '../components/MapComponent';
+import FilterSideBar from '../components/FilterSideBar.jsx';
 import Toast from 'react-bootstrap/Toast';
 import SearchBar from '../components/SearchBar';
 import { useLocation } from 'react-router-dom';
+import { Button } from 'react-bootstrap';
 
 // Homepage which is the main page the user lands on
 function Home() {
@@ -17,12 +19,44 @@ function Home() {
     const location = useLocation();
     const params = new URLSearchParams(location.search);
     const [userCoord, setUserCoord] = useState({ lat: null, lon:  null});
+    const [startCoord, setStartCoord] = useState({ lat: null, lon:  null});
     const [destination, setDestination] = useState({ lat: null, lon:  null});
+    const [filterCriteria, setFilterCriteria] = useState({});
+    const [showFilter, setShowFilter] = useState(false);
+
+     // Toggle FilterSideBar visibility
+    const handleFilterToggle = () => setShowFilter(!showFilter);
+
+    // Update filter criteria from FilterSideBar
+    const handleFilterChange = (newCriteria) => setFilterCriteria(newCriteria);
     
     //user selected locations
     const handleSearch = (searchTerm) => {
         setSelectedLocation(searchTerm);
     };
+
+    useEffect(() => {
+        if(params.get('lat') && params.get('lon') && params.get('preflat') && params.get('preflon')){
+            setDestination({lat: params.get('lat'), lon: params.get('lon')});
+            setStartCoord({lat: params.get('preflat'), lon: params.get('preflon')})
+        }
+        else if(params.get('lat') && params.get('lon')){
+            setDestination({lat: params.get('lat'), lon: params.get('lon')});
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const { latitude, longitude } = position.coords;
+                        setStartCoord({lat: latitude, lon: longitude});
+                    },
+                    (error) => {
+                        console.error('Geolocation error:', error);
+                    }
+                );
+            } else {
+                alert('Geolocation is not supported by this browser.');
+            }
+        }
+    }, [location.search]);
 
     useEffect(() => {
         if (effectRan.current) return;
@@ -32,10 +66,6 @@ function Home() {
         if (token) {
             const decodedToken = JSON.parse(atob(token.split('.')[1]));
             setName(decodedToken.name);
-        }
-
-        if(params.get('lat') && params.get('lon')){
-            setDestination({lat: params.get('lat'), lon: params.get('lon')});
         }
 
         // Fetch all locations
@@ -59,7 +89,6 @@ function Home() {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     const { latitude, longitude } = position.coords;
-                    setUserCoord({lat: latitude, lon: longitude});
                     console.log('User Coordinates: ', { latitude, longitude });
 
                     fetch(`${import.meta.env.VITE_PORT}/locations/nearby?lat=${latitude}&lon=${longitude}`)
@@ -100,14 +129,22 @@ function Home() {
         <div>
             <NavBar />
             <SearchBar onSearch={handleSearch} />
-            {/* Pass locations and nearbyLocations to the MapComponent */}
+            {/* Filter Button to open sidebar */}
+            <Button variant="primary" onClick={handleFilterToggle}>Open Filter</Button>
             
+            {/* FilterSideBar Component */}
+            <FilterSideBar
+                 show={showFilter}
+                 handleClose={handleFilterToggle}
+                 onFilterChange={handleFilterChange}  
+            />
             <MapComponent 
                 locations={locations} 
                 nearbyLocations={nearbyLocations} 
                 selectedLocation={selectedLocation}
-                userCoord = {userCoord}
+                userCoord = {startCoord}
                 destination={destination}
+                filterCriteria={filterCriteria} 
             />
 
             <Toast 
