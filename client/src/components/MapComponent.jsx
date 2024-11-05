@@ -103,20 +103,64 @@ const calculateCenter = (nearbyLocations) => {
     ];
 };
 
-const RoutingMachine = ({ start, routeTo }) => {
+const RoutingMachine = ({ start, routeTo, trafficSignals}) => {
     const map = useMap();
     const routingControlRef = useRef(null);
     const closeControlRef = useRef(null);
     const navigate = useNavigate();
 
-    useEffect(() => {
+    const getClosestTrafficSignal = (currentLocation, trafficSignals, finalLocation) => {
+        let closestSignal = null;
+        let minDistance = Infinity;
+
+        trafficSignals.forEach(signal => {
+            const distance = map.distance(
+                L.latLng(currentLocation.latitude || currentLocation.lat, currentLocation.longitude || currentLocation.lon),
+                L.latLng(signal.latitude, signal.longitude)
+            );
+            const currentToFinalDistance = map.distance(
+                L.latLng(currentLocation.latitude || currentLocation.lat, currentLocation.longitude || currentLocation.lon),
+                L.latLng(finalLocation.lat, finalLocation.lon)
+            );
+            const signalToFinalDistance = map.distance(
+                L.latLng(signal.latitude, signal.longitude),
+                L.latLng(finalLocation.lat, finalLocation.lon)
+            );
+            if (distance < minDistance && signalToFinalDistance<currentToFinalDistance) {
+                minDistance = distance;
+                closestSignal = signal;
+            }
+        });
+    
+        return { closestSignal, minDistance };
+    };
+
+    useEffect(() => {     
         if (start.lat != null && start.lon != null && routeTo.lat != null && routeTo.lon != null) {
+            const distance = map.distance(
+                L.latLng(start.lat, start.lon),
+                L.latLng(routeTo.lat, routeTo.lon)
+            );
+            let current = start;
+            let visitedSignals = new Set();
+            const waypoints = [L.latLng(start.lat, start.lon)];
+            
+            while (true) {
+                const { closestSignal, minDistance } = getClosestTrafficSignal(current, trafficSignals, routeTo);
+            
+                if (!closestSignal || visitedSignals.has(closestSignal) || minDistance >= distance) {
+                    waypoints.push(L.latLng(routeTo.lat, routeTo.lon));
+                    break;
+                }
+            
+                waypoints.push(L.latLng(closestSignal.latitude, closestSignal.longitude));
+                visitedSignals.add(closestSignal);
+                current = closestSignal;
+            }
+            
             if (!routingControlRef.current) {
                 routingControlRef.current = L.Routing.control({
-                    waypoints: [
-                        L.latLng(start.lat, start.lon),
-                        L.latLng(routeTo.lat, routeTo.lon)
-                    ],
+                    waypoints: waypoints,
                     routeWhileDragging: false,
                     lineOptions: {
                         styles: [{ color: 'blue', weight: 4 }]
@@ -141,10 +185,7 @@ const RoutingMachine = ({ start, routeTo }) => {
                 };
                 closeControlRef.current.addTo(map);
             } else {
-                routingControlRef.current.setWaypoints([
-                    L.latLng(start.lat, start.lon),
-                    L.latLng(routeTo.lat, routeTo.lon)
-                ]);
+                routingControlRef.current.setWaypoints(waypoints);
             }
         }
     }, [map, start, routeTo]);
@@ -281,7 +322,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                 />
                 {/* This component will update the map center when nearbyLocations changes */}
                 <MapCenterUpdater nearbyLocations={nearbyLocations} selectedLocation={selectedLocation ? [selectedLocation] : filteredLocations} />
-                <RoutingMachine start={userCoord} routeTo={destination}/>
+                <RoutingMachine start={userCoord} routeTo={destination} trafficSignals={locations.filter(loc => loc.location_type === "pedestrian_signal")}/>
                 {/* Render Markers for filtered locations */}
                 {locationsToShow.map((location, index) => {
                     const lat = location.lat || location.latitude;
