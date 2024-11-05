@@ -188,7 +188,7 @@ const RoutingMachine = ({ start, routeTo, trafficSignals}) => {
                 routingControlRef.current.setWaypoints(waypoints);
             }
         }
-    }, [map, start, routeTo]);
+    }, [map, start, routeTo, trafficSignals]);
 
     return null;
 };
