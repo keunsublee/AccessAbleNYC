@@ -41,3 +41,10 @@ footer {
     text-decoration: none;
     margin-top: 5px;
 }
+
+@media (width: 375px) {
+
+    .footer-title{
+    font-size: 12px;
+  }
+}

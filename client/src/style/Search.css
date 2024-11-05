@@ -27,3 +27,68 @@
 .dropdown-item:hover {
     background-color: #a7c8e9;
 }
+
+
+
+/* responsiveness search bar for mobile screens */
+@media (max-width: 375px) {
+    .search-bar { 
+      left:95px;
+    }
+  }
+  
+  /* Styles for small screens */
+  @media (max-width: 414px) {
+    .search-bar { 
+      left:105px;
+    }
+  }
+  
+  /* Styles for small screens */
+  @media (max-width: 430px) {
+    .search-bar { 
+      left:105px;
+    }
+  }
+  
+  
+  @media (width: 768px) {
+    .search-bar { 
+      left:10px;
+    }
+  }
+  
+  @media (width: 820px) {
+    .search-bar { 
+      left:10px;
+    }
+  }
+  
+  @media (width: 1024px) {
+    .search-bar { 
+      left:10px;
+    }
+  }
+  @media (width: 912px) {
+    .search-bar { 
+      left:10px;
+    }
+  }
+  
+  @media (width: 540px) {
+    .search-bar { 
+      left:105px;
+    }
+  }
+  
+  @media (width: 853px) {
+    .search-bar { 
+      left:10px;
+    }
+  }
+  
+  @media (width: 1280px) {
+    .search-bar { 
+      left:10px;
+    }
+  }

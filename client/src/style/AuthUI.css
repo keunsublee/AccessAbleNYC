@@ -15,3 +15,197 @@
     right: 1rem;
     z-index: 1050;
 }
+
+
+
+
+
+/* Responsiveness for Login/Signup Page */
+@media (max-width: 576px) {
+    .outer-div {
+        margin-top: 20px; /* Reduced top margin for small screens */
+        padding: 10px; /* Reduced padding for compact design */
+    }
+
+    /* Center and resize the login button for better appearance */
+    .d-flex {
+        justify-content: center;
+        margin-top: 15px;
+    }
+}
+
+/* Additional styling for 360px screen width */
+@media (max-width: 360px) {
+    .outer-div {
+        margin-top: 10px; /* Further reduce margin for narrow screens */
+        padding: 5px; /* Compact padding for a tighter layout */
+        width:450px;
+    }
+    form .form-control,
+    form .btn {
+        max-width: 80%;
+        font-size: 13px; /* Smaller text for very small screens */
+    }
+
+    .d-flex {
+        margin-left: -80px;
+    }
+
+}
+
+@media (max-width: 375px) {
+    .outer-div {
+        position: relative;
+        top: -50px; /* Move the element up by 50px */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-right:-58px;
+
+    }
+    form .form-control,
+    form .btn {
+        max-width: 60%;
+        font-size: 13px; 
+    }
+
+    .d-flex {
+        margin-left: -80px;
+    }
+
+}
+
+@media (max-width: 414px) {
+    .outer-div {
+        margin-top: 200px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-right:-58px;
+    }
+    form .form-control,
+    form .btn {
+        max-width: 85%;
+        font-size: 13px; /* Smaller text for very small screens */
+    }
+
+    .d-flex {
+        margin-left: -65px;
+    }
+
+}
+
+@media (max-width: 344px) {
+    .outer-div {
+        margin-top: 200px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-left:5px;
+    }
+    form .form-control,
+    form .btn {
+        max-width: 70%;
+        font-size: 13px; /* Smaller text for very small screens */
+    }
+
+    .d-flex {
+        margin-left: -100px;
+    }
+
+}
+
+@media (max-width: 360px) {
+    .outer-div {
+        margin-top: 200px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        left:-20px;
+    }
+    form .form-control,
+    form .btn {
+        max-width: 70%;
+        font-size: 13px; /* Smaller text for very small screens */
+    }
+
+    .d-flex {
+        margin-left: -100px;
+    }
+
+}
+
+@media (max-width: 1024px) {
+    .outer-div {
+        position: relative;
+        top: -75px; /* Move the element up by 50px */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-right:-58px;
+
+    }
+
+
+}
+
+@media (max-width: 430px) {
+    .outer-div {
+        margin-top: 200px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-left:15px;
+    }
+    form .form-control,
+    form .btn {
+        max-width: 80%;
+        font-size: 13px; /* Smaller text for very small screens */
+    }
+
+    .d-flex {
+        margin-left: -100px;
+    }
+
+}
+
+@media (width: 540px) {
+    .outer-div {
+        margin-top: 200px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        right:-18px;
+    }
+    form .form-control,
+    form .btn {
+        max-width: 80%;
+        font-size: 13px; /* Smaller text for very small screens */
+    }
+
+    .d-flex {
+        margin-left: -100px;
+    }
+
+}
+
+@media (width: 344px) {
+    .outer-div {
+        margin-top: 200px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        left:-12px;
+    }
+    form .form-control,
+    form .btn {
+        max-width: 70%;
+        font-size: 13px; /* Smaller text for very small screens */
+    }
+
+    .d-flex {
+        margin-left: -100px;
+    }
+
+}
+
