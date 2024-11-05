@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import '../style/Footer.css';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+import { useTheme } from './ThemeContext';
 import { Link } from 'react-router-dom';
 
 function AboutUsModal(props) {
@@ -129,26 +130,33 @@ const Footer = () => {
     const[emailModalOpen,setEmailModalOpen]=useState(false);
     const[phoneModalOpen,setPhoneModalOpen]=useState(false);
     const[helpFAQOpen,setHelpFAQOpen]=useState(false);
+    const { theme } = useTheme();
 
     return (
-            <footer>
+            <footer className={`${theme}`}>
                 <h1 className='footer-container'>AccessAble NYC.</h1>
                 <div className='footer-container'>
-                    <p className='footer-title'>Website</p>
-                    <a href="#" onClick={() => setAboutUsModalOpen(true)} className='footer-items'>About us</a>
-                    <Link to="/" className='footer-items'>Home</Link>
+                    <p className={`footer-title ${theme === 'light' ? 'text-light-theme' : 'text-dark-theme'}`}>Website</p>
+                    <a href="#" onClick={() => setAboutUsModalOpen(true)} 
+                    className={`footer-items ${theme === 'light' ? 'text-light-theme' : 'text-dark-theme'}`}>About us</a>
+                    <Link to="/"
+                    className={`footer-items ${theme === 'light' ? 'text-light-theme' : 'text-dark-theme'}`}>Home</Link>
                 </div>
 
                 <div className='footer-container'>
-                    <p className='footer-title'>Contact</p>
-                    <a href="#" onClick={() => setEmailModalOpen(true)} className='footer-items'>Email</a>
-                    <a href="#" onClick={() => setPhoneModalOpen(true)} className='footer-items'>Phone</a>
+                    <p className={`footer-title ${theme === 'light' ? 'text-light-theme' : 'text-dark-theme'}`}>Contact</p>
+                    <a href="#" onClick={() => setEmailModalOpen(true)}
+                    className={`footer-items ${theme === 'light' ? 'text-light-theme' : 'text-dark-theme'}`}>Email</a>
+                    <a href="#" onClick={() => setPhoneModalOpen(true)}
+                    className={`footer-items ${theme === 'light' ? 'text-light-theme' : 'text-dark-theme'}`}>Phone</a>
                 </div>
 
                 <div className='footer-container'>
-                    <p className='footer-title'>More</p>
-                    <Link to='/feedback' className='footer-items'>Feedback</Link>
-                    <a href="#" onClick={() => setHelpFAQOpen(true) } className='footer-items'>Help/FAQs</a>
+                    <p className={`footer-title ${theme === 'light' ? 'text-light-theme' : 'text-dark-theme'}`}>More</p>
+                    <Link to='/feedback' 
+                    className={`footer-items ${theme === 'light' ? 'text-light-theme' : 'text-dark-theme'}`}>Feedback</Link>
+                    <a href="#" onClick={() => setHelpFAQOpen(true) }
+                    className={`footer-items ${theme === 'light' ? 'text-light-theme' : 'text-dark-theme'}`}>Help/FAQs</a>
                 </div>
                 <AboutUsModal
                 show={aboutUsModalOpen}

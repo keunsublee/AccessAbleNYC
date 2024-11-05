@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTheme } from './ThemeContext';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -183,6 +184,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
 
     const [userId, setUserId] = useState('');
     const [iconSize, setIconSize] = useState([35, 35]);
+    const { theme } = useTheme();
    
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -259,10 +261,11 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
     return (
         <div>
             {/* Checkbox to toggle between showing all or nearby locations */}
-            <label htmlFor="showNearby" style={{ marginLeft: '10px' }}>
+            <label htmlFor="showNearby" style={{ marginLeft: '10px' }} >
                     <input
                         id="showNearby"
                         type="checkbox"
+                        // className={`${theme}`}
                         checked={showNearby}
                         onChange={() => setShowNearby(!showNearby)}
                     />

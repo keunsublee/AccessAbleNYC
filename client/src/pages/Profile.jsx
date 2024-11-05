@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import NavBar from '../components/NavBar.jsx';
+import {useTheme} from '../components/ThemeContext.jsx';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -11,8 +12,10 @@ import Button from 'react-bootstrap/Button';
 import Toast from 'react-bootstrap/Toast';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
+import ToggleButton from 'react-bootstrap/ToggleButton';
+import ToggleButtonGroup from 'react-bootstrap/ToggleButtonGroup';
+import { FaRegSun, FaRegMoon } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
-
 
 //user profile
 function Profile() {
@@ -34,6 +37,7 @@ function Profile() {
     const [searchResults, setSearchResults] = useState([]);
     const navigate = useNavigate();
     const [suggestLocations, setSuggestLocations] = useState([]);
+    const {theme, setLightTheme, setDarkTheme} = useTheme();
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -86,9 +90,7 @@ function Profile() {
                 console.error('Error fetching suggest locations:', error);
             });
         }
-},[userId]);
-
-
+    },[userId]);
 
     const handleSearch = async (event) => {
         setSearchTerm(event.target.value);
@@ -195,9 +197,19 @@ function Profile() {
     const handlePathTo = (destination) => {
         navigate(`/?lat=${destination.lat || destination.latitude}&lon=${destination.lon || destination.longitude}`);
     };
+
+    const handleTheme = (newTheme) => {
+        if(theme !== newTheme){
+            if(newTheme === 'light'){
+                setLightTheme();
+            } else {
+                setDarkTheme();
+            }
+        }
+    }
     
     return (
-        <div>
+        <div className={`${theme}`}>
             <NavBar/>
             <Container>
                 <Row className='rowAdj'>
@@ -223,7 +235,7 @@ function Profile() {
                                 <Form.Control
                                 type="search"
                                 placeholder="Search"
-                                className="me-2"
+                                className={`me-2 ${theme}`}
                                 aria-label="Search"
                                 value={searchTerm}
                                 style={{ borderRadius: '20px' }}
@@ -232,7 +244,7 @@ function Profile() {
                                 {searchResults.length > 0 && (
                                 <div className="add-dropdown-menu show position-absolute">
                                     {searchResults.map((result, index) => (
-                                        <button key={index} className="dropdown-item" onClick={() => handleLocationSelection(result)}>
+                                        <button key={index} className={`dropdown-item ${theme}`} onClick={() => handleLocationSelection(result)}>
                                             {result.Name}
                                         </button>
                                     ))}
@@ -243,7 +255,7 @@ function Profile() {
                         </div>
                         <ListGroup className="scrollable-list">
                             {favoriteLocations.map((location, index) => (
-                                <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">
+                                <ListGroup.Item key={index} className={`d-flex justify-content-between align-items-center ${theme}`}>
                                     {location.facility_name || location.Name || location.ntaname || 'No Name'}
                                     <div>
                                         <Button variant="outline-success" onClick={() => handleShow(location.Name)}>Show</Button>
@@ -257,12 +269,12 @@ function Profile() {
                         <div className="spacing"></div> 
                         
                         {suggestLocations.length > 0 && (
-                            <h2 className="suggestions-header">Suggested Locations Based on Favorites</h2>
+                            <h2 className={`suggestions-header ${theme === 'light' ? '' : 'text-light'}`}>Suggested Locations Based on Favorites</h2>
                         )}
                         <ListGroup className="scrollable-list">
                                 {suggestLocations.length>0?(
                                     suggestLocations.map((location,index)=>(
-                                        <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">
+                                        <ListGroup.Item key={index} className={`d-flex justify-content-between align-items-center ${theme}`}>
                                             {location.facility_name||location.Name||'No Name'}
                                             <div className="d-flex gap-2"> 
                                                 <Button variant="outline-success" onClick={() => handleShow(location.Name)}>Show</Button>
@@ -297,7 +309,19 @@ function Profile() {
                         </Row>
                     </Tab>
                     <Tab eventKey="settings" title="Settings">
-                        Tab content for Settings
+                        <Row>
+                            <Col className="d-flex justify-content-between align-items-center px-4 my-3">
+                                <p>Theme:</p>
+                                <ToggleButtonGroup className='' name='themes' defaultValue={"light"} type='radio'>
+                                    <ToggleButton id='light-mode' value={"light"} className={`custom-width ${theme === 'light' ? 'light-active' : 'light'}`} onClick={() => handleTheme('light')}>
+                                        Light <FaRegSun />
+                                    </ToggleButton>
+                                    <ToggleButton id='dark-mode' value={"dark"} className={`custom-width ${theme === 'dark' ? 'dark-active' : 'dark'}`} onClick={() => handleTheme('dark')}>
+                                        Dark <FaRegMoon />
+                                    </ToggleButton>
+                                </ToggleButtonGroup>
+                            </Col>
+                        </Row>
                     </Tab>
                 </Tabs>
             </Container>

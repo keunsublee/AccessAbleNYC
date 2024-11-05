@@ -1,3 +1,57 @@
+label{
+    width: 400px;
+}
+
+.light {
+    color: #111111;
+    background-color: #f8f9fa;
+}
+
+.custom-width.light:hover {
+    background-color: #e4e4e4;
+    color: #383838;
+}
+
+.custom-width.light-active {
+    /* !important to have it override bootstrap default styling */
+    background-color: #bababa !important; 
+    color: #333 !important;
+    border-color: #f8f9fa;
+}
+
+.text-light {
+    color: #f8f9fa;
+}
+
+.dark {
+    color: #f8f9fa;
+    background-color:#111111;
+}
+
+.custom-width.dark:hover{
+    color: #e4e4e4;
+    background-color: #383838;
+}
+
+.custom-width.dark-active {
+    background-color: #333 !important;
+    color: #bababa !important;
+    border-color: #111111;
+}
+
+.dark input:focus {
+    background-color: #111111;
+    color: #f8f9fa;
+}
+
+.dark input::placeholder {
+    color: #f8f9fa;
+}
+
+.dark:hover {
+    color: #f8f9fa;
+}
+
 .rowAdj{
     padding-top: 60px;
 }
@@ -11,10 +65,6 @@
     width: 125px;
 }
 
-label{
-    width: 400px;
-}
-
 .addButton{
     width:200px;
     margin-left: 10px;
@@ -23,8 +73,10 @@ label{
 .add-dropdown-menu {
     width: 275px;
     z-index: 2000;
+    max-width: 300px;
     max-height: 300px; 
     overflow-y: auto;  
+    overflow-x: hidden;
     background-color: white;
     border: 1px solid gray;
     border-radius: 5px;
@@ -33,6 +85,7 @@ label{
 
 .dropdown-item {
     cursor: pointer;
+    white-space: normal;
 }
 
 .dropdown-item:hover {
@@ -42,12 +95,12 @@ label{
 .marginbutton{
     margin-left: 5px;
 }
+
 .suggestions-header {
     font-size: 1.5rem; 
     margin-bottom: 10px;
     color: #111111; 
 }
-
 
 .spacing {
     margin: 20px 0; 
