@@ -104,7 +104,7 @@ const calculateCenter = (nearbyLocations) => {
     ];
 };
 
-const RoutingMachine = ({ start, routeTo, trafficSignals}) => {
+const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
     const map = useMap();
     const routingControlRef = useRef(null);
     const closeControlRef = useRef(null);
@@ -127,16 +127,16 @@ const RoutingMachine = ({ start, routeTo, trafficSignals}) => {
                 L.latLng(signal.latitude, signal.longitude),
                 L.latLng(finalLocation.lat, finalLocation.lon)
             );
-            if (distance < minDistance && signalToFinalDistance<currentToFinalDistance) {
+            if (distance < minDistance && signalToFinalDistance < currentToFinalDistance) {
                 minDistance = distance;
                 closestSignal = signal;
             }
         });
-    
+
         return { closestSignal, minDistance };
     };
 
-    useEffect(() => {     
+    useEffect(() => {
         if (start.lat != null && start.lon != null && routeTo.lat != null && routeTo.lon != null) {
             const distance = map.distance(
                 L.latLng(start.lat, start.lon),
@@ -145,20 +145,20 @@ const RoutingMachine = ({ start, routeTo, trafficSignals}) => {
             let current = start;
             let visitedSignals = new Set();
             const waypoints = [L.latLng(start.lat, start.lon)];
-            
+
             while (true) {
                 const { closestSignal, minDistance } = getClosestTrafficSignal(current, trafficSignals, routeTo);
-            
+
                 if (!closestSignal || visitedSignals.has(closestSignal) || minDistance >= distance) {
                     waypoints.push(L.latLng(routeTo.lat, routeTo.lon));
                     break;
                 }
-            
+
                 waypoints.push(L.latLng(closestSignal.latitude, closestSignal.longitude));
                 visitedSignals.add(closestSignal);
                 current = closestSignal;
             }
-            
+
             if (!routingControlRef.current) {
                 routingControlRef.current = L.Routing.control({
                     waypoints: waypoints,
@@ -176,10 +176,14 @@ const RoutingMachine = ({ start, routeTo, trafficSignals}) => {
                     div.style.padding = '5px';
                     div.style.cursor = 'pointer';
                     div.onclick = function () {
-                        map.removeControl(routingControlRef.current);
-                        routingControlRef.current = null;
-                        map.removeControl(closeControlRef.current);
-                        closeControlRef.current = null;
+                        if (routingControlRef.current) {
+                            map.removeControl(routingControlRef.current);
+                            routingControlRef.current = null;
+                        }
+                        if (closeControlRef.current) {
+                            map.removeControl(closeControlRef.current);
+                            closeControlRef.current = null;
+                        }
                         navigate('');
                     };
                     return div;
@@ -189,10 +193,11 @@ const RoutingMachine = ({ start, routeTo, trafficSignals}) => {
                 routingControlRef.current.setWaypoints(waypoints);
             }
         }
-    }, [map, start, routeTo, trafficSignals]);
+    }, [map, start, routeTo, JSON.stringify(trafficSignals)]);
 
     return null;
 };
+
 
 
 // This component updates the map's center when nearby locations change
