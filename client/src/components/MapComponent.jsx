@@ -199,26 +199,35 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
 };
 
 
-
-// This component updates the map's center when nearby locations change
-const MapCenterUpdater = ({ nearbyLocations, selectedLocation}) => {
+//zooms out only when a new filler is applied. Otherwise, keeps zoom level, even when a icon is clicked.
+const MapCenterUpdater = ({ nearbyLocations, selectedLocation, filterCriteria }) => {
     const map = useMap();
+    const prevFilter = useRef(filterCriteria);
 
-    useEffect(() => { 
+    useEffect(() => {
         let newCenter;
-        let zoomLevel = 12;
+        let zoomLevel = map.getZoom();
 
-        if (selectedLocation && selectedLocation.lat && selectedLocation.lon) {
+        //checks if a new filter is applied.
+        const newfiller = Object.keys(filterCriteria).some(key => filterCriteria[key] && filterCriteria[key] !== prevFilter.current[key]);
+
+        if (newfiller) {
+            zoomLevel = 12;
+            prevFilter.current = {...filterCriteria};//updates prevfilter.
+        } else if (selectedLocation && selectedLocation.lat && selectedLocation.lon) {
             newCenter = [selectedLocation.lat, selectedLocation.lon];
         } else {
             newCenter = calculateCenter(nearbyLocations);
         }
-        if (newCenter) {
-            map.setView(newCenter, zoomLevel);
+
+        if (newCenter || newfiller) {
+            map.setView(newCenter || map.getCenter(), zoomLevel);
         }
-    }, [nearbyLocations, selectedLocation, map]);
+    }, [nearbyLocations, selectedLocation, filterCriteria, map]);
+
     return null;
 };
+
 
 const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , userCoord, destination, filterCriteria}) => {
     const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby location
@@ -329,7 +338,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 />
                 {/* This component will update the map center when nearbyLocations changes */}
-                <MapCenterUpdater nearbyLocations={nearbyLocations} selectedLocation={selectedLocation ? [selectedLocation] : filteredLocations} />
+                <MapCenterUpdater nearbyLocations={nearbyLocations} selectedLocation={selectedLocation ? [selectedLocation] : filteredLocations} filterCriteria={filterCriteria} />
                 <RoutingMachine start={userCoord} routeTo={destination} trafficSignals={locations.filter(loc => loc.location_type === "pedestrian_signal")}/>
                 {/* Render Markers for filtered locations */}
                 {locationsToShow.map((location, index) => {
