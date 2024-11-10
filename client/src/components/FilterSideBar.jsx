@@ -210,7 +210,7 @@ const FilterSideBar = ({ show, handleClose, onFilterChange }) => {
                         Apply Filter
                     </Button>
                     <Button className="mt-3 ms-2" variant="secondary" onClick={handleResetFilters}>
-                        Reset Filters
+                        Clear
                     </Button>
                 </Form>
             </Offcanvas.Body>
