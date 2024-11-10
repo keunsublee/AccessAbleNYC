@@ -11,7 +11,7 @@ dotenv.config()
 const router = express.Router();
 
 //gets all users
-router.get('/', async (req,res) => {
+router.get('/users', async (req,res) => {
     try {
         const users = await User.find({});
         res.status(200).json({success:true, data: users});
@@ -332,4 +332,83 @@ router.get('/:id/suggestLocations',async (req,res) => {
         res.status(500).json({ success: false, message: 'Server Error' });
     }
 
+});
+
+describe('GET /:id/suggestLocations', () => {
+    let user, otherUser1, otherUser2, location1, location2;
+
+    beforeAll(async () => {
+        await mongoose.connect('mongodb://localhost:27017/test_db', {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
+
+        
+        location1 = new Location({ name: 'Location 1' });
+        location2 = new Location({ name: 'Location 2' });
+        await location1.save();
+        await location2.save();
+
+
+        user = new User({ name: 'Test User', email: 'test@example.com', favoriteLocations: [location1._id] });
+        otherUser1 = new User({ name: 'User 1', email: 'user1@example.com', favoriteLocations: [location1._id, location2._id] });
+        otherUser2 = new User({ name: 'User 2', email: 'user2@example.com', favoriteLocations: [location2._id] });
+
+        await user.save();
+        await otherUser1.save();
+        await otherUser2.save();
+    });
+
+    afterAll(async () => {
+        
+        await User.deleteMany({});
+        await Location.deleteMany({});
+        await mongoose.connection.close();
+    });
+
+    it('should return suggested locations for the user based on shared favorites', async () => {
+        const res = await request(app)
+            .get(`/users/${user._id}/suggestLocations`)
+            .send();
+
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.suggestedLocations).toHaveLength(1);
+        expect(res.body.suggestedLocations[0].name).toBe('Location 2');
+    });
+
+    it('should return 404 if user ID is invalid', async () => {
+        const res = await request(app)
+            .get('/users/invalidId/suggestLocations')
+            .send();
+
+        expect(res.status).toBe(404);
+        expect(res.body.success).toBe(false);
+        expect(res.body.message).toBe('Invalid Id');
+    });
+
+    it('should return 404 if user not found', async () => {
+        const invalidId = mongoose.Types.ObjectId();
+        const res = await request(app)
+            .get(`/users/${invalidId}/suggestLocations`)
+            .send();
+
+        expect(res.status).toBe(404);
+        expect(res.body.success).toBe(false);
+        expect(res.body.message).toBe('User not found');
+    });
+
+    it('should return no suggestions if no users share favorites', async () => {
+        // Make sure the current user has no common favorites with other users
+        user.favoriteLocations = [];
+        await user.save();
+
+        const res = await request(app)
+            .get(`/users/${user._id}/suggestLocations`)
+            .send();
+
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.suggestedLocations).toHaveLength(0);
+    });
 });
