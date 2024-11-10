@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import '../style/Home.css';
 import NavBar from '../components/NavBar.jsx';
 import MapComponent from '../components/MapComponent';
-import FilterSideBar from '../components/FilterSidebar.jsx';
+import FilterSideBar from '../components/FilterSideBar.jsx';
 import Toast from 'react-bootstrap/Toast';
 import SearchBar from '../components/SearchBar';
 import { useLocation } from 'react-router-dom';
