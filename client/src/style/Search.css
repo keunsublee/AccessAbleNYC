@@ -1,7 +1,21 @@
 .search-bar {
     position: relative;
-    width: 54%;
+    width: 40%;
+    margin: 0 auto;
+    text-align: center;
 }
+
+.greeting-message {
+  font-weight: bold;
+  font-size: 1.5em;
+  margin-top: 0.5em;
+}
+
+.search-message{
+  font-size: 1em;
+  margin-bottom: 1em;
+}
+
 /*button*/
 .custom-b{
     border-radius:20px;

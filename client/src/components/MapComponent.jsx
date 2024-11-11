@@ -316,7 +316,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
     return (
         <div>
             {/* Checkbox to toggle between showing all or nearby locations */}
-            <label htmlFor="showNearby" style={{ marginLeft: '10px' }} >
+            <label htmlFor="showNearby" style={{ marginLeft: '42%', marginTop: '5px' }} >
                     <input
                         id="showNearby"
                         type="checkbox"
