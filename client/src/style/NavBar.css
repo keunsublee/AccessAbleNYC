@@ -16,3 +16,8 @@
     width: 100px;
     margin-left: 10px;
 }
+
+.filter-button {
+    float: right; 
+    margin-bottom: 5px;
+}

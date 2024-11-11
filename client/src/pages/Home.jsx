@@ -130,7 +130,7 @@ function Home() {
             <NavBar />
             <SearchBar onSearch={handleSearch} />
             {/* Filter Button to open sidebar */}
-            <Button variant="primary" onClick={handleFilterToggle}>Open Filter</Button>
+            <Button variant="secondary"  className="filter-button" style={{ opacity: 0.5 }} onClick={handleFilterToggle}>Filter By</Button>
             
             {/* FilterSideBar Component */}
             <FilterSideBar
