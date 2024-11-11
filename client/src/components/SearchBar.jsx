@@ -7,6 +7,7 @@ const SearchBar = ({ onSearch }) => {
 
     const handleSearch = async (event) => {
         setSearchTerm(event.target.value);
+        
         if (event.target.value) {
             try {
                 const response = await fetch(`${import.meta.env.VITE_PORT}/search?type=${event.target.value}`);
@@ -20,6 +21,7 @@ const SearchBar = ({ onSearch }) => {
             }
         } else {
             setSearchResults([]);
+            onSearch('');
         }
     };
 
