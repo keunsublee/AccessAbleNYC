@@ -1,9 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect} from 'react';
 import '../style/Search.css';
 
 const SearchBar = ({ onSearch }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
+    const [name, setName] = useState('');
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            const decodedToken = JSON.parse(atob(token.split('.')[1]));
+            setName(decodedToken.name);
+        }
+    }, []);
 
     const handleSearch = async (event) => {
         setSearchTerm(event.target.value);
@@ -39,6 +48,8 @@ const SearchBar = ({ onSearch }) => {
 
     return (
         <div className="search-bar">
+            <div className="greeting-message">Welcome, {name}</div>
+            <div className="search-message">Find the accessibilities around you</div>
             <form className="d-flex" onSubmit={handleSearchSubmit}>
                 <input
                     className="form-control me-2"
