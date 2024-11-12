@@ -23,16 +23,22 @@ function Home() {
     const [destination, setDestination] = useState({ lat: null, lon:  null});
     const [filterCriteria, setFilterCriteria] = useState({});
     const [showFilter, setShowFilter] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
 
      // Toggle FilterSideBar visibility
     const handleFilterToggle = () => setShowFilter(!showFilter);
 
     // Update filter criteria from FilterSideBar
-    const handleFilterChange = (newCriteria) => setFilterCriteria(newCriteria);
-    
+    const handleFilterChange = (newCriteria) => {
+        setFilterCriteria(newCriteria);
+        setSelectedLocation('');
+        setSearchTerm('');
+    }
     //user selected locations
     const handleSearch = (searchTerm) => {
         setSelectedLocation(searchTerm);
+        setSearchTerm(searchTerm);
+        setFilterCriteria({});
     };
 
     useEffect(() => {
@@ -128,9 +134,9 @@ function Home() {
     return (
         <div>
             <NavBar />
-            <SearchBar onSearch={handleSearch} />
+            <SearchBar onSearch={handleSearch} searchTerm={searchTerm} />
             {/* Filter Button to open sidebar */}
-            <Button variant="primary" onClick={handleFilterToggle}>Open Filter</Button>
+            <Button variant="secondary"  className="filter-button" style={{ opacity: 0.5 }} onClick={handleFilterToggle}>Filter By</Button>
             
             {/* FilterSideBar Component */}
             <FilterSideBar

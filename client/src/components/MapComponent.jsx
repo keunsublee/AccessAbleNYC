@@ -209,18 +209,18 @@ const MapCenterUpdater = ({ nearbyLocations, selectedLocation, filterCriteria })
         let zoomLevel = map.getZoom();
 
         //checks if a new filter is applied.
-        const newfiller = Object.keys(filterCriteria).some(key => filterCriteria[key] && filterCriteria[key] !== prevFilter.current[key]);
+        const newfilter = Object.keys(filterCriteria).some(key => filterCriteria[key] && filterCriteria[key] !== prevFilter.current[key]);
 
-        if (newfiller) {
+        if (newfilter) {
             zoomLevel = 12;
             prevFilter.current = {...filterCriteria};//updates prevfilter.
-        } else if (selectedLocation && selectedLocation.lat && selectedLocation.lon) {
-            newCenter = [selectedLocation.lat, selectedLocation.lon];
+        } else if (selectedLocation && (selectedLocation.lat || selectedLocation.latitude) && (selectedLocation.lon || selectedLocation.longitude)) {
+            newCenter = [selectedLocation.lat || selectedLocation.latitude, selectedLocation.lon || selectedLocation.longitude] ;
         } else {
             newCenter = calculateCenter(nearbyLocations);
         }
 
-        if (newCenter || newfiller) {
+        if (newCenter || newfilter) {
             map.setView(newCenter || map.getCenter(), zoomLevel);
         }
     }, [nearbyLocations, selectedLocation, filterCriteria, map]);
@@ -236,11 +236,12 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
     const [message, setMessage] = useState('');
     const[directionModalOpen,setDirectionModalOpen]=useState(false);
     const [recentlyOpened, setRecentlyOpened] = useState('');
+    const [showPopdesc, setShowPopDesc] = useState({}); const toggleDescription = (id) => { setShowPopDesc((prev) => ({ ...prev, [id]: !prev[id] })); };
 
     const [userId, setUserId] = useState('');
     const [iconSize, setIconSize] = useState([35, 35]);
     const { theme } = useTheme();
-   
+
     useEffect(() => {
         const token = localStorage.getItem('token');
 
@@ -356,8 +357,9 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                 key={index} 
                                 position={[lat, lon]} 
                                 icon={getIconByLocationType(location.location_type, iconSize)}
-                                eventHandlers={{
-                                    click: () => setRecentlyOpened(location)
+                                onClick={() => {
+                                    setRecentlyOpened(location);
+                                    map.setView([lat, lon]); 
                                 }}
                                >
                                <Popup>
@@ -369,8 +371,15 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                             <strong>Accessible:</strong> {location.Accessible}<br />
                                             <strong>Barbecue Allowed:</strong> {location.Barbecue_Allowed}<br />
                                             <strong>Concession Stand:</strong> {location.Concession_Stand}<br />
-                                            <strong>Description:</strong> <div dangerouslySetInnerHTML={{ __html: location.Description }}></div><br />
-                                            <strong>Directions:</strong> <div dangerouslySetInnerHTML={{ __html: location.Directions }}></div>
+                                            {showPopdesc[location._id] && (
+                                                <><strong>Description:</strong>
+                                                <div dangerouslySetInnerHTML={{ __html: location.Description }}></div></>
+                                            )}
+                                              <a href="#" onClick={() => toggleDescription(location._id)}>
+                                                {showPopdesc[location._id] ? 'Hide Description' : 'Show Description'}
+                                            </a><br /> <br />
+                                            <div dangerouslySetInnerHTML={{ __html: location.Directions }}></div> 
+
                                             <div className="button-container">
                                                 <button className="add-favorite-button" onClick={() => handleAddLocation1(location._id)}>
                                                     Add to Favorite
@@ -379,8 +388,6 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                                     Directions
                                                 </button>
                                             </div>
-
-                                            
                                         </div>
                                     )}
                                     {location.location_type === 'subway_stop' && (
