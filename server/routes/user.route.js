@@ -11,7 +11,7 @@ dotenv.config()
 const router = express.Router();
 
 //gets all users
-router.get('/', async (req,res) => {
+router.get('/users', async (req,res) => {
     try {
         const users = await User.find({});
         res.status(200).json({success:true, data: users});
@@ -333,3 +333,4 @@ router.get('/:id/suggestLocations',async (req,res) => {
     }
 
 });
+
