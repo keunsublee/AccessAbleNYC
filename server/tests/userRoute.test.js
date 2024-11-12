@@ -13,6 +13,7 @@ app.use("/", userRoute);
 
 jest.mock('../models/users.model.js');
 jest.mock('../models/location.model.js');
+
 jest.mock('bcrypt');
 jest.mock('jsonwebtoken');
 
@@ -481,4 +482,124 @@ describe('User Routes', () => {
             expect(res.body.success).toBe(false);
         });
     });
+
+})
+
+
+
+// fetch user test
+describe('GET /users', () => {
+
+    it('should return all users with status 200', async () => {
+        User.find = jest.fn().mockResolvedValue([
+            { name: 'User1', email: 'user1@example.com' },
+            { name: 'User2', email: 'user2@example.com' },
+        ]);
+
+
+    const res = await request(app).get('/users');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(2);
+    });
+
+    it('should return 500 if there is error fecthing users',async()=>{
+        User.find=jest.fn().mockRejectedValue(new Error('Error'));
+        
+        
+        const res=await request(app).get('/users');
+        
+        expect(res.status).toBe(500);
+        expect(res.body.success).toBe(false);
+        expect(res.body.message).toBe('server error');
+    });
+
 });
+
+//get user by id 
+/*describe('GET /users/:id', () => {
+   
+
+    it('should return a user when a valid id is provided', async () => {
+        const user = { _id: userId, name: 'user1', email: 'user1@example.com' };
+        User.findById.mockResolvedValue(user);
+
+        const res = await request(app).get(`/users/${userId}`);
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.data).toEqual(user);
+    });
+
+    it('should return 404 for invalid id', async () => {
+        const invalidId = ''; 
+
+        User.findById.mockResolvedValue(null); 
+
+        const res = await request(app).get(`/users/${invalidId}`);
+        expect(res.status).toBe(404);
+        expect(res.body.success).toBe(false);
+        expect(res.body.message).toBe('Invalid User Id');
+    });
+
+    it('should return 500 if there is an error fetching the user', async () => {
+        const userId = validId;
+        
+        User.findById.mockRejectedValue(new Error('Server Error'));
+
+        const res = await request(app).get(`/users/${userId}`);
+        expect(res.status).toBe(500);
+        expect(res.body.success).toBe(false);
+        expect(res.body.message).toBe('Server Error');
+    });
+});
+*/
+
+//add a user test. 
+describe('POST /', () => {
+
+    /*
+    it('should create a new user and return 201 status', async () => {
+        const newUser = { name: 'User111', email: 'User@example.com' };
+
+        User.save = jest.fn().mockResolvedValue(newUser);
+
+        
+        const res = await request(app).post('/').send(newUser);
+        console.log('Response:', res.body);
+
+        expect(res.status).toBe(201);
+        expect(res.body.success).toBe(true);
+        expect(res.body.data.name).toBe(newUser.name);
+        expect(res.body.data.email).toBe(newUser.email);
+    });
+    */
+
+
+    it('should return 400 when required fields are missing',async()=>{
+
+        const newUser={name: '',email:''};
+
+        const res=await request(app).post('/').send(newUser);
+
+        expect(res.status).toBe(400);
+        expect(res.body.success).toBe(false);
+        expect(res.body.message).toBe('Please provide all fields');
+    })
+
+    it('should return 500 if there is an error while saving user',async()=>{
+
+        const newUser= {name:'User',email:'User@example.com'};
+
+        User.mockImplementation(()=>({
+            save:jest.fn().mockRejectedValue(new Error('Server Error')),
+        }));
+
+        const res=await request(app).post('/').send(newUser);
+
+        expect(res.status).toBe(500);
+        expect(res.body.success).toBe(false);
+        expect(res.body.message).toBe('Server Error');
+    })
+});
+
