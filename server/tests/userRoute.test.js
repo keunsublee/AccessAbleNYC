@@ -98,7 +98,7 @@ describe('GET /users', () => {
 
 });
 
-//get user by id  ( not passing)
+//get user by id 
 /*describe('GET /users/:id', () => {
    
 
