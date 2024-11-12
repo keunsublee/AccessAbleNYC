@@ -531,6 +531,54 @@ describe('GET /users', () => {
         expect(res.body.data).toEqual(user);
     });
 
+})
+
+
+
+// fetch user test
+describe('GET /users', () => {
+
+    it('should return all users with status 200', async () => {
+        User.find = jest.fn().mockResolvedValue([
+            { name: 'User1', email: 'user1@example.com' },
+            { name: 'User2', email: 'user2@example.com' },
+        ]);
+
+
+    const res = await request(app).get('/users');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(2);
+    });
+
+    it('should return 500 if there is error fecthing users',async()=>{
+        User.find=jest.fn().mockRejectedValue(new Error('Error'));
+        
+        
+        const res=await request(app).get('/users');
+        
+        expect(res.status).toBe(500);
+        expect(res.body.success).toBe(false);
+        expect(res.body.message).toBe('server error');
+    });
+
+});
+
+//get user by id 
+/*describe('GET /users/:id', () => {
+   
+
+    it('should return a user when a valid id is provided', async () => {
+        const user = { _id: userId, name: 'user1', email: 'user1@example.com' };
+        User.findById.mockResolvedValue(user);
+
+        const res = await request(app).get(`/users/${userId}`);
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.data).toEqual(user);
+    });
+
     it('should return 404 for invalid id', async () => {
         const invalidId = ''; 
 
