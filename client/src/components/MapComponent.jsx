@@ -357,9 +357,8 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                 key={index} 
                                 position={[lat, lon]} 
                                 icon={getIconByLocationType(location.location_type, iconSize)}
-                                onClick={() => {
-                                    setRecentlyOpened(location);
-                                    map.setView([lat, lon]); 
+                                eventHandlers={{
+                                    click: () => setRecentlyOpened(location)
                                 }}
                                >
                                <Popup>
