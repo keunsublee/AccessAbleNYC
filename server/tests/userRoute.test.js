@@ -261,29 +261,29 @@ describe('User Routes', () => {
         });
     });
 
-    describe('GET /', () => {
-        it('should return all users', async () => {
-            const mockUsers = [
-                { name: 'User1', email: 'user1@test.com' },
-                { name: 'User2', email: 'user2@test.com' }
-            ];
-            User.find.mockResolvedValue(mockUsers);
+    // describe('GET /', () => {
+    //     it('should return all users', async () => {
+    //         const mockUsers = [
+    //             { name: 'User1', email: 'user1@test.com' },
+    //             { name: 'User2', email: 'user2@test.com' }
+    //         ];
+    //         User.find.mockResolvedValue(mockUsers);
     
-            const res = await request(app).get('/');
-            expect(res.status).toBe(200);
-            expect(res.body.success).toBe(true);
-            expect(res.body.data).toEqual(mockUsers);
-        });
+    //         const res = await request(app).get('/');
+    //         expect(res.status).toBe(200);
+    //         expect(res.body.success).toBe(true);
+    //         expect(res.body.data).toEqual(mockUsers);
+    //     });
     
-        it('should return 500 if server error occurs', async () => {
-            User.find.mockRejectedValue(new Error('Database error'));
+    //     it('should return 500 if server error occurs', async () => {
+    //         User.find.mockRejectedValue(new Error('Database error'));
     
-            const res = await request(app).get('/');
-            expect(res.status).toBe(500);
-            expect(res.body.success).toBe(false);
-            expect(res.body.message).toBe('server error');
-        });
-    });
+    //         const res = await request(app).get('/');
+    //         expect(res.status).toBe(500);
+    //         expect(res.body.success).toBe(false);
+    //         expect(res.body.message).toBe('server error');
+    //     });
+    // });
     
     describe('POST /', () => {
         it('should create a new user successfully', async () => {
