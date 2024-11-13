@@ -190,7 +190,7 @@ function Home() {
     }, [locations, nearbyLocations]);
 
     // Uncomment the following function and button in the return section to reset cookie consent for testing
-    /* <-remove that and line 244
+    /* <-remove this whole line & line 244
     const handleResetConsent = () => {
         localStorage.removeItem('cookiesAccepted');
         setShowCookieConsent(true);
@@ -241,7 +241,7 @@ function Home() {
             </Modal>
 
             {/* Uncomment the button below for testing cookie consent reset */}
-            {/* <--- Remove those 3 characters and line 193
+            {/* Remove this whole line and line 193
             <Button variant="warning" onClick={handleResetConsent} style={{ marginTop: '10px' }}>
                 Reset Cookie Consent
             </Button>
