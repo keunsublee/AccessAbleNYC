@@ -10,6 +10,7 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import { useNavigate } from 'react-router-dom';
+import '../style/MapComponent.css';
 
 // Def custom icons for each location type
 const beachIconUrl = '/assets/beach-100.png';
@@ -242,6 +243,17 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
     const [iconSize, setIconSize] = useState([35, 35]);
     const { theme } = useTheme();
 
+    //Dark Mode for Map Component
+    useEffect(() => {
+        const mapContainer = document.getElementById('map');
+        if(theme === 'dark') {
+            mapContainer.classList.add('map-dark-mode');
+        }
+        else {
+            mapContainer.classList.remove('map-dark-mode')
+        }
+    }, [theme]);
+
     useEffect(() => {
         const token = localStorage.getItem('token');
 
@@ -328,6 +340,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                     Show Nearby Locations Only
             </label>
             <MapContainer 
+            id = 'map'
             center={[40.7128, -74.0060]} 
             zoom={13} 
             maxBounds={nycBounds} 

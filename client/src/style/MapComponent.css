@@ -5,3 +5,11 @@
     z-index: 1000;
     background-color: #f44336; 
 }
+
+/*Dark mode for the Map component*/
+.map-dark-mode .leaflet-layer,
+.map-dark-mode .leaflet-control-zoom-in,
+.map-dark-mode .leaflet-control-zoom-out,
+.map-dark-mode .leaflet-control-attribution {
+  filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}
