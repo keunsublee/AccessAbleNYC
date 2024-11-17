@@ -42,3 +42,7 @@ html, body, #root {
   align-items: center;          /* Center vertically if necessary */
   margin: 20px 0;              /* Add some margin if needed */
 }
+
+.filter-button {
+  background-color: #007BFF !important;
+}
