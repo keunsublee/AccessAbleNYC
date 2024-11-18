@@ -600,10 +600,10 @@ function DirectionModal(props) {
                     <Form.Control
                         type="search"
                         placeholder="Search a starting point"
-                        className="me-2"
+                        className='me-2 search-input'
                         aria-label="Search"
                         value={searchTerm}
-                        style={{ borderRadius: '20px' }}
+                        style={{ borderRadius: '20px'}}
                         onChange={handleSearch}
                     />
                     {searchResults.length > 0 && (

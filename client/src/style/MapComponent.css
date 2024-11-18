@@ -25,3 +25,29 @@
   color: #000;
 }
 
+/*
+.d-flex {
+  color: black !important;
+}
+*/
+
+/*for now this makes the Directions header black in text for now*/
+#contained-modal-title-vcenter {
+  color: black !important;
+}
+
+.search-input {
+  color: black !important;
+  background-color: white !important;
+}
+
+
+/*for now this makes the phrase 'Search a starting point' black in text*/
+.search-input::placeholder {
+  color: black !important;
+}
+
+/*for now this makes the dropdown options black in text*/
+.add-dropdown-menu{
+  color: black !important;
+}
