@@ -110,6 +110,7 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
     const routingControlRef = useRef(null);
     const closeControlRef = useRef(null);
     const navigate = useNavigate();
+    const { theme } = useTheme;
 
     const getClosestTrafficSignal = (currentLocation, trafficSignals, finalLocation) => {
         let closestSignal = null;
@@ -168,12 +169,17 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
                         styles: [{ color: 'blue', weight: 4 }]
                     }
                 }).addTo(map);
+                
+                const routeContainer = routingControlRef.current.getContainer();
+                if (routeContainer) {
+                    routeContainer.classList.add(theme === 'dark' ? 'routing-dark-mode' : 'routing-light-mode');
+                }
 
                 closeControlRef.current = L.control({ position: 'topright' });
                 closeControlRef.current.onAdd = function () {
                     const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
                     div.innerHTML = 'Close Route';
-                    div.style.backgroundColor = '#ffcccc';
+                    div.style.backgroundColor = '#ff4040';
                     div.style.padding = '5px';
                     div.style.cursor = 'pointer';
                     div.onclick = function () {
