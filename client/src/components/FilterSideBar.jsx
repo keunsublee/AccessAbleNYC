@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { Offcanvas, Form, Button, Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useTheme } from './ThemeContext';
+import '../style/FilterSideBar.css';
 
 const FilterSideBar = ({ show, handleClose, onFilterChange }) => {
+    const { theme } = useTheme();
     const [locationType, setLocationType] = useState('');
     const [filterOptions, setFilterOptions] = useState({
         accessible: '',
@@ -11,8 +14,9 @@ const FilterSideBar = ({ show, handleClose, onFilterChange }) => {
         restroom_type: '',
         ada_statuslayer: '',
         operator: '',
-        ada_accessible_comfort_station: ''
+        ada_accessible_comfort_station: '',
     });
+    
     // Handle individual filter option change
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -90,7 +94,7 @@ const FilterSideBar = ({ show, handleClose, onFilterChange }) => {
     };
 
     return (
-        <Offcanvas show={show} onHide={handleClose} placement="end">
+        <Offcanvas show={show} onHide={handleClose} placement="end" className={theme === 'dark' ? 'sidebar-dark' : ''}>
             <Offcanvas.Header closeButton>
                 <Offcanvas.Title>Filter Locations</Offcanvas.Title>
             </Offcanvas.Header>

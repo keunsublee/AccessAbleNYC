@@ -10,6 +10,7 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import { useNavigate } from 'react-router-dom';
+import '../style/MapComponent.css';
 
 // Def custom icons for each location type
 const beachIconUrl = '/assets/beach-100.png';
@@ -109,6 +110,7 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
     const routingControlRef = useRef(null);
     const closeControlRef = useRef(null);
     const navigate = useNavigate();
+    const { theme } = useTheme;
 
     const getClosestTrafficSignal = (currentLocation, trafficSignals, finalLocation) => {
         let closestSignal = null;
@@ -167,12 +169,17 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
                         styles: [{ color: 'blue', weight: 4 }]
                     }
                 }).addTo(map);
+                
+                const routeContainer = routingControlRef.current.getContainer();
+                if (routeContainer) {
+                    routeContainer.classList.add(theme === 'dark' ? 'routing-dark-mode' : 'routing-light-mode');
+                }
 
                 closeControlRef.current = L.control({ position: 'topright' });
                 closeControlRef.current.onAdd = function () {
                     const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
                     div.innerHTML = 'Close Route';
-                    div.style.backgroundColor = '#ffcccc';
+                    div.style.backgroundColor = '#ff4040';
                     div.style.padding = '5px';
                     div.style.cursor = 'pointer';
                     div.onclick = function () {
@@ -241,6 +248,17 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
     const [userId, setUserId] = useState('');
     const [iconSize, setIconSize] = useState([35, 35]);
     const { theme } = useTheme();
+
+    //Dark Mode for Map Component
+    useEffect(() => {
+        const mapContainer = document.getElementById('map');
+        if(theme === 'dark') {
+            mapContainer.classList.add('map-dark-mode');
+        }
+        else {
+            mapContainer.classList.remove('map-dark-mode')
+        }
+    }, [theme]);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -328,6 +346,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                     Show Nearby Locations Only
             </label>
             <MapContainer 
+            id = 'map'
             center={[40.7128, -74.0060]} 
             zoom={13} 
             maxBounds={nycBounds} 
@@ -581,10 +600,10 @@ function DirectionModal(props) {
                     <Form.Control
                         type="search"
                         placeholder="Search a starting point"
-                        className="me-2"
+                        className='me-2 search-input'
                         aria-label="Search"
                         value={searchTerm}
-                        style={{ borderRadius: '20px' }}
+                        style={{ borderRadius: '20px'}}
                         onChange={handleSearch}
                     />
                     {searchResults.length > 0 && (

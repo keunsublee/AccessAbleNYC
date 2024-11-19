@@ -5,3 +5,49 @@
     z-index: 1000;
     background-color: #f44336; 
 }
+
+/*Dark mode for the Map component*/
+.map-dark-mode .leaflet-layer,
+.map-dark-mode .leaflet-control-zoom-in,
+.map-dark-mode .leaflet-control-zoom-out,
+.map-dark-mode .leaflet-control-attribution {
+  filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}
+
+
+.routing-dark-mode {
+  background-color: #333;
+  color: #fff; 
+}
+
+.routing-light-mode {
+  background-color: #fff; 
+  color: #000;
+}
+
+/*
+.d-flex {
+  color: black !important;
+}
+*/
+
+/*for now this makes the Directions header black in text for now*/
+#contained-modal-title-vcenter {
+  color: black !important;
+}
+
+.search-input {
+  color: black !important;
+  background-color: white !important;
+}
+
+
+/*for now this makes the phrase 'Search a starting point' black in text*/
+.search-input::placeholder {
+  color: black !important;
+}
+
+/*for now this makes the dropdown options black in text*/
+.add-dropdown-menu{
+  color: black !important;
+}

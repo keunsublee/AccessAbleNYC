@@ -201,7 +201,7 @@ function Home() {
         <div>
             <NavBar />
             <SearchBar onSearch={handleSearch} searchTerm={searchTerm} />
-            <Button variant="secondary" className="filter-button" style={{ opacity: 0.5 }} onClick={handleFilterToggle}>
+            <Button variant="secondary" className="filter-button" onClick={handleFilterToggle}>
                 Filter By
             </Button>
             
