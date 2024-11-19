@@ -7,7 +7,7 @@ import FilterSideBar from '../components/FilterSideBar.jsx';
 import Toast from 'react-bootstrap/Toast';
 import SearchBar from '../components/SearchBar';
 import { useLocation } from 'react-router-dom';
-import { Button } from 'react-bootstrap';
+import { Button, Modal } from 'react-bootstrap';
 
 function Home() {
     const [name, setName] = useState('');
@@ -15,6 +15,7 @@ function Home() {
     const [nearbyLocations, setNearbyLocations] = useState([]);
     const [showNoLocation, setShowNoLocation] = useState(false);
     const [showCookieNotification, setShowCookieNotification] = useState(false);
+    const [showCookieConsent, setShowCookieConsent] = useState(false);
     const effectRan = useRef(false);
     const [selectedLocation, setSelectedLocation] = useState('');
     const location = useLocation();
@@ -38,6 +39,23 @@ function Home() {
         setFilterCriteria({});
     };
 
+    const handleAcceptCookies = () => {
+        localStorage.setItem('cookiesAccepted', 'true');
+        setShowCookieConsent(false);
+        setShowCookieNotification(true);
+    };
+
+    const handleDeclineCookies = () => {
+        setShowCookieConsent(false);
+    };
+
+    useEffect(() => {
+        const cookiesAccepted = localStorage.getItem('cookiesAccepted');
+        if (!cookiesAccepted) {
+            setShowCookieConsent(true);
+        }
+    }, []);
+
     useEffect(() => {
         if (params.get('lat') && params.get('lon') && params.get('preflat') && params.get('preflon')) {
             setDestination({ lat: params.get('lat'), lon: params.get('lon') });
@@ -55,7 +73,8 @@ function Home() {
                     (position) => {
                         const { latitude, longitude } = position.coords;
                         setStartCoord({ lat: latitude, lon: longitude });
-
+ 
+ 
                         // Call API to set the cookie on the server side
                         fetch('/api/set-location', {
                             method: 'POST',
@@ -87,13 +106,15 @@ function Home() {
     useEffect(() => {
         if (effectRan.current) return;
         effectRan.current = true;
-
+ 
+ 
         const token = localStorage.getItem('token');
         if (token) {
             const decodedToken = JSON.parse(atob(token.split('.')[1]));
             setName(decodedToken.name);
         }
-
+ 
+ 
         fetch(`${import.meta.env.VITE_PORT}/locations`)
             .then((response) => {
                 if (!response.ok) {
@@ -108,7 +129,8 @@ function Home() {
             .catch((error) => {
                 console.error("Error fetching locations:", error);
             });
-
+ 
+ 
         const storedLocation = Cookies.get('location');
         if (storedLocation) {
             const { latitude, longitude } = JSON.parse(storedLocation);
@@ -153,10 +175,12 @@ function Home() {
         } else {
             alert("Geolocation is not supported by this browser.");
         }
-
+ 
+ 
         setSelectedLocation(params.get('location'));
     }, []);
-
+ 
+ 
     useEffect(() => {
         if ((!locations || locations.length === 0) && (!nearbyLocations || nearbyLocations.length === 0)) {
             setShowNoLocation(true);
@@ -165,6 +189,14 @@ function Home() {
         }
     }, [locations, nearbyLocations]);
 
+    // Uncomment the following function and button in the return section to reset cookie consent for testing
+    /* <-remove this whole line & line 244
+    const handleResetConsent = () => {
+        localStorage.removeItem('cookiesAccepted');
+        setShowCookieConsent(true);
+    };
+    /**/
+
     return (
         <div>
             <NavBar />
@@ -172,6 +204,8 @@ function Home() {
             <Button variant="secondary" className="filter-button" style={{ opacity: 0.5 }} onClick={handleFilterToggle}>
                 Filter By
             </Button>
+            
+
             <FilterSideBar show={showFilter} handleClose={handleFilterToggle} onFilterChange={handleFilterChange} />
             <MapComponent
                 locations={locations}
@@ -193,6 +227,27 @@ function Home() {
                 </Toast.Header>
                 <Toast.Body>No locations to load</Toast.Body>
             </Toast>
+            <Modal show={showCookieConsent} onHide={handleDeclineCookies}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Cookie Consent</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    This website uses cookies to enhance your experience. Do you consent to the use of cookies?
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleDeclineCookies}>Decline</Button>
+                    <Button variant="primary" onClick={handleAcceptCookies}>Accept</Button>
+                </Modal.Footer>
+            </Modal>
+
+            {/* Uncomment the button below for testing cookie consent reset */}
+            {/* Remove this whole line and line 193
+            <Button variant="warning" onClick={handleResetConsent} style={{ marginTop: '10px' }}>
+                Reset Cookie Consent
+            </Button>
+            {/**/}
+            
+            
         </div>
     );
 }
