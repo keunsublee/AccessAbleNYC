@@ -1,24 +1,18 @@
 import mongoose from "mongoose";
 
 const reviewSchema= new mongoose.Schema({
-
     locationId:{
         type: mongoose.Schema.Types.ObjectId,
-     required:true
-
+        required:true
     },
-
     userId: { 
         type: mongoose.Schema.Types.ObjectId, 
-       
         required: true 
     },
-
-
     review:{
-
         type: String,
-        required:true
+        required:true,
+        unique: true
     }
 },
     {
