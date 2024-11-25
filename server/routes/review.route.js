@@ -28,7 +28,7 @@ const authenticateUser = (req, res, next) => {
 
 router.post('/review/:locationId', authenticateUser, async (req, res) => {
     const { locationId } = req.params;
-    const { review } = req.body;
+    const { rating, review } = req.body;
     const userId = req.user ? req.user.id : null;  
 
     if (!userId) {
@@ -40,8 +40,8 @@ router.post('/review/:locationId', authenticateUser, async (req, res) => {
     }
 
     try {
-        const newReview = await Review.create({ locationId, userId, review });
-        res.status(201).json({ success: true, review: newReview });
+        const newReview = await Review.create({ locationId, userId, rating, review });
+        res.status(201).json({ success: true, rating: rating, review: newReview });
     } catch (error) {
         if (error.code == 11000){
             res.status(409).json({success: false, message: "Review already added"});
@@ -96,7 +96,7 @@ router.delete('/review/:locationId/:reviewId', authenticateUser, async (req, res
 
 router.put('/review/:locationId/:reviewId', authenticateUser, async (req, res) => {
     const { locationId, reviewId } = req.params;
-    const { review } = req.body;
+    const { rating, review } = req.body;
     const userId = req.user ? req.user.id : null; 
 
     if (!userId) {
@@ -114,6 +114,7 @@ router.put('/review/:locationId/:reviewId', authenticateUser, async (req, res) =
             return res.status(404).json({ success: false, message: 'Review not found' });
         }
 
+        existingReview.rating = rating || existingReview.rating;
         existingReview.review = review || existingReview.review;
 
         await existingReview.save();

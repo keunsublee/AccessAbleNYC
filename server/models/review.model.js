@@ -9,6 +9,10 @@ const reviewSchema= new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId, 
         required: true 
     },
+    rating: {
+        type: Number,
+        required: true
+    },
     review:{
         type: String,
         required:true,
