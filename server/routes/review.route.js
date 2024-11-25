@@ -55,9 +55,14 @@ router.post('/review/:locationId', authenticateUser, async (req, res) => {
 router.get('/review/:locationId', async (req, res) => {
     const { locationId } = req.params;
 
+    if (!mongoose.Types.ObjectId.isValid(locationId)){
+        return res.status(404).json({success: false, message: 'Invalid Location'});
+    }
+
     try {
         const reviews = await Review.find({ locationId });
 
+        console.log(reviews[0]);
         if (!reviews || reviews.length === 0) {
             return res.status(404).json({ success: false, message: 'No reviews found for this location' });
         }
@@ -68,6 +73,28 @@ router.get('/review/:locationId', async (req, res) => {
     }
 });
 
+router.get('/rating/:locationId', async (req, res) => {
+    const { locationId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(locationId)){
+        return res.status(404).json({success: false, message: 'Invalid Location'});
+    }
+
+    try {
+        const result = await Review.aggregate([
+            { $match: { locationId: new mongoose.Types.ObjectId(locationId) } },
+            { $group: { _id: null, averageRating: { $avg: "$rating" } } }
+        ]);
+    
+        if (result.length <= 0){
+            return res.status(404).json({ success: false, message: 'No ratings found for this location' });
+        }
+
+        res.status(200).json({ success: true, averageRating: result[0].averageRating });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
 
 router.delete('/review/:locationId/:reviewId', authenticateUser, async (req, res) => {
     const { locationId, reviewId } = req.params;
