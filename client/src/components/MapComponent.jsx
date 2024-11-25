@@ -11,6 +11,7 @@ import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import { useNavigate } from 'react-router-dom';
 import '../style/MapComponent.css';
+import ReviewSideBar from './ReviewSideBar';
 
 // Def custom icons for each location type
 const beachIconUrl = '/assets/beach-100.png';
@@ -240,19 +241,23 @@ const MapCenterUpdater = ({ nearbyLocations, selectedLocation, filterCriteria })
     return null;
 };
 
-
 const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , userCoord, destination, filterCriteria}) => {
     const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby location
     const [showToastError, setShowToastError] = useState(false);
     const [showToastSuccess, setShowToastSuccess] = useState(false);
     const [message, setMessage] = useState('');
-    const[directionModalOpen,setDirectionModalOpen]=useState(false);
+    const [directionModalOpen,setDirectionModalOpen]=useState(false);
     const [recentlyOpened, setRecentlyOpened] = useState('');
     const [showPopdesc, setShowPopDesc] = useState({}); const toggleDescription = (id) => { setShowPopDesc((prev) => ({ ...prev, [id]: !prev[id] })); };
 
     const [userId, setUserId] = useState('');
     const [iconSize, setIconSize] = useState([35, 35]);
     const { theme } = useTheme();
+
+    const [locationRating, setLocationRating] = useState('-');
+    const [showReview, setShowReview] = useState(false);
+
+    const handleReviewToggle = () => setShowReview(!showReview);
 
     //Dark Mode for Map Component
     useEffect(() => {
@@ -336,9 +341,29 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
     const locationsToShow = showNearby
         ? (selectedLocation ? filteredNearbyLocations.filter(loc => loc.Name === selectedLocation) : filteredNearbyLocations)
         : (selectedLocation ? filteredLocations.filter(loc => loc.Name === selectedLocation) : filteredLocations);
+
+    const handleGetAccessibleRating = (locationId) => {
+        fetch(`${import.meta.env.VITE_PORT}/rating/${locationId}`)
+        .then((response) => {
+            if (!response.ok) {
+                setLocationRating('-');
+                throw new Error('Error fetching location accesiblity rating');
+            }
+            return response.json();
+        })
+        .then((data) => {
+            setLocationRating(data.averageRating);
+            console.log('Location rating:', data.averageRating);
+        })
+        .catch((error) => {
+            setLocationRating('-');
+            console.error('Error fetching location accesiblity rating:', error);
+        });
+    };
  
     return (
         <div>
+            <ReviewSideBar show={showReview} handleClose={handleReviewToggle} location={recentlyOpened} rating={locationRating}/>
             {/* Checkbox to toggle between showing all or nearby locations */}
             <label htmlFor="showNearby" style={{ marginLeft: '42%', marginTop: '5px' }} >
                     <input
@@ -385,29 +410,30 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                     click: () => {
                                         console.log(location._id);
                                         setRecentlyOpened(location);
+                                        handleGetAccessibleRating(location._id);
                                     }
-                                    
-
-                                
                                 }}
                                >
                                <Popup>
                                     {/* Display different information based on the location_type */}
                                     {location.location_type === 'beach' && (
-                                        <div>
-                                            <strong>{location.Name || 'Unnamed Beach'}</strong><br />
-                                            <strong>Location:</strong> {location.Location}<br />
-                                            <strong>Accessible:</strong> {location.Accessible}<br />
-                                            <strong>Barbecue Allowed:</strong> {location.Barbecue_Allowed}<br />
-                                            <strong>Concession Stand:</strong> {location.Concession_Stand}<br />
-                                            {showPopdesc[location._id] && (
-                                                <><strong>Description:</strong>
-                                                <div dangerouslySetInnerHTML={{ __html: location.Description }}></div></>
-                                            )}
-                                              <a href="#" onClick={() => toggleDescription(location._id)}>
-                                                {showPopdesc[location._id] ? 'Hide Description' : 'Show Description'}
-                                            </a><br /> <br />
-                                            <div dangerouslySetInnerHTML={{ __html: location.Directions }}></div> 
+                                        <div className="info-container">
+                                            <div>
+                                                <strong>{location.Name || 'Unnamed Beach'}</strong><br />
+                                                <strong>Accessiblity Rating:</strong> {locationRating}<br />
+                                                <strong>Location:</strong> {location.Location}<br />
+                                                <strong>Accessible:</strong> {location.Accessible}<br />
+                                                <strong>Barbecue Allowed:</strong> {location.Barbecue_Allowed}<br />
+                                                <strong>Concession Stand:</strong> {location.Concession_Stand}<br />
+                                                {showPopdesc[location._id] && (
+                                                    <><strong>Description:</strong>
+                                                    <div dangerouslySetInnerHTML={{ __html: location.Description }}></div></>
+                                                )}
+                                                <a href="#" onClick={() => toggleDescription(location._id)}>
+                                                    {showPopdesc[location._id] ? 'Hide Description' : 'Show Description'}
+                                                </a><br /> <br />
+                                                <div dangerouslySetInnerHTML={{ __html: location.Directions }}></div> 
+                                            </div>
 
                                             <div className="button-container">
                                                 <button className="add-favorite-button" onClick={() => handleAddLocation1(location._id)}>
@@ -416,75 +442,105 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                                 <button className="add-favorite-button" onClick={() => setDirectionModalOpen(true)}>
                                                     Directions
                                                 </button>
+                                                <button className="add-favorite-button" onClick={() => setShowReview(true)}>
+                                                    Reviews
+                                                </button>
                                             </div>
                                         </div>
                                     )}
                                     {location.location_type === 'subway_stop' && (
-                                        <div>
-                                            <strong>{location.Name || 'Unnamed Subway Station'}</strong><br />
-                                            <strong>Location:</strong> {location.Location}<br />
-                                            <strong>ADA Status:</strong> {location.ADA_Status}<br />
-                                            <strong>Lines:</strong> {location.line}<br />
-                                            <strong>Accessible:</strong> {location.Accessible}<br />
+                                        <div className="info-container">
+                                            <div>
+                                                <strong>{location.Name || 'Unnamed Subway Station'}</strong><br />
+                                                <strong>Accessiblity Rating:</strong> {locationRating}<br />
+                                                <strong>Location:</strong> {location.Location}<br />
+                                                <strong>ADA Status:</strong> {location.ADA_Status}<br />
+                                                <strong>Lines:</strong> {location.line}<br />
+                                                <strong>Accessible:</strong> {location.Accessible}<br />
+                                            </div>
+                                            
                                             <div className="button-container">
                                                 <button className="add-favorite-button" onClick={() => handleAddLocation1(location._id)}>
                                                     Add to Favorite
                                                 </button>
                                                 <button className="add-favorite-button" onClick={() => setDirectionModalOpen(true)}>
                                                     Directions
+                                                </button>
+                                                <button className="add-favorite-button" onClick={() => setShowReview(true)}>
+                                                    Reviews
                                                 </button>
                                             </div>
                                         </div>
                                     )}
                                     {location.location_type === 'restroom' && (
-                                        <div>
-                                            <strong>{location.facility_name || 'Unnamed Restroom'}</strong><br />
-                                            <strong>Location:</strong> {location.Location}<br />
-                                            <strong>Operator:</strong> {location.operator}<br />
-                                            <strong>Hours of Operation:</strong> {location.hours_of_operation}<br />
-                                            <strong>Status:</strong> {location.status}<br />
-                                            <strong>Accessible:</strong> {location.Accessible ? 'Yes' : 'No'}<br />
+                                        <div className="info-container">
+                                            <div>
+                                                <strong>{location.facility_name || 'Unnamed Restroom'}</strong><br />
+                                                <strong>Accessiblity Rating:</strong> {locationRating}<br />
+                                                <strong>Location:</strong> {location.Location}<br />
+                                                <strong>Operator:</strong> {location.operator}<br />
+                                                <strong>Hours of Operation:</strong> {location.hours_of_operation}<br />
+                                                <strong>Status:</strong> {location.status}<br />
+                                                <strong>Accessible:</strong> {location.Accessible ? 'Yes' : 'No'}<br />
+                                            </div>
+                                            
                                             <div className="button-container">
                                                 <button className="add-favorite-button" onClick={() => handleAddLocation1(location._id)}>
                                                     Add to Favorite
                                                 </button>
                                                 <button className="add-favorite-button" onClick={() => setDirectionModalOpen(true)}>
                                                     Directions
+                                                </button>
+                                                <button className="add-favorite-button" onClick={() => setShowReview(true)}>
+                                                    Reviews
                                                 </button>
                                             </div>
 
                                         </div>
                                     )}
                                     {location.location_type === 'playground' && (
-                                        <div>
-                                            <strong>{location.Name || 'Unnamed Playground'}</strong><br />
-                                            <strong>Location:</strong> {location.Location}<br />
-                                            <strong>Accessible:</strong> {location.Accessible}<br />
-                                            <strong>Sensory-Friendly:</strong> {location['Sensory-Friendly'] === 'Y' ? 'Yes' : 'No'}<br />
-                                            <strong>ADA Accessible Comfort Station:</strong> {location.ADA_Accessible_Comfort_Station}<br />
+                                        <div className="info-container">
+                                            <div>
+                                                <strong>{location.Name || 'Unnamed Playground'}</strong><br />
+                                                <strong>Accessiblity Rating:</strong> {locationRating}<br />
+                                                <strong>Location:</strong> {location.Location}<br />
+                                                <strong>Accessible:</strong> {location.Accessible}<br />
+                                                <strong>Sensory-Friendly:</strong> {location['Sensory-Friendly'] === 'Y' ? 'Yes' : 'No'}<br />
+                                                <strong>ADA Accessible Comfort Station:</strong> {location.ADA_Accessible_Comfort_Station}<br />
+                                            </div>
                                             <div className="button-container">
                                                 <button className="add-favorite-button" onClick={() => handleAddLocation1(location._id)}>
                                                     Add to Favorite
                                                 </button>
                                                 <button className="add-favorite-button" onClick={() => setDirectionModalOpen(true)}>
                                                     Directions
+                                                </button>
+                                                <button className="add-favorite-button" onClick={() => setShowReview(true)}>
+                                                    Reviews
                                                 </button>
                                             </div>
                                         </div>
                                     )}
                                     {location.location_type === 'pedestrian_signal' && (
-                                        <div>
-                                            <strong>{location.Location || 'Unnamed Pedestrian Signal'}</strong><br />
-                                            <strong>Borough:</strong> {location.borough}<br />
-                                            <strong>Installation Date:</strong> {new Date(location.date_insta).toLocaleDateString()}<br />
-                                            <strong>FEMA Flood Zone:</strong> {location.femafldt}<br />
-                                            <strong>Accessible:</strong> {location.Accessible}<br />
+                                        <div className="info-container">
+                                            <div>
+                                                <strong>{location.Location || 'Unnamed Pedestrian Signal'}</strong><br />
+                                                <strong>Accessiblity Rating:</strong> {locationRating}<br />
+                                                <strong>Borough:</strong> {location.borough}<br />
+                                                <strong>Installation Date:</strong> {new Date(location.date_insta).toLocaleDateString()}<br />
+                                                <strong>FEMA Flood Zone:</strong> {location.femafldt}<br />
+                                                <strong>Accessible:</strong> {location.Accessible}<br />
+                                            </div>
+
                                             <div className="button-container">
                                                 <button className="add-favorite-button" onClick={() => handleAddLocation1(location._id)}>
                                                     Add to Favorite
                                                 </button>
                                                 <button className="add-favorite-button" onClick={() => setDirectionModalOpen(true)}>
                                                     Directions
+                                                </button>
+                                                <button className="add-favorite-button" onClick={() => setShowReview(true)}>
+                                                    Reviews
                                                 </button>
                                             </div>
                                         </div>
@@ -495,17 +551,24 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                     location.location_type !== 'restroom' &&
                                     location.location_type !== 'playground' &&
                                     location.location_type !== 'pedestrian_signal' && (
-                                        <div>
-                                            <strong>{location.Name || 'Unnamed Location'}</strong><br />
-                                            <strong>Location:</strong> {location.Location}<br />
-                                            <strong>Type:</strong> {location.location_type}<br />
-                                            <strong>Accessible:</strong> {location.Accessible}<br />
+                                        <div className="info-container">
+                                            <div>
+                                                <strong>{location.Name || 'Unnamed Location'}</strong><br />
+                                                <strong>Accessiblity Rating:</strong> {locationRating}<br />
+                                                <strong>Location:</strong> {location.Location}<br />
+                                                <strong>Type:</strong> {location.location_type}<br />
+                                                <strong>Accessible:</strong> {location.Accessible}<br />
+                                            </div>
+
                                             <div className="button-container">
                                                 <button className="add-favorite-button" onClick={() => handleAddLocation1(location._id)}>
                                                     Add to Favorite
                                                 </button>
                                                 <button className="add-favorite-button" onClick={() => setDirectionModalOpen(true)}>
                                                     Directions
+                                                </button>
+                                                <button className="add-favorite-button" onClick={() => setShowReview(true)}>
+                                                    Reviews
                                                 </button>
                                             </div>
                                         </div>
