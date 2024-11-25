@@ -164,9 +164,14 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
             if (!routingControlRef.current) {
                 routingControlRef.current = L.Routing.control({
                     waypoints: waypoints,
+                    draggableWaypoints: false,
+                    addWaypoints: false,
                     routeWhileDragging: false,
                     lineOptions: {
                         styles: [{ color: 'blue', weight: 4 }]
+                    },
+                    summaryTemplate: function() {
+                        return '<span style="font-size: 20px; font-weight: bold;">Directions</span>';
                     }
                 }).addTo(map);
                 
