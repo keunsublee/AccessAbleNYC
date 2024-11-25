@@ -377,7 +377,13 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                 position={[lat, lon]} 
                                 icon={getIconByLocationType(location.location_type, iconSize)}
                                 eventHandlers={{
-                                    click: () => setRecentlyOpened(location)
+                                    click: () => {
+                                        console.log(location._id);
+                                        setRecentlyOpened(location);
+                                    }
+                                    
+
+                                
                                 }}
                                >
                                <Popup>
