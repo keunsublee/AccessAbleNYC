@@ -44,7 +44,7 @@ router.post('/review/:locationId', authenticateUser, async (req, res) => {
         res.status(201).json({ success: true, rating: rating, review: newReview });
     } catch (error) {
         if (error.code == 11000){
-            res.status(409).json({success: false, message: "Review already added"});
+            res.status(409).json({success: false, message: "User already posted review to this location"});
             return;
         };
         res.status(500).json({ success: false, message: error.message });

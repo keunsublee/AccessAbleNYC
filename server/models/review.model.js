@@ -7,7 +7,8 @@ const reviewSchema= new mongoose.Schema({
     },
     userId: { 
         type: mongoose.Schema.Types.ObjectId, 
-        required: true 
+        required: true ,
+        unique: true
     },
     rating: {
         type: Number,
@@ -23,8 +24,7 @@ const reviewSchema= new mongoose.Schema({
     },
     review:{
         type: String,
-        required:true,
-        unique: true
+        required:true
     }
 },
     {
