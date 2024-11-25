@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Offcanvas, Form, Button, Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useTheme } from './ThemeContext';
+import '../style/ReviewSideBar.css'
 
 const ReviewSideBar = ({ show, handleClose, location, rating}) => {
     const { theme } = useTheme();
