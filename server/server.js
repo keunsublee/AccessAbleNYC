@@ -3,7 +3,8 @@ import dotenv from 'dotenv';
 import express from 'express';
 import userRoute from './routes/user.route.js';
 import locationRoute from './routes/location.route.js';  
-import feedbackRoute from './routes/feedback.route.js';  
+import feedbackRoute from './routes/feedback.route.js'; 
+import reviewRoute from './routes/review.route.js' 
 import cors from 'cors';
 
 dotenv.config();
@@ -21,6 +22,7 @@ app.use(cors());
 app.use('', locationRoute);
 app.use('', feedbackRoute);
 app.use('', userRoute);  
+app.use('', reviewRoute);  
 
 
 //creates server on port 8080 and connects to mongodb database
