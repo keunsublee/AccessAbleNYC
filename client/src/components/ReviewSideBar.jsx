@@ -74,7 +74,7 @@ const ReviewSideBar = ({ show, handleClose, location, rating}) => {
                 setTwoStarReviews(0);
                 setOneStarReviews(0);
             });
-    }, [location]);
+    }, [location, rating]);
 
     const handleReviewSubmit = async (e) => {
         e.preventDefault();
