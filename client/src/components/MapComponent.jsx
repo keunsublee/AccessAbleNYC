@@ -420,7 +420,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                         <div className="info-container">
                                             <div>
                                                 <strong>{location.Name || 'Unnamed Beach'}</strong><br />
-                                                <strong>Accessiblity Rating:</strong> {locationRating}<br />
+                                                <strong>Accessiblity Rating:</strong> {(Math.round(locationRating* 10) / 10) || '-'}<br />
                                                 <strong>Location:</strong> {location.Location}<br />
                                                 <strong>Accessible:</strong> {location.Accessible}<br />
                                                 <strong>Barbecue Allowed:</strong> {location.Barbecue_Allowed}<br />
@@ -452,7 +452,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                         <div className="info-container">
                                             <div>
                                                 <strong>{location.Name || 'Unnamed Subway Station'}</strong><br />
-                                                <strong>Accessiblity Rating:</strong> {locationRating}<br />
+                                                <strong>Accessiblity Rating:</strong> {(Math.round(locationRating* 10) / 10) || '-'}<br />
                                                 <strong>Location:</strong> {location.Location}<br />
                                                 <strong>ADA Status:</strong> {location.ADA_Status}<br />
                                                 <strong>Lines:</strong> {location.line}<br />
@@ -476,7 +476,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                         <div className="info-container">
                                             <div>
                                                 <strong>{location.facility_name || 'Unnamed Restroom'}</strong><br />
-                                                <strong>Accessiblity Rating:</strong> {locationRating}<br />
+                                                <strong>Accessiblity Rating:</strong> {(Math.round(locationRating* 10) / 10) || '-'}<br />
                                                 <strong>Location:</strong> {location.Location}<br />
                                                 <strong>Operator:</strong> {location.operator}<br />
                                                 <strong>Hours of Operation:</strong> {location.hours_of_operation}<br />
@@ -502,7 +502,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                         <div className="info-container">
                                             <div>
                                                 <strong>{location.Name || 'Unnamed Playground'}</strong><br />
-                                                <strong>Accessiblity Rating:</strong> {locationRating}<br />
+                                                <strong>Accessiblity Rating:</strong> {(Math.round(locationRating* 10) / 10) || '-'}<br />
                                                 <strong>Location:</strong> {location.Location}<br />
                                                 <strong>Accessible:</strong> {location.Accessible}<br />
                                                 <strong>Sensory-Friendly:</strong> {location['Sensory-Friendly'] === 'Y' ? 'Yes' : 'No'}<br />
@@ -525,7 +525,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                         <div className="info-container">
                                             <div>
                                                 <strong>{location.Location || 'Unnamed Pedestrian Signal'}</strong><br />
-                                                <strong>Accessiblity Rating:</strong> {locationRating}<br />
+                                                <strong>Accessiblity Rating:</strong> {(Math.round(locationRating* 10) / 10) || '-'}<br />
                                                 <strong>Borough:</strong> {location.borough}<br />
                                                 <strong>Installation Date:</strong> {new Date(location.date_insta).toLocaleDateString()}<br />
                                                 <strong>FEMA Flood Zone:</strong> {location.femafldt}<br />
@@ -554,7 +554,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                         <div className="info-container">
                                             <div>
                                                 <strong>{location.Name || 'Unnamed Location'}</strong><br />
-                                                <strong>Accessiblity Rating:</strong> {locationRating}<br />
+                                                <strong>Accessiblity Rating:</strong> {(Math.round(locationRating* 10) / 10) || '-'}<br />
                                                 <strong>Location:</strong> {location.Location}<br />
                                                 <strong>Type:</strong> {location.location_type}<br />
                                                 <strong>Accessible:</strong> {location.Accessible}<br />
