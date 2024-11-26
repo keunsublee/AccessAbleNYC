@@ -99,3 +99,20 @@ text-align: center;
     cursor: pointer;
     transition: color 200ms;
 }
+
+.userReviews{
+    width: 340px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.userReview {
+    margin-top: 0;
+    padding-top: 0;
+}
+  
+.userReviews .card-body {
+    margin-top: 0;
+    padding-top: 0;
+}
+  

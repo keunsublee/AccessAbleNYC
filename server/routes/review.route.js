@@ -44,7 +44,6 @@ router.post('/review/:locationId', authenticateUser, async (req, res) => {
         if (existingReview) {
             return res.status(409).json({ success: false, message: "User already posted review to this location" });
         }
-        
         const newReview = await Review.create({ locationId, userId, rating, review });
         res.status(201).json({ success: true, rating: rating, review: newReview });
     } catch (error) {

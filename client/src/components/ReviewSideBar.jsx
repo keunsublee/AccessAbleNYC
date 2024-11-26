@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Offcanvas, Form, Button, Row, Col, Container,ProgressBar, Modal} from 'react-bootstrap';
+import { Offcanvas, Form, Button, Row, Col, Container,ProgressBar, Modal, Card} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useTheme } from './ThemeContext';
 import '../style/ReviewSideBar.css';
@@ -29,6 +29,7 @@ const ReviewSideBar = ({ show, handleClose, location, rating}) => {
     const [twoStarReviews, setTwoStarReviews] = useState(0);
     const [oneStarReviews, setOneStarReviews] = useState(0);
     const [name, setName] = useState('');
+    const [locationReviews, setLocationReviews] = useState([]);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -51,6 +52,7 @@ const ReviewSideBar = ({ show, handleClose, location, rating}) => {
             })
             .then((data) => {
                 const reviews = data.reviews;
+                setLocationReviews(reviews);
                 setReviewLength(reviews.length);
 
                 const fiveStar = reviews.filter((review) => review.rating === 5).length;
@@ -73,30 +75,9 @@ const ReviewSideBar = ({ show, handleClose, location, rating}) => {
                 setThreeStarReviews(0);
                 setTwoStarReviews(0);
                 setOneStarReviews(0);
+                setLocationReviews([]);
             });
     }, [location, rating]);
-
-    const handleReviewSubmit = async (e) => {
-        e.preventDefault();
-        setError(null);
-        setSuccess(null);
-
-        if (!reviewRating || !reviewText) {
-            setError('Please provide both a rating and a review.');
-            return;
-        }
-
-        try {
-            const token = localStorage.getItem('token');
-            await addReview(location._id, token, { rating: reviewRating, review: reviewText });
-            setSuccess('Review added successfully!');
-            setReviewRating('');
-            setReviewText('');
-            setIsWritingReview(false);
-        } catch (error) {
-            setError(error.response?.data?.message || 'Failed to add review.');
-        }
-    };
 
     return (
         <Offcanvas
@@ -145,7 +126,20 @@ const ReviewSideBar = ({ show, handleClose, location, rating}) => {
                         <Button variant="outline-primary" className='ratingButton'>Login to review</Button>
                     )}
                     </Col>
-                </Row>
+                </Row> 
+                {locationReviews.map((review, index) => (
+                    <Card key={index} border="secondary" className='userReviews'>
+                    <Card.Header>{review.userId}</Card.Header>
+                    <Card.Body>
+                        <div className='userReview'>
+                            <span>Accessibility Rating: </span><StarRating rating={review.rating}></StarRating>
+                        </div>
+                        <Card.Text>
+                            {review.review}
+                        </Card.Text>
+                    </Card.Body>
+                </Card>                
+                ))}
             </Container>
             </Offcanvas.Body>
             <WriteReviewModal
