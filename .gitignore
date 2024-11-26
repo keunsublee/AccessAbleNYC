@@ -43,6 +43,7 @@ package.json
 /client/next-env.d.ts
 
 ### server
+/server/coverage
 
 # dependencies
 /server/node_modules
