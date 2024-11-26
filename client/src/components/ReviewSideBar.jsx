@@ -12,7 +12,7 @@ const StarRating = ({ rating }) => {
     return (
         <div className="star-rating">
             <div className="stars-outer">
-                <div className="stars-inner" style={{ width: starPercentage }}></div>
+                <div className="stars-inner" style={{ width: `${starPercentage}%` }}></div>
             </div>
         </div>
     );
@@ -40,50 +40,71 @@ const ReviewSideBar = ({ show, handleClose, location, rating}) => {
     }, []);
 
     useEffect(() => {
+        if (!location._id) return; // Ensure location._id exists before fetching
+
         fetch(`${import.meta.env.VITE_PORT}/review/${location._id}`)
-        .then((response) => {
-            if (!response.ok) {
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Error fetching location accessibility rating');
+                }
+                return response.json();
+            })
+            .then((data) => {
+                const reviews = data.reviews;
+                setReviewLength(reviews.length);
+
+                const fiveStar = reviews.filter((review) => review.rating === 5).length;
+                const fourStar = reviews.filter((review) => review.rating === 4).length;
+                const threeStar = reviews.filter((review) => review.rating === 3).length;
+                const twoStar = reviews.filter((review) => review.rating === 2).length;
+                const oneStar = reviews.filter((review) => review.rating === 1).length;
+
+                setFiveStarReviews((fiveStar / reviews.length) * 100);
+                setFourStarReviews((fourStar / reviews.length) * 100);
+                setThreeStarReviews((threeStar / reviews.length) * 100);
+                setTwoStarReviews((twoStar / reviews.length) * 100);
+                setOneStarReviews((oneStar / reviews.length) * 100);
+            })
+            .catch((error) => {
+                console.error('Error fetching location reviews:', error);
                 setReviewLength(0);
                 setFiveStarReviews(0);
                 setFourStarReviews(0);
                 setThreeStarReviews(0);
                 setTwoStarReviews(0);
                 setOneStarReviews(0);
-                throw new Error('Error fetching location accesiblity rating');
-            }
-            return response.json();
-        })
-        .then((data) => {
-            const reviews = data.reviews;
-            setReviewLength(reviews.length);
-    
-            const fiveStar = reviews.filter(review => review.rating === 5).length;
-            const fourStar = reviews.filter(review => review.rating === 4).length;
-            const threeStar = reviews.filter(review => review.rating === 3).length;
-            const twoStar = reviews.filter(review => review.rating === 2).length;
-            const oneStar = reviews.filter(review => review.rating === 1).length;
-    
-            setFiveStarReviews((fiveStar / reviews.length) * 100);
-            setFourStarReviews((fourStar / reviews.length) * 100);
-            setThreeStarReviews((threeStar / reviews.length) * 100);
-            setTwoStarReviews((twoStar / reviews.length) * 100);
-            setOneStarReviews((oneStar / reviews.length) * 100);
-            console.log('Location reviews:', data.reviews);
-        })
-        .catch((error) => {
-            setReviewLength(0);
-            setReviewLength(0);
-            setFiveStarReviews(0);
-            setFourStarReviews(0);
-            setThreeStarReviews(0);
-            setTwoStarReviews(0);
-            setOneStarReviews(0);
-            console.error('Error fetching location reviews:', error);
-        });
-    }, [location,rating]);
+            });
+    }, [location]);
+
+    const handleReviewSubmit = async (e) => {
+        e.preventDefault();
+        setError(null);
+        setSuccess(null);
+
+        if (!reviewRating || !reviewText) {
+            setError('Please provide both a rating and a review.');
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('token');
+            await addReview(location._id, token, { rating: reviewRating, review: reviewText });
+            setSuccess('Review added successfully!');
+            setReviewRating('');
+            setReviewText('');
+            setIsWritingReview(false);
+        } catch (error) {
+            setError(error.response?.data?.message || 'Failed to add review.');
+        }
+    };
 
     return (
-        <Offcanvas show={show} onHide={handleClose} placement="end" className={theme === 'dark' ? 'sidebar-dark' : ''}>
+        <Offcanvas
+            show={show}
+            onHide={handleClose}
+            placement="end"
+            className={theme === 'dark' ? 'sidebar-dark' : ''}
+        >
             <Offcanvas.Header closeButton>
                 <Offcanvas.Title>{location.Name || location.Location || location.facility_name}</Offcanvas.Title>
             </Offcanvas.Header>
