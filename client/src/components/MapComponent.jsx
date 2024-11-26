@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from './ThemeContext';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import ttServices from '@tomtom-international/web-sdk-services';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import 'leaflet-routing-machine';
@@ -112,101 +113,65 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
     const closeControlRef = useRef(null);
     const navigate = useNavigate();
     const { theme } = useTheme;
-
-    const getClosestTrafficSignal = (currentLocation, trafficSignals, finalLocation) => {
-        let closestSignal = null;
-        let minDistance = Infinity;
-
-        trafficSignals.forEach(signal => {
-            const distance = map.distance(
-                L.latLng(currentLocation.latitude || currentLocation.lat, currentLocation.longitude || currentLocation.lon),
-                L.latLng(signal.latitude, signal.longitude)
-            );
-            const currentToFinalDistance = map.distance(
-                L.latLng(currentLocation.latitude || currentLocation.lat, currentLocation.longitude || currentLocation.lon),
-                L.latLng(finalLocation.lat, finalLocation.lon)
-            );
-            const signalToFinalDistance = map.distance(
-                L.latLng(signal.latitude, signal.longitude),
-                L.latLng(finalLocation.lat, finalLocation.lon)
-            );
-            if (distance < minDistance && signalToFinalDistance < currentToFinalDistance) {
-                minDistance = distance;
-                closestSignal = signal;
-            }
-        });
-
-        return { closestSignal, minDistance };
-    };
-
     useEffect(() => {
-        if (start.lat != null && start.lon != null && routeTo.lat != null && routeTo.lon != null) {
-            const distance = map.distance(
-                L.latLng(start.lat, start.lon),
-                L.latLng(routeTo.lat, routeTo.lon)
-            );
-            let current = start;
-            let visitedSignals = new Set();
-            const waypoints = [L.latLng(start.lat, start.lon)];
-
-            while (true) {
-                const { closestSignal, minDistance } = getClosestTrafficSignal(current, trafficSignals, routeTo);
-
-                if (!closestSignal || visitedSignals.has(closestSignal) || minDistance >= distance) {
-                    waypoints.push(L.latLng(routeTo.lat, routeTo.lon));
-                    break;
-                }
-
-                waypoints.push(L.latLng(closestSignal.latitude, closestSignal.longitude));
-                visitedSignals.add(closestSignal);
-                current = closestSignal;
+        if (start?.lat && start?.lon && routeTo?.lat && routeTo?.lon) {
+            // Clean up any existing route layer
+            if (routingControlRef.current) {
+                map.removeLayer(routingControlRef.current);
+                routingControlRef.current = null;
             }
+            // Define waypoints
+            const waypoints = [
+                { point: [start.lon, start.lat] },
+                { point: [routeTo.lon, routeTo.lat] },
+            ];
 
-            if (!routingControlRef.current) {
-                routingControlRef.current = L.Routing.control({
-                    waypoints: waypoints,
-                    draggableWaypoints: false,
-                    addWaypoints: false,
-                    routeWhileDragging: false,
-                    lineOptions: {
-                        styles: [{ color: 'blue', weight: 4 }]
-                    },
-                    summaryTemplate: function() {
-                        return '<span style="font-size: 20px; font-weight: bold;">Directions</span>';
+            // Use TomTom Routing API
+            ttServices.services
+                .calculateRoute({
+                    key: import.meta.env.VITE_TOMTOM_API_KEY, 
+                    locations: waypoints.map(wp => wp.point.join(',')).join(':'),
+                    travelMode: 'pedestrian',
+                })
+                .then(response => {
+                    const geojson = response.toGeoJson(); // Convert the response to GeoJSON
+
+                    // Add the route to the map
+                    routingControlRef.current = L.geoJSON(geojson, {
+                        style: { color: 'blue', weight: 4 },
+                    }).addTo(map);
+
+                    // Fit the map bounds to the route
+                    map.fitBounds(routingControlRef.current.getBounds(), { padding: [50, 50] });
+
+                    // Add Close Route button
+                    if (!closeControlRef.current) {
+                        closeControlRef.current = L.control({ position: 'topright' });
+                        closeControlRef.current.onAdd = function () {
+                            const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+                            div.innerHTML = 'Close Route';
+                            div.style.backgroundColor = '#ff4040';
+                            div.style.padding = '5px';
+                            div.style.cursor = 'pointer';
+                            div.onclick = () => {
+                                if (routingControlRef.current) {
+                                    map.removeLayer(routingControlRef.current);
+                                    routingControlRef.current = null;
+                                }
+                                if (closeControlRef.current) {
+                                    map.removeControl(closeControlRef.current);
+                                    closeControlRef.current = null;
+                                }
+                                navigate('');
+                            };
+                            return div;
+                        };
+                        closeControlRef.current.addTo(map);
                     }
-                }).addTo(map);
-                
-                const routeContainer = routingControlRef.current.getContainer();
-                if (routeContainer) {
-                    routeContainer.classList.add(theme === 'dark' ? 'routing-dark-mode' : 'routing-light-mode');
-                }
-
-                closeControlRef.current = L.control({ position: 'topright' });
-                closeControlRef.current.onAdd = function () {
-                    const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
-                    div.innerHTML = 'Close Route';
-                    div.style.backgroundColor = '#ff4040';
-                    div.style.padding = '5px';
-                    div.style.cursor = 'pointer';
-                    div.onclick = function () {
-                        if (routingControlRef.current) {
-                            map.removeControl(routingControlRef.current);
-                            routingControlRef.current = null;
-                        }
-                        if (closeControlRef.current) {
-                            map.removeControl(closeControlRef.current);
-                            closeControlRef.current = null;
-                        }
-                        navigate('');
-                    };
-                    return div;
-                };
-                closeControlRef.current.addTo(map);
-            } else {
-                routingControlRef.current.setWaypoints(waypoints);
-            }
+                })
+                .catch(error => console.error('Error fetching TomTom route:', error));
         }
-    }, [map, start, routeTo, JSON.stringify(trafficSignals)]);
+    }, [map, start, routeTo]);
 
     return null;
 };
