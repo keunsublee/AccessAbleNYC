@@ -50,4 +50,5 @@
 /*for now this makes the dropdown options black in text*/
 .add-dropdown-menu{
   color: black !important;
+  top: 60px;
 }
