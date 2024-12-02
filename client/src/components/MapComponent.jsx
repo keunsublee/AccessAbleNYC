@@ -111,7 +111,7 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
     const map = useMap();
     const routingLayerRef = useRef(null); 
     const closeControlRef = useRef(null); 
-    const [routeActive, setRouteActive] = useState(false); 
+    const instructionControlRef = useRef(null);
 
     const clearAllRoutesAndButton = () => {
         console.log("Clearing all routes and button...");
@@ -128,29 +128,27 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
             closeControlRef.current = null;
         }
 
-        setRouteActive(false); // Ensure no route is active
+        if (instructionControlRef.current) {
+            map.removeControl(instructionControlRef.current);
+            instructionControlRef.current = null;
+        }
     };
 
     const getClosestTrafficSignal = (currentLocation, trafficSignals, finalLocation) => {
         let closestSignal = null;
         let minDistance = Infinity;
 
-        trafficSignals.forEach(signal => {
-            const distance = map.distance(
-                L.latLng(currentLocation.lat || currentLocation.latitude, currentLocation.lon || currentLocation.longitude),
-                L.latLng(signal.latitude, signal.longitude)
-            );
-            const currentToFinalDistance = map.distance(
-                L.latLng(currentLocation.lat || currentLocation.latitude, currentLocation.lon || currentLocation.longitude),
-                L.latLng(finalLocation.lat, finalLocation.lon)
-            );
-            const signalToFinalDistance = map.distance(
-                L.latLng(signal.latitude, signal.longitude),
-                L.latLng(finalLocation.lat, finalLocation.lon)
-            );
+        trafficSignals.forEach((signal) => {
+            const signalLatLng = L.latLng(signal.latitude, signal.longitude);
+            const currentLatLng = L.latLng(currentLocation.lat || currentLocation.latitude, currentLocation.lon || currentLocation.longitude);
+            const finalLatLng = L.latLng(finalLocation.lat, finalLocation.lon);
 
-            if (distance < minDistance && signalToFinalDistance < currentToFinalDistance) {
-                minDistance = distance;
+            const distanceToSignal = map.distance(currentLatLng, signalLatLng);
+            const distanceSignalToFinal = map.distance(signalLatLng, finalLatLng);
+            const distanceCurrentToFinal = map.distance(currentLatLng, finalLatLng);
+
+            if (distanceToSignal < minDistance && distanceSignalToFinal < distanceCurrentToFinal) {
+                minDistance = distanceToSignal;
                 closestSignal = signal;
             }
         });
@@ -158,7 +156,45 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
         return { closestSignal, minDistance };
     };
 
-    const handleRouteAndButton = (geojson) => {
+    const formatInstructions = (instructions) => {
+        return instructions.map((step, index) => {
+            const { maneuver, street, travelTimeInSeconds, turnAngleInDecimalDegrees } = step;
+            let formattedStep = `${index + 1}. `;
+            if (maneuver) formattedStep += `${maneuver}`;
+            if (street) formattedStep += ` onto ${street}`;
+            if (travelTimeInSeconds) formattedStep += ` (${Math.ceil(travelTimeInSeconds / 60)} min)`;
+            if (turnAngleInDecimalDegrees) formattedStep += ` [Turn angle: ${turnAngleInDecimalDegrees.toFixed(1)}°]`;
+
+            return formattedStep;
+        });
+    };
+
+    const displayInstructions = (instructions) => {
+        const formattedInstructions = formatInstructions(instructions);
+
+        console.log("Formatted Instructions:", formattedInstructions);
+        if (instructionControlRef.current) {
+            map.removeControl(instructionControlRef.current);
+        }
+
+        instructionControlRef.current = L.control({ position: "bottomleft" });
+        instructionControlRef.current.onAdd = () => {
+            const div = L.DomUtil.create("div", "leaflet-bar leaflet-control leaflet-control-custom instructions-box");
+            div.style.backgroundColor = "#fff";
+            div.style.padding = "10px";
+            div.style.maxHeight = "200px";
+            div.style.overflowY = "auto";
+            div.style.fontSize = "12px";
+
+            div.innerHTML = formattedInstructions.length
+                ? formattedInstructions.map((step) => `<p>${step}</p>`).join("")
+                : "<p>No instructions available.</p>";
+            return div;
+        };
+        instructionControlRef.current.addTo(map);
+    };
+
+    const handleRouteAndButton = (geojson, instructions) => {
         console.log("Handling route and button...");
 
         // Clear existing layers and controls
@@ -166,11 +202,13 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
 
         // Create and add the new route layer
         routingLayerRef.current = L.geoJSON(geojson, {
-            style: { color: 'blue', weight: 4 },
+            style: { color: "blue", weight: 4 },
         }).addTo(map);
 
-        // Add the "Close Route" button
-        closeControlRef.current = L.control({ position: 'topright' });
+       
+        displayInstructions(instructions);
+
+        closeControlRef.current = L.control({ position: "topright" });
         closeControlRef.current.onAdd = () => {
             const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
             div.innerHTML = 'Close Route';
@@ -183,18 +221,16 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
             return div;
         };
         closeControlRef.current.addTo(map);
-
-        setRouteActive(true); // Mark the route as active
     };
 
     useEffect(() => {
-        if (start?.lat && start?.lon && routeTo?.lat && routeTo?.lon) {
-            if (routeActive) {
-                console.log("Route is already active; clearing first...");
-                clearAllRoutesAndButton();
-            }
+        if (!start?.lat || !start?.lon || !routeTo?.lat || !routeTo?.lon) {
+            console.error("Invalid start or routeTo coordinates:", start, routeTo);
+            return;
+        }
 
-            console.log("Starting route calculation...");
+        console.log("Starting route calculation...");
+            clearAllRoutesAndButton();
             let current = start;
             let visitedSignals = new Set();
             const waypoints = [{ point: [start.lon, start.lat] }];
@@ -220,18 +256,28 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
             ttServices.services
                 .calculateRoute({
                     key: import.meta.env.VITE_TOMTOM_API_KEY,
-                    locations: waypoints.map(wp => wp.point.join(',')).join(':'),
-                    travelMode: 'pedestrian',
+                    locations: waypoints.map((wp) => wp.point.join(",")).join(":"),
+                    travelMode: "pedestrian",
+                    instructionsType: "coded",
                 })
-                .then(response => {
+                .then((response) => {
                     const geojson = response.toGeoJson();
-                    console.log("Route received:", geojson);
-                    handleRouteAndButton(geojson);
+                    const instructions = response?.routes?.[0]?.guidance?.instructions || [];
+            
+                    if (!instructions.length) {
+                        console.warn("No instructions found in the API response. Displaying the route only.");
+                    }
+            
+                    handleRouteAndButton(geojson, instructions);
                 })
-                .catch(error => console.error("Error fetching TomTom route:", error));
-        } else {
-            console.log("Invalid start or routeTo coordinates.");
-        }
+                .catch((error) => {
+                    console.error("Error fetching TomTom route:", error);
+                    clearAllRoutesAndButton();
+                });
+            
+
+        
+            
 
         return () => clearAllRoutesAndButton(); 
     }, [map, start, routeTo, trafficSignals]);
