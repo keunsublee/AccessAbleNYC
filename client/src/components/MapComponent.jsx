@@ -109,10 +109,27 @@ const calculateCenter = (nearbyLocations) => {
 
 const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
     const map = useMap();
-    const routingControlRef = useRef(null);
-    const closeControlRef = useRef(null);
-    const navigate = useNavigate();
-    const { theme } = useTheme;
+    const routingLayerRef = useRef(null); 
+    const closeControlRef = useRef(null); 
+    const [routeActive, setRouteActive] = useState(false); 
+
+    const clearAllRoutesAndButton = () => {
+        console.log("Clearing all routes and button...");
+
+        // Remove the active route layer
+        if (routingLayerRef.current) {
+            map.removeLayer(routingLayerRef.current);
+            routingLayerRef.current = null;
+        }
+
+        // Remove the "Close Route" button
+        if (closeControlRef.current) {
+            map.removeControl(closeControlRef.current);
+            closeControlRef.current = null;
+        }
+
+        setRouteActive(false); // Ensure no route is active
+    };
 
     const getClosestTrafficSignal = (currentLocation, trafficSignals, finalLocation) => {
         let closestSignal = null;
@@ -141,15 +158,43 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
         return { closestSignal, minDistance };
     };
 
+    const handleRouteAndButton = (geojson) => {
+        console.log("Handling route and button...");
+
+        // Clear existing layers and controls
+        clearAllRoutesAndButton();
+
+        // Create and add the new route layer
+        routingLayerRef.current = L.geoJSON(geojson, {
+            style: { color: 'blue', weight: 4 },
+        }).addTo(map);
+
+        // Add the "Close Route" button
+        closeControlRef.current = L.control({ position: 'topright' });
+        closeControlRef.current.onAdd = () => {
+            const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+            div.innerHTML = 'Close Route';
+            div.style.backgroundColor = '#ff4040';
+            div.style.color = '#fff';
+            div.style.padding = '5px';
+            div.style.cursor = 'pointer';
+            div.style.fontSize = '14px';
+            div.onclick = clearAllRoutesAndButton;
+            return div;
+        };
+        closeControlRef.current.addTo(map);
+
+        setRouteActive(true); // Mark the route as active
+    };
+
     useEffect(() => {
         if (start?.lat && start?.lon && routeTo?.lat && routeTo?.lon) {
-            // Clean up any existing route layer
-            if (routingControlRef.current) {
-                map.removeLayer(routingControlRef.current);
-                routingControlRef.current = null;
+            if (routeActive) {
+                console.log("Route is already active; clearing first...");
+                clearAllRoutesAndButton();
             }
 
-            // Find the optimized waypoints through traffic signals
+            console.log("Starting route calculation...");
             let current = start;
             let visitedSignals = new Set();
             const waypoints = [{ point: [start.lon, start.lat] }];
@@ -171,7 +216,7 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
                 current = closestSignal;
             }
 
-            // Use TomTom Routing API
+            console.log("Waypoints for route:", waypoints);
             ttServices.services
                 .calculateRoute({
                     key: import.meta.env.VITE_TOMTOM_API_KEY,
@@ -179,43 +224,16 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
                     travelMode: 'pedestrian',
                 })
                 .then(response => {
-                    const geojson = response.toGeoJson(); // Convert the response to GeoJSON
-
-                    // Add the route to the map
-                    routingControlRef.current = L.geoJSON(geojson, {
-                        style: { color: 'blue', weight: 4 },
-                    }).addTo(map);
-
-                    // Fit the map bounds to the route
-                    map.fitBounds(routingControlRef.current.getBounds(), { padding: [50, 50] });
-
-                    // Add Close Route button
-                    if (!closeControlRef.current) {
-                        closeControlRef.current = L.control({ position: 'topright' });
-                        closeControlRef.current.onAdd = function () {
-                            const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
-                            div.innerHTML = 'Close Route';
-                            div.style.backgroundColor = '#ff4040';
-                            div.style.padding = '5px';
-                            div.style.cursor = 'pointer';
-                            div.onclick = () => {
-                                if (routingControlRef.current) {
-                                    map.removeLayer(routingControlRef.current);
-                                    routingControlRef.current = null;
-                                }
-                                if (closeControlRef.current) {
-                                    map.removeControl(closeControlRef.current);
-                                    closeControlRef.current = null;
-                                }
-                                navigate('');
-                            };
-                            return div;
-                        };
-                        closeControlRef.current.addTo(map);
-                    }
+                    const geojson = response.toGeoJson();
+                    console.log("Route received:", geojson);
+                    handleRouteAndButton(geojson);
                 })
-                .catch(error => console.error('Error fetching TomTom route:', error));
+                .catch(error => console.error("Error fetching TomTom route:", error));
+        } else {
+            console.log("Invalid start or routeTo coordinates.");
         }
+
+        return () => clearAllRoutesAndButton(); 
     }, [map, start, routeTo, trafficSignals]);
 
     return null;
