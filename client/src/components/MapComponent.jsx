@@ -113,6 +113,34 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
     const closeControlRef = useRef(null);
     const navigate = useNavigate();
     const { theme } = useTheme;
+
+    const getClosestTrafficSignal = (currentLocation, trafficSignals, finalLocation) => {
+        let closestSignal = null;
+        let minDistance = Infinity;
+
+        trafficSignals.forEach(signal => {
+            const distance = map.distance(
+                L.latLng(currentLocation.lat || currentLocation.latitude, currentLocation.lon || currentLocation.longitude),
+                L.latLng(signal.latitude, signal.longitude)
+            );
+            const currentToFinalDistance = map.distance(
+                L.latLng(currentLocation.lat || currentLocation.latitude, currentLocation.lon || currentLocation.longitude),
+                L.latLng(finalLocation.lat, finalLocation.lon)
+            );
+            const signalToFinalDistance = map.distance(
+                L.latLng(signal.latitude, signal.longitude),
+                L.latLng(finalLocation.lat, finalLocation.lon)
+            );
+
+            if (distance < minDistance && signalToFinalDistance < currentToFinalDistance) {
+                minDistance = distance;
+                closestSignal = signal;
+            }
+        });
+
+        return { closestSignal, minDistance };
+    };
+
     useEffect(() => {
         if (start?.lat && start?.lon && routeTo?.lat && routeTo?.lon) {
             // Clean up any existing route layer
@@ -120,16 +148,33 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
                 map.removeLayer(routingControlRef.current);
                 routingControlRef.current = null;
             }
-            // Define waypoints
-            const waypoints = [
-                { point: [start.lon, start.lat] },
-                { point: [routeTo.lon, routeTo.lat] },
-            ];
+
+            // Find the optimized waypoints through traffic signals
+            let current = start;
+            let visitedSignals = new Set();
+            const waypoints = [{ point: [start.lon, start.lat] }];
+
+            while (true) {
+                const { closestSignal, minDistance } = getClosestTrafficSignal(current, trafficSignals, routeTo);
+                const totalDistance = map.distance(
+                    L.latLng(current.lat || current.latitude, current.lon || current.longitude),
+                    L.latLng(routeTo.lat, routeTo.lon)
+                );
+
+                if (!closestSignal || visitedSignals.has(closestSignal) || minDistance >= totalDistance) {
+                    waypoints.push({ point: [routeTo.lon, routeTo.lat] });
+                    break;
+                }
+
+                waypoints.push({ point: [closestSignal.longitude, closestSignal.latitude] });
+                visitedSignals.add(closestSignal);
+                current = closestSignal;
+            }
 
             // Use TomTom Routing API
             ttServices.services
                 .calculateRoute({
-                    key: import.meta.env.VITE_TOMTOM_API_KEY, 
+                    key: import.meta.env.VITE_TOMTOM_API_KEY,
                     locations: waypoints.map(wp => wp.point.join(',')).join(':'),
                     travelMode: 'pedestrian',
                 })
@@ -171,10 +216,11 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
                 })
                 .catch(error => console.error('Error fetching TomTom route:', error));
         }
-    }, [map, start, routeTo]);
+    }, [map, start, routeTo, trafficSignals]);
 
     return null;
 };
+
 
 
 //zooms out only when a new filler is applied. Otherwise, keeps zoom level, even when a icon is clicked.
