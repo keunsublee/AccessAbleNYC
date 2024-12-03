@@ -6,56 +6,61 @@ import { useTheme } from './ThemeContext';
 import { Link } from 'react-router-dom';
 
 function AboutUsModal(props) {
+    const { theme } = useTheme();
     return (
-        <Modal
-        {...props}
-        size="lg"
-        aria-labelledby="contained-modal-title-vcenter"
-        centered
+        <Modal className={theme === 'dark' ? 'dark-mode' : ''}
+            {...props}
+            size="lg"
+            aria-labelledby="contained-modal-title-vcenter"
+            centered
         >
-        <Modal.Header closeButton>
-            <Modal.Title id="contained-modal-title-vcenter">
-            About Us
-            </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-            <h4>Who Are We?</h4>
-            <p>
-            Hunter College students.
-            </p>
-            <h4>What is AccessAble NYC?</h4>
-            <p>
-            AccessAble NYC is a web application designed to improve accessibility for individuals with disabilities by helping them find accessible locations across New York City. 
-            Our goal is to provide an easy-to-use, interactive platform that empowers people with mobility challenges to navigate the city.
-            </p>
-        </Modal.Body>
-        <Modal.Footer>
-            <Button onClick={props.onHide}>Close</Button>
-        </Modal.Footer>
+            <Modal.Header className={theme === 'dark' ? 'dark-mode' : ''}
+                closeButton>
+                <Modal.Title 
+                    id="contained-modal-title-vcenter"
+                    className="modal-title"
+                >
+                    About Us
+                </Modal.Title>
+            </Modal.Header>
+            <Modal.Body className={theme === 'dark' ? 'dark-mode' : ''}>
+                <h4>Who Are We?</h4>
+                <p>Hunter College students.</p>
+                <h4>What is AccessAble NYC?</h4>
+                <p>
+                    AccessAble NYC is a web application designed to improve accessibility for individuals with disabilities by helping them find accessible locations across New York City. 
+                    Our goal is to provide an easy-to-use, interactive platform that empowers people with mobility challenges to navigate the city.
+                </p>
+            </Modal.Body>
+            <Modal.Footer className={theme === 'dark' ? 'dark-mode' : ''}>
+                <Button onClick={props.onHide}>Close</Button>
+            </Modal.Footer>
         </Modal>
     );
 }
 
 function EmailModal(props) {
+    const { theme } = useTheme();
     return (
-        <Modal
+        <Modal className={theme === 'dark' ? 'dark-mode' : ''}
         {...props}
         size="lg"
         aria-labelledby="contained-modal-title-vcenter"
         centered
         >
-        <Modal.Header closeButton>
+        <Modal.Header className={theme === 'dark' ? 'dark-mode' : ''}
+            closeButton>
             <Modal.Title id="contained-modal-title-vcenter">
             Contact Information
             </Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body className={theme === 'dark' ? 'dark-mode' : ''}>
             <h4>Email us at:</h4>
             <p>
             accessablenyc@gmail.com
             </p>
         </Modal.Body>
-        <Modal.Footer>
+        <Modal.Footer className={theme === 'dark' ? 'dark-mode' : ''}>
             <Button onClick={props.onHide}>Close</Button>
         </Modal.Footer>
         </Modal>
@@ -63,25 +68,27 @@ function EmailModal(props) {
 }
 
 function PhoneModal(props) {
+    const { theme } = useTheme();
     return (
-        <Modal
+        <Modal className={theme === 'dark' ? 'dark-mode' : ''}
         {...props}
         size="lg"
         aria-labelledby="contained-modal-title-vcenter"
         centered
         >
-        <Modal.Header closeButton>
+        <Modal.Header className={theme === 'dark' ? 'dark-mode' : ''}
+        closeButton >
             <Modal.Title id="contained-modal-title-vcenter">
             Contact Information
             </Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body className={theme === 'dark' ? 'dark-mode' : ''}>
             <h4>Phone:</h4>
             <p>
             N/A
             </p>
         </Modal.Body>
-        <Modal.Footer>
+        <Modal.Footer className={theme === 'dark' ? 'dark-mode' : ''}>
             <Button onClick={props.onHide}>Close</Button>
         </Modal.Footer>
         </Modal>
@@ -89,19 +96,21 @@ function PhoneModal(props) {
 }
 
 function HelpFAQModal(props) {
+    const { theme } = useTheme();
     return (
-        <Modal
+        <Modal className={theme === 'dark' ? 'dark-mode' : ''}
         {...props}
         size="lg"
         aria-labelledby="contained-modal-title-vcenter"
         centered
         >
-        <Modal.Header closeButton>
+        <Modal.Header className={theme === 'dark' ? 'dark-mode' : ''}
+        closeButton>
             <Modal.Title id="contained-modal-title-vcenter">
             Help & FAQs
-            </Modal.Title>
+            </Modal.Title >
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body className={theme === 'dark' ? 'dark-mode' : ''}>
             <h4>Who can use this app?</h4>
             <p>
             The app is targeted towards people with special needs, as well as their family and friends, providing them with valuable information on accessible locations in NYC.
@@ -117,7 +126,7 @@ function HelpFAQModal(props) {
             information is current and reliable.
             </p>
         </Modal.Body>
-        <Modal.Footer>
+        <Modal.Footer className={theme === 'dark' ? 'dark-mode' : ''}>
             <Button onClick={props.onHide}>Close</Button>
         </Modal.Footer>
         </Modal>

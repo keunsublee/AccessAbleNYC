@@ -489,10 +489,10 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                     }
                                 }}
                                >
-                               <Popup>
+                               <Popup className={`main-popup ${theme === 'dark' ? 'dark-mode' : ''}`}>
                                     {/* Display different information based on the location_type */}
                                     {location.location_type === 'beach' && (
-                                        <div className="info-container">
+                                        <div className={`info-container ${theme === 'dark' ? 'dark-mode' : ''}`}>
                                             <div>
                                                 <strong>{location.Name || 'Unnamed Beach'}</strong><br />
                                                 <strong>Accessiblity Rating:</strong> {(Math.round(locationRating* 10) / 10) || '-'}<br />
@@ -524,7 +524,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                         </div>
                                     )}
                                     {location.location_type === 'subway_stop' && (
-                                        <div className="info-container">
+                                        <div className={`info-container ${theme === 'dark' ? 'dark-mode' : ''}`}>
                                             <div>
                                                 <strong>{location.Name || 'Unnamed Subway Station'}</strong><br />
                                                 <strong>Accessiblity Rating:</strong> {(Math.round(locationRating* 10) / 10) || '-'}<br />
@@ -548,7 +548,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                         </div>
                                     )}
                                     {location.location_type === 'restroom' && (
-                                        <div className="info-container">
+                                        <div className={`info-container ${theme === 'dark' ? 'dark-mode' : ''}`}>
                                             <div>
                                                 <strong>{location.facility_name || 'Unnamed Restroom'}</strong><br />
                                                 <strong>Accessiblity Rating:</strong> {(Math.round(locationRating* 10) / 10) || '-'}<br />
@@ -574,7 +574,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                         </div>
                                     )}
                                     {location.location_type === 'playground' && (
-                                        <div className="info-container">
+                                        <div className={`info-container ${theme === 'dark' ? 'dark-mode' : ''}`}>
                                             <div>
                                                 <strong>{location.Name || 'Unnamed Playground'}</strong><br />
                                                 <strong>Accessiblity Rating:</strong> {(Math.round(locationRating* 10) / 10) || '-'}<br />
@@ -597,7 +597,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                         </div>
                                     )}
                                     {location.location_type === 'pedestrian_signal' && (
-                                        <div className="info-container">
+                                        <div className={`info-container ${theme === 'dark' ? 'dark-mode' : ''}`}>
                                             <div>
                                                 <strong>{location.Location || 'Unnamed Pedestrian Signal'}</strong><br />
                                                 <strong>Accessiblity Rating:</strong> {(Math.round(locationRating* 10) / 10) || '-'}<br />
@@ -626,7 +626,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                     location.location_type !== 'restroom' &&
                                     location.location_type !== 'playground' &&
                                     location.location_type !== 'pedestrian_signal' && (
-                                        <div className="info-container">
+                                        <div className={`info-container ${theme === 'dark' ? 'dark-mode' : ''}`}>
                                             <div>
                                                 <strong>{location.Name || 'Unnamed Location'}</strong><br />
                                                 <strong>Accessiblity Rating:</strong> {(Math.round(locationRating* 10) / 10) || '-'}<br />
@@ -685,6 +685,7 @@ function DirectionModal(props) {
     const [search, setSearch] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const navigate = useNavigate();
+    const {theme} = useTheme();
 
     const handlePathTo = (start, destination) => {
         if (start){
@@ -739,17 +740,16 @@ function DirectionModal(props) {
             aria-labelledby="contained-modal-title-vcenter"
             centered
         >
-            <Modal.Header closeButton>
-                <Modal.Title id="contained-modal-title-vcenter">
+            <Modal.Header className={theme === 'dark' ? "d-flex-dark-mode" : "d-flex"} closeButton>
+                <Modal.Title className={theme === 'dark' ? "d-flex-dark-mode" : "d-flex"} id="contained-modal-title-vcenter">
                     Directions
                 </Modal.Title>
             </Modal.Header>
-            <Modal.Body>
-                <Form className="d-flex" onSubmit={handleSubmit}>
-                    <Form.Control
+            <Modal.Body className={theme === 'dark' ? "d-flex-dark-mode" : "d-flex"}>
+                <Form className={theme === 'dark' ? "d-flex-dark-mode" : "d-flex"} onSubmit={handleSubmit}>
+                    <Form.Control className={theme === 'dark' ? "me-2 search-input-dark-mode" : 'me-2 search-input'}
                         type="search"
                         placeholder="Search a starting point"
-                        className='me-2 search-input'
                         aria-label="Search"
                         value={searchTerm}
                         style={{ borderRadius: '20px'}}
@@ -768,7 +768,7 @@ function DirectionModal(props) {
                     <Button variant="outline-success" className='addButton' style={{ borderRadius: '20px' }} type="submit">Find Route</Button>
                 </Form>
             </Modal.Body>
-            <Modal.Footer>
+            <Modal.Footer className={theme === 'dark' ? "d-flex-dark-mode" : "d-flex"}>
                 <Button onClick={props.onHide}>Close</Button>
             </Modal.Footer>
             <Toast onClose={() => setShowToastError(false)} show={showToastError} delay={3000} className="toast-bottom-right" bg='danger' autohide>
