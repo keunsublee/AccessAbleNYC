@@ -50,7 +50,7 @@ const ReviewSideBar = ({ show, handleClose, location, rating}) => {
     }, []);
 
     useEffect(() => {
-        if (!location._id) return; // Ensure location._id exists before fetching
+        if (!location._id) return;
 
         fetch(`${import.meta.env.VITE_PORT}/review/${location._id}`)
             .then((response) => {
