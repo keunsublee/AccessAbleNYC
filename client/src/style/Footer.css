@@ -48,3 +48,43 @@ footer {
     font-size: 12px;
   }
 }
+
+.contained-modal-title-vcenter.dark-mode {
+    background-color: #333;
+    color: white;
+}
+
+.modal-header.dark-mode .modal-title {
+    color: white !important; 
+}
+
+
+.modal-body.dark-mode {
+    background-color: #333; 
+    color: white; 
+}
+
+
+.modal-footer.dark-mode {
+    background-color: #333; 
+    color: white; 
+    border-top: 1px solid #333; 
+}
+
+.modal-title.dark-mode {
+    background-color: #333;
+    color: white;
+}
+
+.modal-header.dark-mode{
+    background-color: #333;
+    color: white;
+}
+
+
+
+
+
+
+
+
