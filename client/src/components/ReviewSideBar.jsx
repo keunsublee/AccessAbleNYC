@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { useTheme } from './ThemeContext';
 import '../style/ReviewSideBar.css';
 import Toast from 'react-bootstrap/Toast';
+import { useNavigate } from 'react-router-dom';
 
 const StarRating = ({ rating }) => {
     const starTotal = 5;
@@ -19,7 +20,9 @@ const StarRating = ({ rating }) => {
 };
 
 const ReviewSideBar = ({ show, handleClose, location, rating}) => {
+    const navigate = useNavigate();
     const [writeReviewOpen,setWriteReviewOpen]=useState(false);
+    const [editReviewOpen,setEditReviewOpen]=useState(false);
     const [isAuthenticated,setIsAuthenticated] = useState(false);
     const { theme } = useTheme();
     const [reviewLength, setReviewLength] = useState(0);
@@ -29,13 +32,19 @@ const ReviewSideBar = ({ show, handleClose, location, rating}) => {
     const [twoStarReviews, setTwoStarReviews] = useState(0);
     const [oneStarReviews, setOneStarReviews] = useState(0);
     const [name, setName] = useState('');
+    const [userId, setUserId] = useState(0);
+    const [userReview, setUserReview] = useState({});
     const [locationReviews, setLocationReviews] = useState([]);
+    const [showToastError, setShowToastError] = useState(false);
+    const [showToastSuccess, setShowToastSuccess] = useState(false);
+    const [message, setMessage] = useState('');
 
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
             setIsAuthenticated(true);
             const decodedToken = JSON.parse(atob(token.split('.')[1]));
+            setUserId(decodedToken.id);
             setName(decodedToken.name);
         }
     }, []);
@@ -54,7 +63,11 @@ const ReviewSideBar = ({ show, handleClose, location, rating}) => {
                 const reviews = data.reviews;
                 setLocationReviews(reviews);
                 setReviewLength(reviews.length);
-
+             
+                if (isAuthenticated){
+                    setUserReview(reviews.filter((review) => review.userId === userId)[0]);
+                }
+                
                 const fiveStar = reviews.filter((review) => review.rating === 5).length;
                 const fourStar = reviews.filter((review) => review.rating === 4).length;
                 const threeStar = reviews.filter((review) => review.rating === 3).length;
@@ -77,7 +90,33 @@ const ReviewSideBar = ({ show, handleClose, location, rating}) => {
                 setOneStarReviews(0);
                 setLocationReviews([]);
             });
-    }, [location, rating]);
+    }, [location, rating, editReviewOpen, showToastSuccess, writeReviewOpen]);
+
+    const handleDeleteReview = async (event) => {
+        event.preventDefault();
+        const token = localStorage.getItem('token');
+        
+        try {
+            const response = await fetch(`${import.meta.env.VITE_PORT}/review/${location._id}/${userReview._id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` // Replace with your actual auth token
+                }
+            });
+    
+            if (!response.ok) {
+                throw new Error(`Error: ${response.statusText}`);
+            }
+    
+            const data = await response.json();
+            setMessage('Review deleted successfully');
+            setShowToastSuccess(true);
+        } catch (error) {
+            setMessage('Error deleting review:', error);
+            setShowToastError(true);
+        }
+    };
 
     return (
         <Offcanvas
@@ -123,10 +162,29 @@ const ReviewSideBar = ({ show, handleClose, location, rating}) => {
                     {isAuthenticated ? (
                         <Button variant="outline-primary" className='ratingButton' onClick={() => setWriteReviewOpen(true)}>Write a review</Button>
                         ) : (
-                        <Button variant="outline-primary" className='ratingButton'>Login to review</Button>
+                        <Button variant="outline-primary" className='ratingButton' onClick={() => navigate('/login')}>Login to review</Button>
                     )}
                     </Col>
                 </Row> 
+                {userReview && userReview.rating && userReview.review ? (
+                    <Card border="secondary" className='userReviews'>
+                    <Card.Header className='d-flex justify-content-between align-items-center'>
+                      <span>Your Review:</span>
+                      <div>
+                        <Button variant="outline-secondary" className='me-2' onClick={() => setEditReviewOpen(true)}>Edit</Button>
+                        <Button variant="outline-danger" onClick={handleDeleteReview}>Delete</Button>
+                      </div>
+                    </Card.Header>
+                    <Card.Body>
+                      <div className='userReview'>
+                        <span>Accessibility Rating: </span><StarRating rating={userReview.rating}></StarRating>
+                      </div>
+                      <Card.Text>
+                        {userReview.review}
+                      </Card.Text>
+                    </Card.Body>
+                  </Card>                  
+                    ) : null}
                 {locationReviews.map((review, index) => (
                     <Card key={index} border="secondary" className='userReviews'>
                     <Card.Header>{review.userId}</Card.Header>
@@ -148,6 +206,27 @@ const ReviewSideBar = ({ show, handleClose, location, rating}) => {
             location = {location}
             userName = {name}
             />
+            {userReview ? (
+            <EditReviewModal
+                show={editReviewOpen}
+                onHide={() => setEditReviewOpen(false)}
+                location={location}
+                username={name}
+                reviewid={userReview._id}
+            />
+            ) : null}
+            <Toast onClose={() => setShowToastSuccess(false)} show={showToastSuccess} delay={3000} className="toast-bottom-right" bg='success' autohide>
+                <Toast.Header>
+                    <strong className="me-auto">Alert</strong>
+                </Toast.Header>
+                <Toast.Body>{message}</Toast.Body>
+            </Toast>
+            <Toast onClose={() => setShowToastError(false)} show={showToastError} delay={3000} className="toast-bottom-right" bg='danger' autohide>
+                <Toast.Header>
+                    <strong className="me-auto">Alert</strong>
+                </Toast.Header>
+                <Toast.Body>{message}</Toast.Body>
+            </Toast>
         </Offcanvas>
     );
 };
@@ -203,6 +282,116 @@ function WriteReviewModal(props) {
         </Modal.Header>
         <Modal.Body>
             <p>Name: <span style={{ fontWeight: 'bold' }}>{props.userName}</span></p>
+            <Form onSubmit={handleSubmit}>
+                <Form.Group className="mb-3" controlId="formGroupRating">
+                    <Form.Label>Accessibility Rating</Form.Label>
+                    <div className="star-rating-user">
+                        {[...Array(5)].map((star, index) => {
+                            const ratingValue = index + 1;
+
+                            return (
+                                <label key={index}>
+                                    <input
+                                        type="radio"
+                                        name="rating"
+                                        value={ratingValue}
+                                        onClick={() => setRating(ratingValue)}
+                                        style={{ display: 'none' }}
+                                    />
+                                    <div
+                                        className="star-user"
+                                        style={{
+                                            color: ratingValue <= rating ? "#ffc107" : "#e4e5e9",
+                                            fontSize: "2em",
+                                            cursor: "pointer"
+                                        }}
+                                    >
+                                        ★
+                                    </div>
+                                </label>
+                            );
+                        })}
+                    </div>
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="formGroupReview">
+                    <Form.Label>Accessiblity Review</Form.Label>
+                    <Form.Control as="textarea" type="review" value={userReview} placeholder="Share your experience on how accessible this location is" style={{ height: '200px' }} onChange={(e) => setUserReview(e.target.value)}/>
+                </Form.Group>
+                <div className="d-flex justify-content-center">
+                    <Button variant="primary" type="submit" style={{ width: '150px' }}>Post</Button>
+                </div>
+            </Form>
+        </Modal.Body>
+        <Modal.Footer>
+            <Button onClick={props.onHide}>Close</Button>
+        </Modal.Footer>
+            <Toast onClose={() => setShowToastSuccess(false)} show={showToastSuccess} delay={3000} className="toast-bottom-right" bg='success' autohide>
+                <Toast.Header>
+                    <strong className="me-auto">Alert</strong>
+                </Toast.Header>
+                <Toast.Body>{message}</Toast.Body>
+            </Toast>
+            <Toast onClose={() => setShowToastError(false)} show={showToastError} delay={3000} className="toast-bottom-right" bg='danger' autohide>
+                <Toast.Header>
+                    <strong className="me-auto">Alert</strong>
+                </Toast.Header>
+                <Toast.Body>{message}</Toast.Body>
+            </Toast>
+        </Modal>
+    );
+}
+
+function EditReviewModal(props) {
+    const [rating, setRating] = useState(0);
+    const [userReview, setUserReview] = useState('');
+    const [showToastError, setShowToastError] = useState(false);
+    const [showToastSuccess, setShowToastSuccess] = useState(false);
+    const [message, setMessage] = useState('');
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        const token = localStorage.getItem('token');
+        const userQuery = {rating: rating, review: userReview};
+        
+        try {
+            const response = await fetch(`${import.meta.env.VITE_PORT}/review/${props.location._id}/${props.reviewid}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` // Replace with your actual auth token
+                },
+                body: JSON.stringify(userQuery)
+            });
+    
+            if (!response.ok) {
+                throw new Error(`Error: ${response.statusText}`);
+            }
+    
+            const data = await response.json();
+            setRating(0);
+            setUserReview('');
+            setMessage('Review changed successfully');
+            setShowToastSuccess(true);
+        } catch (error) {
+            setMessage('Error changing review:', error);
+            setShowToastError(true);
+        }
+    };
+
+    return (
+        <Modal
+        {...props}
+        size="lg"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+        >
+        <Modal.Header closeButton>
+            <Modal.Title id="contained-modal-title-vcenter">
+            Edit review for {props.location.Name || props.location.Location || props.location.facility_name}
+            </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+            <p>Name: <span style={{ fontWeight: 'bold' }}>{props.username}</span></p>
             <Form onSubmit={handleSubmit}>
                 <Form.Group className="mb-3" controlId="formGroupRating">
                     <Form.Label>Accessibility Rating</Form.Label>
