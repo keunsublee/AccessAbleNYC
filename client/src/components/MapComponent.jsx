@@ -414,10 +414,10 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                     }
                                 }}
                                >
-                               <Popup>
+                               <Popup className={`main-popup ${theme === 'dark' ? 'dark-mode' : ''}`}>
                                     {/* Display different information based on the location_type */}
                                     {location.location_type === 'beach' && (
-                                        <div className="info-container">
+                                        <div className={`info-container ${theme === 'dark' ? 'dark-mode' : ''}`}>
                                             <div>
                                                 <strong>{location.Name || 'Unnamed Beach'}</strong><br />
                                                 <strong>Accessiblity Rating:</strong> {(Math.round(locationRating* 10) / 10) || '-'}<br />
@@ -449,7 +449,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                         </div>
                                     )}
                                     {location.location_type === 'subway_stop' && (
-                                        <div className="info-container">
+                                        <div className={`info-container ${theme === 'dark' ? 'dark-mode' : ''}`}>
                                             <div>
                                                 <strong>{location.Name || 'Unnamed Subway Station'}</strong><br />
                                                 <strong>Accessiblity Rating:</strong> {(Math.round(locationRating* 10) / 10) || '-'}<br />
@@ -473,7 +473,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                         </div>
                                     )}
                                     {location.location_type === 'restroom' && (
-                                        <div className="info-container">
+                                        <div className={`info-container ${theme === 'dark' ? 'dark-mode' : ''}`}>
                                             <div>
                                                 <strong>{location.facility_name || 'Unnamed Restroom'}</strong><br />
                                                 <strong>Accessiblity Rating:</strong> {(Math.round(locationRating* 10) / 10) || '-'}<br />
@@ -499,7 +499,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                         </div>
                                     )}
                                     {location.location_type === 'playground' && (
-                                        <div className="info-container">
+                                        <div className={`info-container ${theme === 'dark' ? 'dark-mode' : ''}`}>
                                             <div>
                                                 <strong>{location.Name || 'Unnamed Playground'}</strong><br />
                                                 <strong>Accessiblity Rating:</strong> {(Math.round(locationRating* 10) / 10) || '-'}<br />
@@ -522,7 +522,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                         </div>
                                     )}
                                     {location.location_type === 'pedestrian_signal' && (
-                                        <div className="info-container">
+                                        <div className={`info-container ${theme === 'dark' ? 'dark-mode' : ''}`}>
                                             <div>
                                                 <strong>{location.Location || 'Unnamed Pedestrian Signal'}</strong><br />
                                                 <strong>Accessiblity Rating:</strong> {(Math.round(locationRating* 10) / 10) || '-'}<br />
@@ -551,7 +551,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                     location.location_type !== 'restroom' &&
                                     location.location_type !== 'playground' &&
                                     location.location_type !== 'pedestrian_signal' && (
-                                        <div className="info-container">
+                                        <div className={`info-container ${theme === 'dark' ? 'dark-mode' : ''}`}>
                                             <div>
                                                 <strong>{location.Name || 'Unnamed Location'}</strong><br />
                                                 <strong>Accessiblity Rating:</strong> {(Math.round(locationRating* 10) / 10) || '-'}<br />

@@ -52,3 +52,25 @@
   color: black !important;
   top: 60px;
 }
+
+.info-container.dark-mode {
+  background-color: #333;
+  color: #fff; 
+}
+
+.leaflet-popup-content-wrapper {
+  background-color: #ffffff; 
+  color: #000; 
+  border-radius: 8px;
+  padding: 10px;
+}
+
+
+.main-popup.dark-mode .leaflet-popup-content-wrapper {
+  background-color: #333333; 
+  color: #ffffff; 
+}
+
+.main-popup.dark-mode .leaflet-popup-tip {
+  background: #333333; 
+}
