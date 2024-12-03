@@ -610,6 +610,7 @@ function DirectionModal(props) {
     const [search, setSearch] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const navigate = useNavigate();
+    const {theme} = useTheme();
 
     const handlePathTo = (start, destination) => {
         if (start){
@@ -664,17 +665,16 @@ function DirectionModal(props) {
             aria-labelledby="contained-modal-title-vcenter"
             centered
         >
-            <Modal.Header closeButton>
-                <Modal.Title id="contained-modal-title-vcenter">
+            <Modal.Header className={theme === 'dark' ? "d-flex-dark-mode" : "d-flex"} closeButton>
+                <Modal.Title className={theme === 'dark' ? "d-flex-dark-mode" : "d-flex"} id="contained-modal-title-vcenter">
                     Directions
                 </Modal.Title>
             </Modal.Header>
-            <Modal.Body>
-                <Form className="d-flex" onSubmit={handleSubmit}>
-                    <Form.Control
+            <Modal.Body className={theme === 'dark' ? "d-flex-dark-mode" : "d-flex"}>
+                <Form className={theme === 'dark' ? "d-flex-dark-mode" : "d-flex"} onSubmit={handleSubmit}>
+                    <Form.Control className={theme === 'dark' ? "me-2 search-input-dark-mode" : 'me-2 search-input'}
                         type="search"
                         placeholder="Search a starting point"
-                        className='me-2 search-input'
                         aria-label="Search"
                         value={searchTerm}
                         style={{ borderRadius: '20px'}}
@@ -693,7 +693,7 @@ function DirectionModal(props) {
                     <Button variant="outline-success" className='addButton' style={{ borderRadius: '20px' }} type="submit">Find Route</Button>
                 </Form>
             </Modal.Body>
-            <Modal.Footer>
+            <Modal.Footer className={theme === 'dark' ? "d-flex-dark-mode" : "d-flex"}>
                 <Button onClick={props.onHide}>Close</Button>
             </Modal.Footer>
             <Toast onClose={() => setShowToastError(false)} show={showToastError} delay={3000} className="toast-bottom-right" bg='danger' autohide>
