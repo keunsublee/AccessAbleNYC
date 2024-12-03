@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from './ThemeContext';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import ttServices from '@tomtom-international/web-sdk-services';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import 'leaflet-routing-machine';
@@ -108,30 +109,46 @@ const calculateCenter = (nearbyLocations) => {
 
 const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
     const map = useMap();
-    const routingControlRef = useRef(null);
-    const closeControlRef = useRef(null);
-    const navigate = useNavigate();
-    const { theme } = useTheme;
+    const routingLayerRef = useRef(null); 
+    const closeControlRef = useRef(null); 
+    const instructionControlRef = useRef(null);
+
+    const clearAllRoutesAndButton = () => {
+        console.log("Clearing all routes and button...");
+
+        // Remove the active route layer
+        if (routingLayerRef.current) {
+            map.removeLayer(routingLayerRef.current);
+            routingLayerRef.current = null;
+        }
+
+        // Remove the "Close Route" button
+        if (closeControlRef.current) {
+            map.removeControl(closeControlRef.current);
+            closeControlRef.current = null;
+        }
+
+        if (instructionControlRef.current) {
+            map.removeControl(instructionControlRef.current);
+            instructionControlRef.current = null;
+        }
+    };
 
     const getClosestTrafficSignal = (currentLocation, trafficSignals, finalLocation) => {
         let closestSignal = null;
         let minDistance = Infinity;
 
-        trafficSignals.forEach(signal => {
-            const distance = map.distance(
-                L.latLng(currentLocation.latitude || currentLocation.lat, currentLocation.longitude || currentLocation.lon),
-                L.latLng(signal.latitude, signal.longitude)
-            );
-            const currentToFinalDistance = map.distance(
-                L.latLng(currentLocation.latitude || currentLocation.lat, currentLocation.longitude || currentLocation.lon),
-                L.latLng(finalLocation.lat, finalLocation.lon)
-            );
-            const signalToFinalDistance = map.distance(
-                L.latLng(signal.latitude, signal.longitude),
-                L.latLng(finalLocation.lat, finalLocation.lon)
-            );
-            if (distance < minDistance && signalToFinalDistance < currentToFinalDistance) {
-                minDistance = distance;
+        trafficSignals.forEach((signal) => {
+            const signalLatLng = L.latLng(signal.latitude, signal.longitude);
+            const currentLatLng = L.latLng(currentLocation.lat || currentLocation.latitude, currentLocation.lon || currentLocation.longitude);
+            const finalLatLng = L.latLng(finalLocation.lat, finalLocation.lon);
+
+            const distanceToSignal = map.distance(currentLatLng, signalLatLng);
+            const distanceSignalToFinal = map.distance(signalLatLng, finalLatLng);
+            const distanceCurrentToFinal = map.distance(currentLatLng, finalLatLng);
+
+            if (distanceToSignal < minDistance && distanceSignalToFinal < distanceCurrentToFinal) {
+                minDistance = distanceToSignal;
                 closestSignal = signal;
             }
         });
@@ -139,77 +156,135 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
         return { closestSignal, minDistance };
     };
 
+    const formatInstructions = (instructions) => {
+        return instructions.map((step, index) => {
+            const { maneuver, street, travelTimeInSeconds, turnAngleInDecimalDegrees } = step;
+            let formattedStep = `${index + 1}. `;
+            if (maneuver) formattedStep += `${maneuver}`;
+            if (street) formattedStep += ` onto ${street}`;
+            if (travelTimeInSeconds) formattedStep += ` (${Math.ceil(travelTimeInSeconds / 60)} min)`;
+            if (turnAngleInDecimalDegrees) formattedStep += ` [Turn angle: ${turnAngleInDecimalDegrees.toFixed(1)}°]`;
+
+            return formattedStep;
+        });
+    };
+
+    const displayInstructions = (instructions) => {
+        const formattedInstructions = formatInstructions(instructions);
+
+        console.log("Formatted Instructions:", formattedInstructions);
+        if (instructionControlRef.current) {
+            map.removeControl(instructionControlRef.current);
+        }
+
+        instructionControlRef.current = L.control({ position: "bottomleft" });
+        instructionControlRef.current.onAdd = () => {
+            const div = L.DomUtil.create("div", "leaflet-bar leaflet-control leaflet-control-custom instructions-box");
+            div.style.backgroundColor = "#fff";
+            div.style.padding = "10px";
+            div.style.maxHeight = "200px";
+            div.style.overflowY = "auto";
+            div.style.fontSize = "12px";
+
+            div.innerHTML = formattedInstructions.length
+                ? formattedInstructions.map((step) => `<p>${step}</p>`).join("")
+                : "<p>No instructions available.</p>";
+            return div;
+        };
+        instructionControlRef.current.addTo(map);
+    };
+
+    const handleRouteAndButton = (geojson, instructions) => {
+        console.log("Handling route and button...");
+
+        // Clear existing layers and controls
+        clearAllRoutesAndButton();
+
+        // Create and add the new route layer
+        routingLayerRef.current = L.geoJSON(geojson, {
+            style: { color: "blue", weight: 4 },
+        }).addTo(map);
+
+       
+        displayInstructions(instructions);
+
+        closeControlRef.current = L.control({ position: "topright" });
+        closeControlRef.current.onAdd = () => {
+            const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+            div.innerHTML = 'Close Route';
+            div.style.backgroundColor = '#ff4040';
+            div.style.color = '#fff';
+            div.style.padding = '5px';
+            div.style.cursor = 'pointer';
+            div.style.fontSize = '14px';
+            div.onclick = clearAllRoutesAndButton;
+            return div;
+        };
+        closeControlRef.current.addTo(map);
+    };
+
     useEffect(() => {
-        if (start.lat != null && start.lon != null && routeTo.lat != null && routeTo.lon != null) {
-            const distance = map.distance(
-                L.latLng(start.lat, start.lon),
-                L.latLng(routeTo.lat, routeTo.lon)
-            );
+        if (!start?.lat || !start?.lon || !routeTo?.lat || !routeTo?.lon) {
+            console.error("Invalid start or routeTo coordinates:", start, routeTo);
+            return;
+        }
+
+        console.log("Starting route calculation...");
+            clearAllRoutesAndButton();
             let current = start;
             let visitedSignals = new Set();
-            const waypoints = [L.latLng(start.lat, start.lon)];
+            const waypoints = [{ point: [start.lon, start.lat] }];
 
             while (true) {
                 const { closestSignal, minDistance } = getClosestTrafficSignal(current, trafficSignals, routeTo);
+                const totalDistance = map.distance(
+                    L.latLng(current.lat || current.latitude, current.lon || current.longitude),
+                    L.latLng(routeTo.lat, routeTo.lon)
+                );
 
-                if (!closestSignal || visitedSignals.has(closestSignal) || minDistance >= distance) {
-                    waypoints.push(L.latLng(routeTo.lat, routeTo.lon));
+                if (!closestSignal || visitedSignals.has(closestSignal) || minDistance >= totalDistance) {
+                    waypoints.push({ point: [routeTo.lon, routeTo.lat] });
                     break;
                 }
 
-                waypoints.push(L.latLng(closestSignal.latitude, closestSignal.longitude));
+                waypoints.push({ point: [closestSignal.longitude, closestSignal.latitude] });
                 visitedSignals.add(closestSignal);
                 current = closestSignal;
             }
 
-            if (!routingControlRef.current) {
-                routingControlRef.current = L.Routing.control({
-                    waypoints: waypoints,
-                    draggableWaypoints: false,
-                    addWaypoints: false,
-                    routeWhileDragging: false,
-                    lineOptions: {
-                        styles: [{ color: 'blue', weight: 4 }]
-                    },
-                    summaryTemplate: function() {
-                        return '<span style="font-size: 20px; font-weight: bold;">Directions</span>';
+            console.log("Waypoints for route:", waypoints);
+            ttServices.services
+                .calculateRoute({
+                    key: import.meta.env.VITE_TOMTOM_API_KEY,
+                    locations: waypoints.map((wp) => wp.point.join(",")).join(":"),
+                    travelMode: "pedestrian",
+                    instructionsType: "coded",
+                })
+                .then((response) => {
+                    const geojson = response.toGeoJson();
+                    const instructions = response?.routes?.[0]?.guidance?.instructions || [];
+            
+                    if (!instructions.length) {
+                        console.warn("No instructions found in the API response. Displaying the route only.");
                     }
-                }).addTo(map);
-                
-                const routeContainer = routingControlRef.current.getContainer();
-                if (routeContainer) {
-                    routeContainer.classList.add(theme === 'dark' ? 'routing-dark-mode' : 'routing-light-mode');
-                }
+            
+                    handleRouteAndButton(geojson, instructions);
+                })
+                .catch((error) => {
+                    console.error("Error fetching TomTom route:", error);
+                    clearAllRoutesAndButton();
+                });
+            
 
-                closeControlRef.current = L.control({ position: 'topright' });
-                closeControlRef.current.onAdd = function () {
-                    const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
-                    div.innerHTML = 'Close Route';
-                    div.style.backgroundColor = '#ff4040';
-                    div.style.padding = '5px';
-                    div.style.cursor = 'pointer';
-                    div.onclick = function () {
-                        if (routingControlRef.current) {
-                            map.removeControl(routingControlRef.current);
-                            routingControlRef.current = null;
-                        }
-                        if (closeControlRef.current) {
-                            map.removeControl(closeControlRef.current);
-                            closeControlRef.current = null;
-                        }
-                        navigate('');
-                    };
-                    return div;
-                };
-                closeControlRef.current.addTo(map);
-            } else {
-                routingControlRef.current.setWaypoints(waypoints);
-            }
-        }
-    }, [map, start, routeTo, JSON.stringify(trafficSignals)]);
+        
+            
+
+        return () => clearAllRoutesAndButton(); 
+    }, [map, start, routeTo, trafficSignals]);
 
     return null;
 };
+
 
 
 //zooms out only when a new filler is applied. Otherwise, keeps zoom level, even when a icon is clicked.
