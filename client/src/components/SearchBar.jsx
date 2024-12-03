@@ -1,10 +1,12 @@
 import React, { useState, useEffect} from 'react';
 import '../style/Search.css';
 
-const SearchBar = ({ onSearch }) => {
+const SearchBar = ({ onSearch }) => {       
+    // , clearSearch
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [name, setName] = useState('');
+    const [searchLoc, setSearchLoc] = useState('')
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -43,6 +45,7 @@ const SearchBar = ({ onSearch }) => {
         setSearchTerm(location); //location rather name location.name; allows the search bar to be autofilled with the name of the location the user selects
         onSearch(location);
         setSearchResults([]);
+        setSearchLoc(location);
     };
 
 

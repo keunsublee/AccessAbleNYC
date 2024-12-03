@@ -295,6 +295,9 @@ const MapCenterUpdater = ({ nearbyLocations, selectedLocation, filterCriteria })
     useEffect(() => {
         let newCenter;
         let zoomLevel = map.getZoom();
+        // let slat = (searchLoc.lat || searchLoc.latitude);
+        // let slon = (searchLoc.lon || searchLoc.longitude);
+        // let sCenter = [slat, slon];
 
         //checks if a new filter is applied.
         const newfilter = Object.keys(filterCriteria).some(key => filterCriteria[key] && filterCriteria[key] !== prevFilter.current[key]);
@@ -311,12 +314,29 @@ const MapCenterUpdater = ({ nearbyLocations, selectedLocation, filterCriteria })
         if (newCenter || newfilter) {
             map.setView(newCenter || map.getCenter(), zoomLevel);
         }
-    }, [nearbyLocations, selectedLocation, filterCriteria, map]);
+        // else if (searchLoc && sCenter){
+        //     map.setView(sCenter, 15);
+        // }
+    }, [nearbyLocations, selectedLocation, filterCriteria, map]);   //  , searchLoc
 
     return null;
 };
+// const searchcenter = ({searchLoc}) => {
+//         const map = useMap();
+//         const slat = (searchLoc[0].lat || searchLoc[0].latitude);
+//         const slon = (searchLoc[0].lon || searchLoc[0].longitude);
+//         if (slat && slon){
+//         let sCenter = [slat, slon];
 
-const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , userCoord, destination, filterCriteria}) => {
+//         if (sCenter) {
+//             map.setView(sCenter, 15);
+//         }
+//     }
+//     return null;
+//     };
+
+const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , userCoord, destination, filterCriteria, searchLoc}) => {
+    //      , clearSearch
     const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby location
     const [showToastError, setShowToastError] = useState(false);
     const [showToastSuccess, setShowToastSuccess] = useState(false);
@@ -383,6 +403,28 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
         });
     };
 
+    useEffect(() => {
+        if (searchLoc) {
+            setShowNearby(false);
+           // searchCenter({searchLoc});
+        }
+    }, [searchLoc]);
+    
+    const handleNearbyToggle = () => {
+        setShowNearby(prevShowNearby => !prevShowNearby);
+        if (!showNearby) {
+            setSearchTerm('');
+            setSearchLoc('');
+            // clearSearch();
+        }
+        // else if (showNearby && (selectedLocation || searchLoc)){
+        //     setSearchLoc('');
+        //     setSearchTerm('');
+        //     clearSearch();
+        //     setShowNearby(false);
+        // }
+    };
+
     // DynamicMarker component to rescale the marker accordingly to the zoom of the map
     const DynamicMarker = ({ position, locationType, children }) => {
         const map = useMap();
@@ -446,8 +488,9 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                         type="checkbox"
                         // className={`${theme}`}
                         checked={showNearby}
-                        onChange={() => setShowNearby(!showNearby)}
+                        onChange={handleNearbyToggle}
                     />
+                    {/* onChange={() => setShowNearby(!showNearby)} */}
                     Show Nearby Locations Only
             </label>
             <MapContainer 
