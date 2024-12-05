@@ -51,8 +51,9 @@ const SearchBar = ({ onSearch }) => {
 
     return (
         <div className="search-bar">
-            <div className="greeting-message">Welcome, {name}</div>
-            <div className="search-message">Find the accessibilities around you</div>
+            {/* <div className="greeting-message">Welcome, {name}</div> */}
+            <div className="search-message">Explore an Accessible NYC
+            </div>
             <form className="d-flex" onSubmit={handleSearchSubmit}>
                 <input
                     className="form-control me-2"

@@ -288,36 +288,36 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
 
 
 //zooms out only when a new filler is applied. Otherwise, keeps zoom level, even when a icon is clicked.
-const MapCenterUpdater = ({ nearbyLocations, selectedLocation, filterCriteria }) => {
+const MapCenterUpdater = ({ nearbyLocations, selectedLocation }) => {
     const map = useMap();
-    const prevFilter = useRef(filterCriteria);
 
     useEffect(() => {
         let newCenter;
-        let zoomLevel = map.getZoom();
         // let slat = (searchLoc.lat || searchLoc.latitude);
         // let slon = (searchLoc.lon || searchLoc.longitude);
         // let sCenter = [slat, slon];
 
         //checks if a new filter is applied.
-        const newfilter = Object.keys(filterCriteria).some(key => filterCriteria[key] && filterCriteria[key] !== prevFilter.current[key]);
+        // const newfilter = Object.keys(filterCriteria).some(key => filterCriteria[key] && filterCriteria[key] !== prevFilter.current[key]);
 
-        if (newfilter) {
-            zoomLevel = 12;
-            prevFilter.current = {...filterCriteria};//updates prevfilter.
-        } else if (selectedLocation && (selectedLocation.lat || selectedLocation.latitude) && (selectedLocation.lon || selectedLocation.longitude)) {
+        // if (newfilter) {
+        //     zoomLevel = 12;
+        //     prevFilter.current = {...filterCriteria};//updates prevfilter.
+        // }
+        if (selectedLocation && (selectedLocation.lat || selectedLocation.latitude) && (selectedLocation.lon || selectedLocation.longitude)) {
             newCenter = [selectedLocation.lat || selectedLocation.latitude, selectedLocation.lon || selectedLocation.longitude] ;
-        } else {
-            newCenter = calculateCenter(nearbyLocations);
         }
+        //  else {
+        //     newCenter = calculateCenter(nearbyLocations);
+        // }
 
-        if (newCenter || newfilter) {
-            map.setView(newCenter || map.getCenter(), zoomLevel);
+        if (newCenter) {
+            map.setView(newCenter, 17);
         }
         // else if (searchLoc && sCenter){
         //     map.setView(sCenter, 15);
         // }
-    }, [nearbyLocations, selectedLocation, filterCriteria, map]);   //  , searchLoc
+    }, [nearbyLocations, selectedLocation, map]);   //  , searchLoc
 
     return null;
 };
@@ -482,7 +482,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
         <div>
             <ReviewSideBar show={showReview} handleClose={handleReviewToggle} location={recentlyOpened} rating={locationRating}/>
             {/* Checkbox to toggle between showing all or nearby locations */}
-            <label htmlFor="showNearby" style={{ marginLeft: '42%', marginTop: '5px' }} >
+            <label htmlFor="showNearby" style={{ marginLeft: '42%', marginTop: '5px', marginBottom: '0px' }} >
                     <input
                         id="showNearby"
                         type="checkbox"
@@ -506,7 +506,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 />
                 {/* This component will update the map center when nearbyLocations changes */}
-                <MapCenterUpdater nearbyLocations={nearbyLocations} selectedLocation={selectedLocation ? [selectedLocation] : filteredLocations} filterCriteria={filterCriteria} />
+                <MapCenterUpdater nearbyLocations={nearbyLocations} selectedLocation={selectedLocation ? [selectedLocation] : filteredLocations}/>
                 <RoutingMachine start={userCoord} routeTo={destination} trafficSignals={locations.filter(loc => loc.location_type === "pedestrian_signal")}/>
                 {/* Render Markers for filtered locations */}
                 {locationsToShow.map((location, index) => {
@@ -808,7 +808,7 @@ function DirectionModal(props) {
                         </div>
                     )}
                     <Button variant="outline-primary" className='addButton' style={{ borderRadius: '20px' }} onClick={() => setSearchTerm('Your Location')}>Your Location</Button>
-                    <Button variant="outline-success" className='addButton' style={{ borderRadius: '20px' }} type="submit">Find Route</Button>
+                    <Button variant="outline-success" className='addButton' style={{ borderRadius: '20px' }} type="submit">Accessible Walking Route</Button>
                 </Form>
             </Modal.Body>
             <Modal.Footer className={theme === 'dark' ? "d-flex-dark-mode" : "d-flex"}>
