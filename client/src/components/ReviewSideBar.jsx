@@ -50,7 +50,7 @@ const ReviewSideBar = ({ show, handleClose, location, rating}) => {
     }, []);
 
     useEffect(() => {
-        if (!location._id) return; // Ensure location._id exists before fetching
+        if (!location._id) return;
 
         fetch(`${import.meta.env.VITE_PORT}/review/${location._id}`)
             .then((response) => {
@@ -63,7 +63,7 @@ const ReviewSideBar = ({ show, handleClose, location, rating}) => {
                 const reviews = data.reviews;
                 setLocationReviews(reviews);
                 setReviewLength(reviews.length);
-             
+
                 if (isAuthenticated){
                     setUserReview(reviews.filter((review) => review.userId === userId)[0]);
                 }
@@ -89,6 +89,7 @@ const ReviewSideBar = ({ show, handleClose, location, rating}) => {
                 setTwoStarReviews(0);
                 setOneStarReviews(0);
                 setLocationReviews([]);
+                setUserReview({});
             });
     }, [location, rating, editReviewOpen, showToastSuccess, writeReviewOpen]);
 
