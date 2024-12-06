@@ -274,10 +274,6 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
                     console.error("Error fetching TomTom route:", error);
                     clearAllRoutesAndButton();
                 });
-            
-
-        
-            
 
         return () => clearAllRoutesAndButton(); 
     }, [map, start, routeTo, trafficSignals]);
@@ -286,57 +282,47 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
 };
 
 
-
 //zooms out only when a new filler is applied. Otherwise, keeps zoom level, even when a icon is clicked.
-const MapCenterUpdater = ({ nearbyLocations, selectedLocation }) => {
+const MapCenterUpdater = ({ nearbyLocations,  searchLoc }) => { 
     const map = useMap();
-
+    
     useEffect(() => {
-        let newCenter;
-        // let slat = (searchLoc.lat || searchLoc.latitude);
-        // let slon = (searchLoc.lon || searchLoc.longitude);
-        // let sCenter = [slat, slon];
+        //THIS PART IS FOR CENTERING ON FILTER CHANGE, WHICH WE DONT WANT
+        //let newCenter;
+        // let sellat = (selectedLocation?.lat ?? selectedLocation?.latitude   ?? (selectedLocation[0]?.lat || selectedLocation[0]?.latitude)  );
+        // let sellon = (selectedLocation?.lon ?? selectedLocation?.longitude  ?? (selectedLocation[0]?.lon || selectedLocation[0]?.longitude) );
+        // console.log('selectedLocation:', selectedLocation);
+        // console.log('sellat:', sellat);
+        // console.log('sellon:', sellon);
 
-        //checks if a new filter is applied.
-        // const newfilter = Object.keys(filterCriteria).some(key => filterCriteria[key] && filterCriteria[key] !== prevFilter.current[key]);
-
-        // if (newfilter) {
-        //     zoomLevel = 12;
-        //     prevFilter.current = {...filterCriteria};//updates prevfilter.
+        // if ((selectedLocation.length >0 &&selectedLocation.length <4000) && (sellat && sellon)) {
+        //     newCenter = [sellat, sellon]; ;
         // }
-        if (selectedLocation && (selectedLocation.lat || selectedLocation.latitude) && (selectedLocation.lon || selectedLocation.longitude)) {
-            newCenter = [selectedLocation.lat || selectedLocation.latitude, selectedLocation.lon || selectedLocation.longitude] ;
-        }
-        //  else {
-        //     newCenter = calculateCenter(nearbyLocations);
-        // }
-
-        if (newCenter) {
-            map.setView(newCenter, 17);
-        }
         // else if (searchLoc && sCenter){
-        //     map.setView(sCenter, 15);
+        //     newCenter = [slat, slon];
         // }
-    }, [nearbyLocations, selectedLocation, map]);   //  , searchLoc
+   
+        // if (newCenter) {
+        //     map.setView(newCenter, map.getZoom());
+        //}
+        //SEARCH CENTERING && nearby (NEED TESTING)
+        let slat = (searchLoc?.lat ?? searchLoc?.latitude  );
+        let slon = (searchLoc?.lon ?? searchLoc?.longitude );
+ 
+        if (nearbyLocations.length > 0 && searcLoc == {}) {  //THIS MIGHT NOT WORK-- loads nearby and doesnt interfere with search centering
+            map.setView(calculateCenter(nearbyLocations), map.getZoom());}
+        else if (slat && slon){    
+            map.setView([slat, slon], map.getZoom());
+        }
+   
+    }, [ nearbyLocations, searchLoc, map]);   
 
     return null;
 };
-// const searchcenter = ({searchLoc}) => {
-//         const map = useMap();
-//         const slat = (searchLoc[0].lat || searchLoc[0].latitude);
-//         const slon = (searchLoc[0].lon || searchLoc[0].longitude);
-//         if (slat && slon){
-//         let sCenter = [slat, slon];
 
-//         if (sCenter) {
-//             map.setView(sCenter, 15);
-//         }
-//     }
-//     return null;
-//     };
+
 
 const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , userCoord, destination, filterCriteria, searchLoc}) => {
-    //      , clearSearch
     const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby location
     const [showToastError, setShowToastError] = useState(false);
     const [showToastSuccess, setShowToastSuccess] = useState(false);
@@ -404,17 +390,16 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
     };
 
     useEffect(() => {
-        if (searchLoc) {
+        if (selectedLocation) {
             setShowNearby(false);
-           // searchCenter({searchLoc});
         }
-    }, [searchLoc]);
-    
+    }, [selectedLocation]);
+
     const handleNearbyToggle = () => {
         setShowNearby(prevShowNearby => !prevShowNearby);
         if (!showNearby) {
             setSearchTerm('');
-            setSearchLoc('');
+            setSearchLoc({});
             // clearSearch();
         }
         // else if (showNearby && (selectedLocation || searchLoc)){
@@ -425,26 +410,6 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
         // }
     };
 
-    // DynamicMarker component to rescale the marker accordingly to the zoom of the map
-    const DynamicMarker = ({ position, locationType, children }) => {
-        const map = useMap();
-
-        useEffect(() => {
-            const handleZoom = () => {
-                const newSize = Math.max(30, map.getZoom() * 3);
-                setIconSize([newSize, newSize]);
-            };
-
-            map.on('zoom', handleZoom);
-            return () => map.off('zoom', handleZoom);
-        }, [map]);
-
-        return (
-            <Marker position={position} icon={getIconByLocationType(locationType, iconSize)} >
-                {children}
-            </Marker>
-        );
-    };
     // Filter locations based on the criteria
     const filteredNearbyLocations = nearbyLocations.filter(location =>
         Object.keys(filterCriteria).every(key => !filterCriteria[key] || location[key] === filterCriteria[key])
@@ -506,7 +471,11 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 />
                 {/* This component will update the map center when nearbyLocations changes */}
-                <MapCenterUpdater nearbyLocations={nearbyLocations} selectedLocation={selectedLocation ? [selectedLocation] : filteredLocations}/>
+                <MapCenterUpdater 
+                nearbyLocations={nearbyLocations} 
+                // selectedLocation={selectedLocation ? [selectedLocation] : filteredLocations}
+                searchLoc={searchLoc}
+                />
                 <RoutingMachine start={userCoord} routeTo={destination} trafficSignals={locations.filter(loc => loc.location_type === "pedestrian_signal")}/>
                 {/* Render Markers for filtered locations */}
                 {locationsToShow.map((location, index) => {
@@ -515,11 +484,6 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
 
                     if (lat && lon) {
                         return (
-                            // <DynamicMarker 
-                            //     key={index} 
-                            //     position={[lat, lon]} 
-                            //     locationType={location.location_type}
-                            // >
                              <Marker 
                                 key={index} 
                                 position={[lat, lon]} 

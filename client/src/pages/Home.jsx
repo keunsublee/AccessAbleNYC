@@ -25,22 +25,21 @@ function Home() {
     const [filterCriteria, setFilterCriteria] = useState({});
     const [showFilter, setShowFilter] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const [searchLoc, setSearchLoc] = useState('');
-    //const [nearbyTemp, setNearbyTemp] = useState([]);
+    const [searchLoc, setSearchLoc] = useState({});
 
     const handleFilterToggle = () => setShowFilter(!showFilter);
     const handleFilterChange = (newCriteria) => {
         setFilterCriteria(newCriteria);
         setSelectedLocation('');
         setSearchTerm('');
+        setSearchLoc({});
     };
 
-    const handleSearch = (searchTerm) => {
+    const handleSearch = (searchTerm, location) => {
         setSelectedLocation(searchTerm);
         setSearchTerm(searchTerm);
         setFilterCriteria({});
-        setSearchLoc(searchTerm);
-        //setNearbyTemp(nearbyLocations)
+        setSearchLoc(location);
     };
 
     const handleAcceptCookies = () => {
@@ -204,7 +203,10 @@ function Home() {
     return (
         <div>
             <NavBar />
-            <SearchBar onSearch={handleSearch} searchTerm={searchTerm} searchLoc ={searchLoc} />
+            <SearchBar 
+                onSearch={handleSearch} 
+                searchTerm={searchTerm} 
+                searchLoc ={searchLoc} />
                 {/* clearSearch={clearSearch} */}
             <Button variant="secondary" className="filter-button" onClick={handleFilterToggle}>
                 Filter By

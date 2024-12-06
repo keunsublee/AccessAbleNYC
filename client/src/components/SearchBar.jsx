@@ -6,7 +6,7 @@ const SearchBar = ({ onSearch }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [name, setName] = useState('');
-    const [searchLoc, setSearchLoc] = useState('')
+    const [searchLoc, setSearchLoc] = useState({})
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -32,20 +32,20 @@ const SearchBar = ({ onSearch }) => {
             }
         } else {
             setSearchResults([]);
-            onSearch('');
+            onSearch('', {});
         }
     };
 
     const handleSearchSubmit = (event) => {
         event.preventDefault();
-        onSearch(searchTerm);
+        onSearch(searchTerm, searchLoc);
     };
 
-    const handleLocationSelection = (location) => {
-        setSearchTerm(location); //location rather name location.name; allows the search bar to be autofilled with the name of the location the user selects
-        onSearch(location);
+    const handleLocationSelection = (result) => {
+        setSearchTerm(result.Name); //location rather name location.name; allows the search bar to be autofilled with the name of the location the user selects
+        onSearch(result.Name, result);
         setSearchResults([]);
-        setSearchLoc(location);
+        setSearchLoc(result);
     };
 
 
@@ -58,7 +58,7 @@ const SearchBar = ({ onSearch }) => {
                 <input
                     className="form-control me-2"
                     type="search"
-                    placeholder="Search"
+                    placeholder="Search places . . ."
                     aria-label="Search"
                     value={searchTerm}
                     onChange={handleSearch}
@@ -71,7 +71,7 @@ const SearchBar = ({ onSearch }) => {
             {searchResults.length > 0 && (
                 <div className="dropdown-menu show position-absolute">
                     {searchResults.map((result, index) => (
-                        <button key={index} className="dropdown-item" onClick={() => handleLocationSelection(result.Name)}>
+                        <button key={index} className="dropdown-item" onClick={() => handleLocationSelection(result)}>
                             {result.Name}
                         </button>
                     ))}
