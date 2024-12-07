@@ -102,7 +102,7 @@ const ReviewSideBar = ({ show, handleClose, location, rating}) => {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` // Replace with your actual auth token
+                    'Authorization': `Bearer ${token}`
                 }
             });
     
