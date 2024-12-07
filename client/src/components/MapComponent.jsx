@@ -464,7 +464,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
             zoom={13} 
             maxBounds={nycBounds} 
             maxBoundsViscosity={1.0}
-            style={{ height: '71vh', width: '100vw' }}>
+            style={{ height: '81vh', width: '100vw' }}>
                 {/* Add OpenStreetMap tile layer */}
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
