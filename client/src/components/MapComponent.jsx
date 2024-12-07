@@ -309,7 +309,7 @@ const MapCenterUpdater = ({ nearbyLocations,  searchLoc }) => {
         let slat = (searchLoc?.lat ?? searchLoc?.latitude  );
         let slon = (searchLoc?.lon ?? searchLoc?.longitude );
  
-        if (nearbyLocations.length > 0 && searchLoc == {}) {  
+        if (nearbyLocations.length > 0  && Object.keys(searchLoc).length === 0) {  
             map.setView(calculateCenter(nearbyLocations), map.getZoom());}
         else if (slat && slon){    
             map.setView([slat, slon], map.getZoom());
