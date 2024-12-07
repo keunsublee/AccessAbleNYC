@@ -748,7 +748,7 @@ function DirectionModal(props) {
             centered
         >
             <Modal.Header className={theme === 'dark' ? "d-flex-dark-mode" : "d-flex"} closeButton>
-                <Modal.Title className={theme === 'dark' ? "d-flex-dark-mode" : "d-flex"} id="contained-modal-title-vcenter">
+                <Modal.Title className={theme === 'dark' ? "d-flex-dark-mode" : "d-flex"}>
                     Directions
                 </Modal.Title>
             </Modal.Header>

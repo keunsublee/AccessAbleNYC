@@ -17,8 +17,7 @@ function AboutUsModal(props) {
             <Modal.Header className={theme === 'dark' ? 'dark-mode' : ''}
                 closeButton>
                 <Modal.Title 
-                    id="contained-modal-title-vcenter"
-                    className="modal-title"
+                    className={`${theme === 'dark' ? 'dark-mode' : ''} modal-title`}
                 >
                     About Us
                 </Modal.Title>
@@ -50,7 +49,7 @@ function EmailModal(props) {
         >
         <Modal.Header className={theme === 'dark' ? 'dark-mode' : ''}
             closeButton>
-            <Modal.Title id="contained-modal-title-vcenter">
+            <Modal.Title className={`${theme === 'dark' ? 'dark-mode' : ''} modal-title`}>
             Contact Information
             </Modal.Title>
         </Modal.Header>
@@ -78,7 +77,7 @@ function PhoneModal(props) {
         >
         <Modal.Header className={theme === 'dark' ? 'dark-mode' : ''}
         closeButton >
-            <Modal.Title id="contained-modal-title-vcenter">
+            <Modal.Title className={`${theme === 'dark' ? 'dark-mode' : ''} modal-title`}>
             Contact Information
             </Modal.Title>
         </Modal.Header>
@@ -106,7 +105,7 @@ function HelpFAQModal(props) {
         >
         <Modal.Header className={theme === 'dark' ? 'dark-mode' : ''}
         closeButton>
-            <Modal.Title id="contained-modal-title-vcenter">
+            <Modal.Title className={`${theme === 'dark' ? 'dark-mode' : ''} modal-title`}>
             Help & FAQs
             </Modal.Title >
         </Modal.Header>
