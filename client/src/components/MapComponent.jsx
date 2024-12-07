@@ -283,7 +283,7 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
 
 
 //zooms out only when a new filler is applied. Otherwise, keeps zoom level, even when a icon is clicked.
-const MapCenterUpdater = ({ nearbyLocations,  searchLoc }) => { 
+const MapCenterUpdater = ({ nearbyLocations,  searchLoc, showNearby }) => { 
     const map = useMap();
     
     useEffect(() => {
@@ -309,13 +309,13 @@ const MapCenterUpdater = ({ nearbyLocations,  searchLoc }) => {
         let slat = (searchLoc?.lat ?? searchLoc?.latitude  );
         let slon = (searchLoc?.lon ?? searchLoc?.longitude );
  
-        if (nearbyLocations.length > 0  && Object.keys(searchLoc).length === 0) {  
+        if (showNearby==true && nearbyLocations.length > 0  && Object.keys(searchLoc).length === 0) {  
             map.setView(calculateCenter(nearbyLocations), map.getZoom());}
         else if (slat && slon){    
             map.setView([slat, slon], map.getZoom());
         }
    
-    }, [ nearbyLocations, searchLoc, map]);   
+    }, [ nearbyLocations, showNearby, searchLoc, map]);   
 
     return null;
 };
@@ -474,6 +474,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                 <MapCenterUpdater 
                 nearbyLocations={nearbyLocations} 
                 // selectedLocation={selectedLocation ? [selectedLocation] : filteredLocations}
+                showNearby={showNearby}
                 searchLoc={searchLoc}
                 />
                 <RoutingMachine start={userCoord} routeTo={destination} trafficSignals={locations.filter(loc => loc.location_type === "pedestrian_signal")}/>
