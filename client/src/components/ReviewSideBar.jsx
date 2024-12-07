@@ -102,7 +102,7 @@ const ReviewSideBar = ({ show, handleClose, location, rating}) => {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` // Replace with your actual auth token
+                    'Authorization': `Bearer ${token}`
                 }
             });
     
@@ -118,6 +118,19 @@ const ReviewSideBar = ({ show, handleClose, location, rating}) => {
             setShowToastError(true);
         }
     };
+
+    function toggleReadMore(index) {
+        const reviewText = document.getElementById(`reviewText-${index}`);
+        const readMoreBtn = document.getElementById(`readMoreBtn-${index}`);
+        
+        if (reviewText.classList.contains('collapsible')) {
+            reviewText.classList.remove('collapsible');
+            readMoreBtn.textContent = 'Read Less';
+        } else {
+            reviewText.classList.add('collapsible');
+            readMoreBtn.textContent = 'Read More';
+        }
+    }      
 
     return (
         <Offcanvas
@@ -180,24 +193,26 @@ const ReviewSideBar = ({ show, handleClose, location, rating}) => {
                       <div className='userReview'>
                         <span>Accessibility Rating: </span><StarRating rating={userReview.rating}></StarRating>
                       </div>
-                      <Card.Text>
+                      <Card.Text id={`reviewText-`} className="collapsible">
                         {userReview.review}
                       </Card.Text>
+                      <span id={`readMoreBtn-`} className="read-more" onClick={() => toggleReadMore('')}>Read More</span>
                     </Card.Body>
                   </Card>                  
                     ) : null}
                 {locationReviews.map((review, index) => (
-                    <Card key={index} border="secondary" className='userReviews'>
+                <Card key={index} border="secondary" className='userReviews'>
                     <Card.Header>{review.userId}</Card.Header>
                     <Card.Body>
-                        <div className='userReview'>
-                            <span>Accessibility Rating: </span><StarRating rating={review.rating}></StarRating>
-                        </div>
-                        <Card.Text>
-                            {review.review}
-                        </Card.Text>
+                    <div className='userReview'>
+                        <span>Accessibility Rating: </span><StarRating rating={review.rating}></StarRating>
+                    </div>
+                    <Card.Text id={`reviewText-${index}`} className="collapsible">
+                        {review.review}
+                    </Card.Text>
+                    <span id={`readMoreBtn-${index}`} className="read-more" onClick={() => toggleReadMore(index)}>Read More</span>
                     </Card.Body>
-                </Card>                
+                </Card>
                 ))}
             </Container>
             </Offcanvas.Body>
@@ -315,7 +330,7 @@ function WriteReviewModal(props) {
                     </div>
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="formGroupReview">
-                    <Form.Label>Accessiblity Review</Form.Label>
+                    <Form.Label>Accessibility Review</Form.Label>
                     <Form.Control as="textarea" type="review" value={userReview} placeholder="Share your experience on how accessible this location is" style={{ height: '200px' }} onChange={(e) => setUserReview(e.target.value)}/>
                 </Form.Group>
                 <div className="d-flex justify-content-center">
@@ -425,7 +440,7 @@ function EditReviewModal(props) {
                     </div>
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="formGroupReview">
-                    <Form.Label>Accessiblity Review</Form.Label>
+                    <Form.Label>Accessibility Review</Form.Label>
                     <Form.Control as="textarea" type="review" value={userReview} placeholder="Share your experience on how accessible this location is" style={{ height: '200px' }} onChange={(e) => setUserReview(e.target.value)}/>
                 </Form.Group>
                 <div className="d-flex justify-content-center">
