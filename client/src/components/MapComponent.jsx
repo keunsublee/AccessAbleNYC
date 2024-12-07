@@ -550,7 +550,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                     {location.location_type === 'restroom' && (
                                         <div className={`info-container ${theme === 'dark' ? 'dark-mode' : ''}`}>
                                             <div>
-                                                <strong>{location.facility_name || 'Unnamed Restroom'}</strong><br />
+                                                <strong>{location.Name || 'Unnamed Restroom'}</strong><br />
                                                 <strong>Accessiblity Rating:</strong> {(Math.round(locationRating* 10) / 10) || '-'}<br />
                                                 <strong>Location:</strong> {location.Location}<br />
                                                 <strong>Operator:</strong> {location.operator}<br />
@@ -599,7 +599,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                     {location.location_type === 'pedestrian_signal' && (
                                         <div className={`info-container ${theme === 'dark' ? 'dark-mode' : ''}`}>
                                             <div>
-                                                <strong>{location.Location || 'Unnamed Pedestrian Signal'}</strong><br />
+                                                <strong>{location.Name || 'Unnamed Pedestrian Signal'}</strong><br />
                                                 <strong>Accessiblity Rating:</strong> {(Math.round(locationRating* 10) / 10) || '-'}<br />
                                                 <strong>Borough:</strong> {location.borough}<br />
                                                 <strong>Installation Date:</strong> {new Date(location.date_insta).toLocaleDateString()}<br />
