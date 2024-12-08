@@ -464,7 +464,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
             zoom={13} 
             maxBounds={nycBounds} 
             maxBoundsViscosity={1.0}
-            style={{ height: '71vh', width: '100vw' }}>
+            style={{ height: '81vh', width: '100vw' }}>
                 {/* Add OpenStreetMap tile layer */}
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -749,7 +749,7 @@ function DirectionModal(props) {
             centered
         >
             <Modal.Header className={theme === 'dark' ? "d-flex-dark-mode" : "d-flex"} closeButton>
-                <Modal.Title className={theme === 'dark' ? "d-flex-dark-mode" : "d-flex"} id="contained-modal-title-vcenter">
+                <Modal.Title className={theme === 'dark' ? "d-flex-dark-mode" : "d-flex"}>
                     Directions
                 </Modal.Title>
             </Modal.Header>
