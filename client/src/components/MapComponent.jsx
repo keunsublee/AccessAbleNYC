@@ -463,7 +463,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
             </label>
             <MapContainer 
             id = 'map'
-            center={[40.7128, -74.0060]} 
+            center={[userCoord.lat || 40.7128, userCoord.lon ||  -74.0060]} 
             zoom={13} 
             maxBounds={nycBounds} 
             maxBoundsViscosity={1.0}
