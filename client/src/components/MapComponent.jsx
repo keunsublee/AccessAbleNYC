@@ -196,6 +196,12 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
         }
 
         let shadowMarker = null;
+        const totalMinutes = Math.ceil(summary.travelTimeInSeconds / 60);
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        const timeDisplay = hours > 0 
+            ? `${hours} hour${hours > 1 ? 's' : ''} and ${minutes} min` 
+            : `${minutes} min`;
     
         instructionControlRef.current = L.control({ position: "topright" });
         instructionControlRef.current.onAdd = () => {
@@ -206,7 +212,7 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
     
             div.innerHTML = `
                 <strong>Directions</strong>
-                <p>${(summary.lengthInMeters / 1609.344).toFixed(2)} miles, ${Math.ceil(summary.travelTimeInSeconds / 60)} min</p>
+                <p>${(summary.lengthInMeters / 1609.344).toFixed(2)} miles, ${timeDisplay}</p>
                 ${formatInstructions(instructions, map)}`;
     
             setTimeout(() => {
