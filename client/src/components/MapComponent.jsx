@@ -164,17 +164,22 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
             WAYPOINT_REACHED: { symbol: "◆", text: "Traffic light reached" },
             LOCATION_DEPARTURE: { symbol: "○", text: "Start" },
             LOCATION_ARRIVAL: { symbol: "⚑", text: "Arrive" },
-            
         };
     
         return instructions
-            .map(({ instructionType, street, point, maneuver }, index) => {
+            .map((instruction, index) => {
+                const { instructionType, street, point, maneuver, routeOffsetInMeters } = instruction;
                 const maneuverDetails =
                     maneuverMapping[maneuver] ||
-                    maneuverMapping[instructionType] || { symbol: "↑", text: "Proceed" }; 
-                
+                    maneuverMapping[instructionType] || { symbol: "↑", text: "Proceed" };
+                let segmentDistance = "";
+                if (instructionType !== "LOCATION_DEPARTURE" && instructionType !== "LOCATION_ARRIVAL") {
+                    const prevOffset = index > 0 ? instructions[index - 1].routeOffsetInMeters : 0;
+                    segmentDistance = ` (${((routeOffsetInMeters - prevOffset) / 1609.344).toFixed(2)} miles)`;
+                }
                 let message = `${maneuverDetails.symbol} ${maneuverDetails.text}`;
                 if (street) message += ` onto ${street}`;
+                message += segmentDistance; 
     
                 return `
                     <p class="instruction-step" 
