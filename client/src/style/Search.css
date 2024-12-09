@@ -44,6 +44,10 @@
     background-color: #a7c8e9;
 }
 
+.dark-mode-input{
+  background-color: #333;
+  color: white;
+}
 
 
 /* responsiveness search bar for mobile screens */
