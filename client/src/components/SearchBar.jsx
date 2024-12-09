@@ -58,7 +58,7 @@ const SearchBar = ({ onSearch }) => {
             setSearchResults([]);
             setSearchLoc({});
             setIsLocSelected(false);
-            setSearchTerm('');
+            //setSearchTerm(''); Removed; allows location name to remain in search bar once a location from the dropdown is selected
         }}, [isLocSelected]);
 
 
