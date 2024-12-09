@@ -15,11 +15,11 @@ import '../style/MapComponent.css';
 import ReviewSideBar from './ReviewSideBar';
 
 // Def custom icons for each location type
-const beachIconUrl = '/assets/beach-100.png';
-const playgroundIconUrl = '/assets/playground-100.png';
-const signalIconUrl = '/assets/traffic-light-100.png';
-const subwayIconUrl = '/assets/subway-100.png';
-const restroomIconUrl = '/assets/restroom-100.png';
+const beachIconUrl =        '/assets/50px/beach-100.png';
+const playgroundIconUrl =   '/assets/50px/playground-100.png';
+const signalIconUrl =       '/assets/50px/traffic-light-100.png';
+const subwayIconUrl =       '/assets/50px/subway-100.png';
+const restroomIconUrl =     '/assets/50px/restroom-100.png';
 
 // Bounds for the map to stay within NYC
 const nycBounds = [
@@ -32,35 +32,35 @@ const getIconByLocationType = (type, iconSize) => {
     // Create Leaflet icons for specific location types
     const beachIcon = L.icon({
         iconUrl: beachIconUrl,
-        iconSize: iconSize,
+        iconSize: [32, 32],
         iconAnchor: [15, 30],
         popupAnchor: [0, -30],
     });
 
     const playgroundIcon = L.icon({
         iconUrl: playgroundIconUrl,
-        iconSize: iconSize,
+        iconSize: [32, 32],
         iconAnchor: [15, 30],
         popupAnchor: [0, -30],
     });
 
     const signalIcon = L.icon({
         iconUrl: signalIconUrl,
-        iconSize: iconSize,
+        iconSize: [32, 32],
         iconAnchor: [15, 30],
         popupAnchor: [0, -30],
     });
 
     const subwayIcon = L.icon({
         iconUrl: subwayIconUrl,
-        iconSize: iconSize,
+        iconSize: [32, 32],
         iconAnchor: [15, 30],
         popupAnchor: [0, -30],
     });
 
     const restroomIcon = L.icon({
         iconUrl: restroomIconUrl,
-        iconSize: iconSize,
+        iconSize: [32, 32],
         iconAnchor: [15, 30],
         popupAnchor: [0, -30],
     });
