@@ -107,7 +107,7 @@ const calculateCenter = (nearbyLocations) => {
     ];
 };
 
-const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
+const RoutingMachine = React.memo(({ start, routeTo, trafficSignals }) => {
     const map = useMap();
     const routingLayerRef = useRef(null); 
     const closeControlRef = useRef(null); 
@@ -279,11 +279,11 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
     }, [map, start, routeTo, trafficSignals]);
 
     return null;
-};
+});
 
 
 //zooms out only when a new filler is applied. Otherwise, keeps zoom level, even when a icon is clicked.
-const MapCenterUpdater = ({ nearbyLocations,  searchLoc, showNearby, setMarkerLoc, markerLoc}) => { 
+const MapCenterUpdater = React.memo(({ nearbyLocations,  searchLoc, showNearby, setMarkerLoc, markerLoc}) => { 
     const map = useMap();
     
     useEffect(() => {
@@ -324,11 +324,11 @@ const MapCenterUpdater = ({ nearbyLocations,  searchLoc, showNearby, setMarkerLo
     }, [ nearbyLocations, showNearby, searchLoc, markerLoc, setMarkerLoc, map]);   
 
     return null;
-};
+});
 
 
 
-const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , userCoord, destination, filterCriteria, searchLoc}) => {
+const MapComponent = React.memo(({ locations, nearbyLocations = [], selectedLocation , userCoord, destination, filterCriteria, searchLoc}) => {
     const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby location
     const [showToastError, setShowToastError] = useState(false);
     const [showToastSuccess, setShowToastSuccess] = useState(false);
@@ -687,7 +687,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
             />
         </div>
     );
-};
+});
 
 function DirectionModal(props) {
     const [showToastError, setShowToastError] = useState(false);
