@@ -56,7 +56,6 @@ const SearchBar = ({ onSearch }) => {
             setSearchResults([]);
             setSearchLoc({});
             setIsLocSelected(false);
-            setSearchTerm('');
         }}, [isLocSelected]);
 
 

@@ -291,9 +291,6 @@ const MapCenterUpdater = ({ nearbyLocations,  searchLoc, showNearby, setMarkerLo
         //let newCenter;
         // let sellat = (selectedLocation?.lat ?? selectedLocation?.latitude   ?? (selectedLocation[0]?.lat || selectedLocation[0]?.latitude)  );
         // let sellon = (selectedLocation?.lon ?? selectedLocation?.longitude  ?? (selectedLocation[0]?.lon || selectedLocation[0]?.longitude) );
-        // console.log('selectedLocation:', selectedLocation);
-        // console.log('sellat:', sellat);
-        // console.log('sellon:', sellon);
 
         // if ((selectedLocation.length >0 &&selectedLocation.length <4000) && (sellat && sellon)) {
         //     newCenter = [sellat, sellon]; ;
@@ -310,8 +307,8 @@ const MapCenterUpdater = ({ nearbyLocations,  searchLoc, showNearby, setMarkerLo
         let slon = (searchLoc?.lon ?? searchLoc?.longitude );
 
         if (markerLoc){
-            map.setView(markerLoc, map.getZoom());
-            setTimeout(() => setMarkerLoc(null), 300); 
+            map.setView(markerLoc, map.getZoom(), { animate: false });
+            setMarkerLoc(null); 
             return
         }
         else if (showNearby==true && nearbyLocations.length > 0  && Object.keys(searchLoc).length === 0 && (map.getZoom()<14) && !markerLoc  ) {  
@@ -496,7 +493,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                                 icon={getIconByLocationType(location.location_type, iconSize)}
                                 eventHandlers={{
                                     click: () => {
-                                        console.log(location._id);
+                                        //console.log(location._id);
                                         setMarkerLoc([lat, lon])
                                         setRecentlyOpened(location);
                                         handleGetAccessibleRating(location._id);
