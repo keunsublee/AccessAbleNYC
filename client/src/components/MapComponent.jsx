@@ -312,11 +312,11 @@ const MapCenterUpdater = ({ nearbyLocations,  searchLoc, showNearby, setMarkerLo
             return
         }
         else if (showNearby==true && nearbyLocations.length > 0  && Object.keys(searchLoc).length === 0 && (map.getZoom()<14) && !markerLoc  ) {  
-            map.setView(calculateCenter(nearbyLocations), map.getZoom());
+            map.setView(calculateCenter(nearbyLocations), map.getZoom(), { animate: false });
             return
         }
         else if (slat && slon){    
-            map.setView([slat, slon], map.getZoom());
+            map.setView([slat, slon], map.getZoom(), { animate: false });
             return
         }
      
