@@ -90,14 +90,19 @@
 
 
 .instructions-box {
-  background: white;
+  background: #fff; 
+  color: #000; 
   padding: 10px;
   font-size: 14px;
   border-radius: 8px;
   max-height: 250px;
   overflow-y: auto;
-  overflow-x: hidden;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.instructions-box.dark-mode {
+  background: #2c2c2c; 
+  color: #fff; 
 }
 
 .instructions-box::-webkit-scrollbar {
@@ -105,21 +110,37 @@
 }
 
 .instructions-box::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(86, 86, 86, 0.8);
   border-radius: 4px;
 }
 
+.instructions-box.dark-mode::-webkit-scrollbar-thumb {
+  background-color: rgba(205, 205, 205, 0.459); 
+}
+
 .instructions-box::-webkit-scrollbar-track {
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.1); 
+}
+
+.instructions-box.dark-mode::-webkit-scrollbar-track {
+  background-color: rgba(50, 50, 50, 0.5); 
 }
 
 .instruction-step {
   cursor: pointer;
   margin: 5px 0;
   padding: 5px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #ddd; 
 }
 
 .instruction-step:hover {
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.05); 
+}
+
+.instructions-box.dark-mode .instruction-step {
+  border-bottom: 1px solid #555; 
+}
+
+.instructions-box.dark-mode .instruction-step:hover {
+  background-color: rgba(255, 255, 255, 0.1); 
 }

@@ -112,6 +112,7 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
     const routingLayerRef = useRef(null); 
     const closeControlRef = useRef(null); 
     const instructionControlRef = useRef(null);
+    const { theme } = useTheme();
 
     const clearAllRoutesAndButton = () => {
         console.log("Clearing all routes and button...");
@@ -184,8 +185,7 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
             })
             .join("");
     };
-    
-    const displaySummaryAndInstructions = (map, summary, instructions) => {
+    const displaySummaryAndInstructions = (map, summary, instructions, theme) => {
         if (instructionControlRef.current) {
             map.removeControl(instructionControlRef.current);
         }
@@ -194,14 +194,10 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
     
         instructionControlRef.current = L.control({ position: "topright" });
         instructionControlRef.current.onAdd = () => {
-            const div = L.DomUtil.create("div", "leaflet-bar leaflet-control leaflet-control-custom instructions-box");
-            div.style.backgroundColor = "#fff";
-            div.style.padding = "10px";
-            div.style.fontSize = "14px";
-            div.style.borderRadius = "8px";
-            div.style.maxHeight = "250px";
-            div.style.overflowY = "auto";
-            div.style.boxShadow = "0 2px 5px rgba(0, 0, 0, 0.3)";
+            const div = L.DomUtil.create(
+                "div",
+                `leaflet-bar leaflet-control leaflet-control-custom instructions-box ${theme === "dark" ? "dark-mode" : ""}`
+            );
     
             div.innerHTML = `
                 <strong>Directions</strong>
@@ -215,7 +211,6 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
                         const lat = parseFloat(step.getAttribute("data-lat"));
                         const lon = parseFloat(step.getAttribute("data-lon"));
     
-                        
                         if (shadowMarker) {
                             map.removeLayer(shadowMarker);
                         }
@@ -228,7 +223,7 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
                             className: "shadow-highlight",
                         }).addTo(map);
     
-                        map.setView([lat, lon], 17); 
+                        map.setView([lat, lon], 17);
                     });
                 });
             }, 0);
@@ -243,8 +238,7 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
         routingLayerRef.current = L.geoJSON(geojson, {
             style: { color: "blue", weight: 4 },
         }).addTo(map);
-
-        displaySummaryAndInstructions(map, summary, instructions);
+        displaySummaryAndInstructions(map, summary, instructions, theme); 
         closeControlRef.current = L.control({ position: "topright" });
         closeControlRef.current.onAdd = () => {
             const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
