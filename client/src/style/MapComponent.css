@@ -78,8 +78,10 @@
 
 
 .d-flex-dark-mode {
+  display:  flex;
   background-color: #333;
   color: white !important;
+
 }
 
 .search-input-dark-mode {
