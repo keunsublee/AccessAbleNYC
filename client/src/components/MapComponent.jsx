@@ -15,11 +15,11 @@ import '../style/MapComponent.css';
 import ReviewSideBar from './ReviewSideBar';
 
 // Def custom icons for each location type
-const beachIconUrl =        '/assets/50px/beach-100.png';
-const playgroundIconUrl =   '/assets/50px/playground-100.png';
-const signalIconUrl =       '/assets/50px/traffic-light-100.png';
-const subwayIconUrl =       '/assets/50px/subway-100.png';
-const restroomIconUrl =     '/assets/50px/restroom-100.png';
+const beachIconUrl = '/assets/beach-100.png';
+const playgroundIconUrl = '/assets/playground-100.png';
+const signalIconUrl = '/assets/traffic-light-100.png';
+const subwayIconUrl = '/assets/subway-100.png';
+const restroomIconUrl = '/assets/restroom-100.png';
 
 // Bounds for the map to stay within NYC
 const nycBounds = [
@@ -32,35 +32,35 @@ const getIconByLocationType = (type, iconSize) => {
     // Create Leaflet icons for specific location types
     const beachIcon = L.icon({
         iconUrl: beachIconUrl,
-        iconSize: [32, 32],
+        iconSize: iconSize,
         iconAnchor: [15, 30],
         popupAnchor: [0, -30],
     });
 
     const playgroundIcon = L.icon({
         iconUrl: playgroundIconUrl,
-        iconSize: [32, 32],
+        iconSize: iconSize,
         iconAnchor: [15, 30],
         popupAnchor: [0, -30],
     });
 
     const signalIcon = L.icon({
         iconUrl: signalIconUrl,
-        iconSize: [32, 32],
+        iconSize: iconSize,
         iconAnchor: [15, 30],
         popupAnchor: [0, -30],
     });
 
     const subwayIcon = L.icon({
         iconUrl: subwayIconUrl,
-        iconSize: [32, 32],
+        iconSize: iconSize,
         iconAnchor: [15, 30],
         popupAnchor: [0, -30],
     });
 
     const restroomIcon = L.icon({
         iconUrl: restroomIconUrl,
-        iconSize: [32, 32],
+        iconSize: iconSize,
         iconAnchor: [15, 30],
         popupAnchor: [0, -30],
     });
@@ -107,7 +107,7 @@ const calculateCenter = (nearbyLocations) => {
     ];
 };
 
-const RoutingMachine = React.memo(({ start, routeTo, trafficSignals }) => {
+const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
     const map = useMap();
     const routingLayerRef = useRef(null); 
     const closeControlRef = useRef(null); 
@@ -201,8 +201,8 @@ const RoutingMachine = React.memo(({ start, routeTo, trafficSignals }) => {
     
             div.innerHTML = `
                 <strong>Directions</strong>
-                <p>${(summary.lengthInMeters / 1000).toFixed(2)} km, ${Math.ceil(summary.travelTimeInSeconds / 60)} min</p>
-                ${formatInstructions(instructions, map)} `;
+                <p>${(summary.lengthInMeters / 1609.344).toFixed(2)} miles, ${Math.ceil(summary.travelTimeInSeconds / 60)} min</p>
+                ${formatInstructions(instructions, map)}`;
     
             setTimeout(() => {
                 const steps = div.querySelectorAll(".instruction-step");
@@ -305,10 +305,10 @@ const RoutingMachine = React.memo(({ start, routeTo, trafficSignals }) => {
     }, [map, start, routeTo, trafficSignals]);
 
     return null;
-});
+};
 
 //zooms out only when a new filler is applied. Otherwise, keeps zoom level, even when a icon is clicked.
-const MapCenterUpdater = React.memo(({ nearbyLocations,  searchLoc, showNearby, setMarkerLoc, markerLoc}) => { 
+const MapCenterUpdater = ({ nearbyLocations,  searchLoc, showNearby, setMarkerLoc, markerLoc}) => { 
     const map = useMap();
     
     useEffect(() => {
@@ -316,6 +316,9 @@ const MapCenterUpdater = React.memo(({ nearbyLocations,  searchLoc, showNearby, 
         //let newCenter;
         // let sellat = (selectedLocation?.lat ?? selectedLocation?.latitude   ?? (selectedLocation[0]?.lat || selectedLocation[0]?.latitude)  );
         // let sellon = (selectedLocation?.lon ?? selectedLocation?.longitude  ?? (selectedLocation[0]?.lon || selectedLocation[0]?.longitude) );
+        // console.log('selectedLocation:', selectedLocation);
+        // console.log('sellat:', sellat);
+        // console.log('sellon:', sellon);
 
         // if ((selectedLocation.length >0 &&selectedLocation.length <4000) && (sellat && sellon)) {
         //     newCenter = [sellat, sellon]; ;
@@ -332,16 +335,16 @@ const MapCenterUpdater = React.memo(({ nearbyLocations,  searchLoc, showNearby, 
         let slon = (searchLoc?.lon ?? searchLoc?.longitude );
 
         if (markerLoc){
-            map.setView(markerLoc, map.getZoom(), { animate: false });
-            setMarkerLoc(null); 
+            map.setView(markerLoc, map.getZoom());
+            setTimeout(() => setMarkerLoc(null), 300); 
             return
         }
         else if (showNearby==true && nearbyLocations.length > 0  && Object.keys(searchLoc).length === 0 && (map.getZoom()<14) && !markerLoc  ) {  
-            map.setView(calculateCenter(nearbyLocations), map.getZoom(), { animate: false });
+            map.setView(calculateCenter(nearbyLocations), map.getZoom());
             return
         }
         else if (slat && slon){    
-            map.setView([slat, slon], map.getZoom(), { animate: false });
+            map.setView([slat, slon], map.getZoom());
             return
         }
      
@@ -349,11 +352,11 @@ const MapCenterUpdater = React.memo(({ nearbyLocations,  searchLoc, showNearby, 
     }, [ nearbyLocations, showNearby, searchLoc, markerLoc, setMarkerLoc, map]);   
 
     return null;
-});
+};
 
 
 
-const MapComponent = React.memo(({ locations, nearbyLocations = [], selectedLocation , userCoord, destination, filterCriteria, searchLoc}) => {
+const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , userCoord, destination, filterCriteria, searchLoc}) => {
     const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby location
     const [showToastError, setShowToastError] = useState(false);
     const [showToastSuccess, setShowToastSuccess] = useState(false);
@@ -518,7 +521,7 @@ const MapComponent = React.memo(({ locations, nearbyLocations = [], selectedLoca
                                 icon={getIconByLocationType(location.location_type, iconSize)}
                                 eventHandlers={{
                                     click: () => {
-                                        //console.log(location._id);
+                                        console.log(location._id);
                                         setMarkerLoc([lat, lon])
                                         setRecentlyOpened(location);
                                         handleGetAccessibleRating(location._id);
@@ -712,7 +715,7 @@ const MapComponent = React.memo(({ locations, nearbyLocations = [], selectedLoca
             />
         </div>
     );
-});
+};
 
 function DirectionModal(props) {
     const [showToastError, setShowToastError] = useState(false);
