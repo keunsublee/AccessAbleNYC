@@ -122,7 +122,7 @@ function HelpFAQModal(props) {
             <h4>Where does the data come from?</h4>
             <p>
             Our data is sourced from NYC Open Data, which provides public datasets on accessible facilities in the city. We regularly update our platform to ensure that the 
-            information is current and reliable.
+            information is current and reliable. However, if you notice any inaccuracies or outdated information, please let us know so we can address them promptly.
             </p>
             <h4>How does our accessible directions work?</h4>
             <p>
