@@ -15,11 +15,11 @@ import '../style/MapComponent.css';
 import ReviewSideBar from './ReviewSideBar';
 
 // Def custom icons for each location type
-const beachIconUrl =        '/assets/50px/beach-100.png';
-const playgroundIconUrl =   '/assets/50px/playground-100.png';
-const signalIconUrl =       '/assets/50px/traffic-light-100.png';
-const subwayIconUrl =       '/assets/50px/subway-100.png';
-const restroomIconUrl =     '/assets/50px/restroom-100.png';
+const beachIconUrl = '/assets/beach-100.png';
+const playgroundIconUrl = '/assets/playground-100.png';
+const signalIconUrl = '/assets/traffic-light-100.png';
+const subwayIconUrl = '/assets/subway-100.png';
+const restroomIconUrl = '/assets/restroom-100.png';
 
 // Bounds for the map to stay within NYC
 const nycBounds = [
@@ -32,35 +32,35 @@ const getIconByLocationType = (type, iconSize) => {
     // Create Leaflet icons for specific location types
     const beachIcon = L.icon({
         iconUrl: beachIconUrl,
-        iconSize: [32, 32],
+        iconSize: iconSize,
         iconAnchor: [15, 30],
         popupAnchor: [0, -30],
     });
 
     const playgroundIcon = L.icon({
         iconUrl: playgroundIconUrl,
-        iconSize: [32, 32],
+        iconSize: iconSize,
         iconAnchor: [15, 30],
         popupAnchor: [0, -30],
     });
 
     const signalIcon = L.icon({
         iconUrl: signalIconUrl,
-        iconSize: [32, 32],
+        iconSize: iconSize,
         iconAnchor: [15, 30],
         popupAnchor: [0, -30],
     });
 
     const subwayIcon = L.icon({
         iconUrl: subwayIconUrl,
-        iconSize: [32, 32],
+        iconSize: iconSize,
         iconAnchor: [15, 30],
         popupAnchor: [0, -30],
     });
 
     const restroomIcon = L.icon({
         iconUrl: restroomIconUrl,
-        iconSize: [32, 32],
+        iconSize: iconSize,
         iconAnchor: [15, 30],
         popupAnchor: [0, -30],
     });
@@ -107,22 +107,21 @@ const calculateCenter = (nearbyLocations) => {
     ];
 };
 
-const RoutingMachine = React.memo(({ start, routeTo, trafficSignals }) => {
+const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
     const map = useMap();
     const routingLayerRef = useRef(null); 
     const closeControlRef = useRef(null); 
     const instructionControlRef = useRef(null);
+    const { theme } = useTheme();
 
     const clearAllRoutesAndButton = () => {
         console.log("Clearing all routes and button...");
 
-        // Remove the active route layer
         if (routingLayerRef.current) {
             map.removeLayer(routingLayerRef.current);
             routingLayerRef.current = null;
         }
 
-        // Remove the "Close Route" button
         if (closeControlRef.current) {
             map.removeControl(closeControlRef.current);
             closeControlRef.current = null;
@@ -156,58 +155,101 @@ const RoutingMachine = React.memo(({ start, routeTo, trafficSignals }) => {
         return { closestSignal, minDistance };
     };
 
-    const formatInstructions = (instructions) => {
-        return instructions.map((step, index) => {
-            const { maneuver, street, travelTimeInSeconds, turnAngleInDecimalDegrees } = step;
-            let formattedStep = `${index + 1}. `;
-            if (maneuver) formattedStep += `${maneuver}`;
-            if (street) formattedStep += ` onto ${street}`;
-            if (travelTimeInSeconds) formattedStep += ` (${Math.ceil(travelTimeInSeconds / 60)} min)`;
-            if (turnAngleInDecimalDegrees) formattedStep += ` [Turn angle: ${turnAngleInDecimalDegrees.toFixed(1)}°]`;
 
-            return formattedStep;
-        });
+    const formatInstructions = (instructions, map) => {
+        const maneuverMapping = {
+            TURN_LEFT: { symbol: "↰", text: "Turn left" },
+            TURN_RIGHT: { symbol: "↱", text: "Turn right" },
+            STRAIGHT: { symbol: "↑", text: "Continue straight" },
+            WAYPOINT_REACHED: { symbol: "◆", text: "Traffic light reached" },
+            LOCATION_DEPARTURE: { symbol: "○", text: "Start" },
+            LOCATION_ARRIVAL: { symbol: "⚑", text: "Arrive" },
+        };
+    
+        return instructions
+            .map((instruction, index) => {
+                const { instructionType, street, point, maneuver, routeOffsetInMeters } = instruction;
+                const maneuverDetails =
+                    maneuverMapping[maneuver] ||
+                    maneuverMapping[instructionType] || { symbol: "↑", text: "Proceed" };
+                let segmentDistance = "";
+                if (instructionType !== "LOCATION_DEPARTURE" && instructionType !== "LOCATION_ARRIVAL") {
+                    const prevOffset = index > 0 ? instructions[index - 1].routeOffsetInMeters : 0;
+                    segmentDistance = ` (${((routeOffsetInMeters - prevOffset) / 1609.344).toFixed(2)} miles)`;
+                }
+                let message = `${maneuverDetails.symbol} ${maneuverDetails.text}`;
+                if (street) message += ` onto ${street}`;
+                message += segmentDistance; 
+    
+                return `
+                    <p class="instruction-step" 
+                       data-lat="${point.latitude}" 
+                       data-lon="${point.longitude}">
+                       ${message}
+                    </p>`;
+            })
+            .join("");
     };
-
-    const displayInstructions = (instructions) => {
-        const formattedInstructions = formatInstructions(instructions);
-
-        console.log("Formatted Instructions:", formattedInstructions);
+    const displaySummaryAndInstructions = (map, summary, instructions, theme) => {
         if (instructionControlRef.current) {
             map.removeControl(instructionControlRef.current);
         }
 
-        instructionControlRef.current = L.control({ position: "bottomleft" });
+        let shadowMarker = null;
+        const totalMinutes = Math.ceil(summary.travelTimeInSeconds / 60);
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        const timeDisplay = hours > 0 
+            ? `${hours} hour${hours > 1 ? 's' : ''} and ${minutes} min` 
+            : `${minutes} min`;
+    
+        instructionControlRef.current = L.control({ position: "topright" });
         instructionControlRef.current.onAdd = () => {
-            const div = L.DomUtil.create("div", "leaflet-bar leaflet-control leaflet-control-custom instructions-box");
-            div.style.backgroundColor = "#fff";
-            div.style.padding = "10px";
-            div.style.maxHeight = "200px";
-            div.style.overflowY = "auto";
-            div.style.fontSize = "12px";
-
-            div.innerHTML = formattedInstructions.length
-                ? formattedInstructions.map((step) => `<p>${step}</p>`).join("")
-                : "<p>No instructions available.</p>";
+            const div = L.DomUtil.create(
+                "div",
+                `leaflet-bar leaflet-control leaflet-control-custom instructions-box ${theme === "dark" ? "dark-mode" : ""}`
+            );
+    
+            div.innerHTML = `
+                <strong>Directions</strong>
+                <p>${(summary.lengthInMeters / 1609.344).toFixed(2)} miles, ${timeDisplay}</p>
+                ${formatInstructions(instructions, map)}`;
+    
+            setTimeout(() => {
+                const steps = div.querySelectorAll(".instruction-step");
+                steps.forEach((step) => {
+                    step.addEventListener("click", () => {
+                        const lat = parseFloat(step.getAttribute("data-lat"));
+                        const lon = parseFloat(step.getAttribute("data-lon"));
+    
+                        if (shadowMarker) {
+                            map.removeLayer(shadowMarker);
+                        }
+                        shadowMarker = L.circleMarker([lat, lon], {
+                            color: "blue",
+                            radius: 10,
+                            weight: 2,
+                            opacity: 0.8,
+                            fillOpacity: 0.5,
+                            className: "shadow-highlight",
+                        }).addTo(map);
+    
+                        map.setView([lat, lon], 17);
+                    });
+                });
+            }, 0);
+    
             return div;
         };
         instructionControlRef.current.addTo(map);
     };
 
-    const handleRouteAndButton = (geojson, instructions) => {
-        console.log("Handling route and button...");
-
-        // Clear existing layers and controls
+    const handleRouteAndButton = (geojson, summary, instructions) => {
         clearAllRoutesAndButton();
-
-        // Create and add the new route layer
         routingLayerRef.current = L.geoJSON(geojson, {
             style: { color: "blue", weight: 4 },
         }).addTo(map);
-
-       
-        displayInstructions(instructions);
-
+        displaySummaryAndInstructions(map, summary, instructions, theme); 
         closeControlRef.current = L.control({ position: "topright" });
         closeControlRef.current.onAdd = () => {
             const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
@@ -242,17 +284,15 @@ const RoutingMachine = React.memo(({ start, routeTo, trafficSignals }) => {
                     L.latLng(routeTo.lat, routeTo.lon)
                 );
 
-                if (!closestSignal || visitedSignals.has(closestSignal) || minDistance >= totalDistance) {
-                    waypoints.push({ point: [routeTo.lon, routeTo.lat] });
-                    break;
-                }
-
-                waypoints.push({ point: [closestSignal.longitude, closestSignal.latitude] });
-                visitedSignals.add(closestSignal);
-                current = closestSignal;
+            if (!closestSignal || visitedSignals.has(closestSignal) || minDistance >= totalDistance) {
+                waypoints.push({ point: [routeTo.lon, routeTo.lat] });
+                break;
             }
 
-            console.log("Waypoints for route:", waypoints);
+            waypoints.push({ point: [closestSignal.longitude, closestSignal.latitude] });
+            visitedSignals.add(closestSignal);
+            current = closestSignal;
+        }
             ttServices.services
                 .calculateRoute({
                     key: import.meta.env.VITE_TOMTOM_API_KEY,
@@ -262,28 +302,24 @@ const RoutingMachine = React.memo(({ start, routeTo, trafficSignals }) => {
                 })
                 .then((response) => {
                     const geojson = response.toGeoJson();
-                    const instructions = response?.routes?.[0]?.guidance?.instructions || [];
-            
-                    if (!instructions.length) {
-                        console.warn("No instructions found in the API response. Displaying the route only.");
-                    }
-            
-                    handleRouteAndButton(geojson, instructions);
-                })
-                .catch((error) => {
-                    console.error("Error fetching TomTom route:", error);
-                    clearAllRoutesAndButton();
-                });
+                const summary = response?.routes?.[0]?.summary || {};
+                const instructions = response?.routes?.[0]?.guidance?.instructions || [];
+
+                handleRouteAndButton(geojson, summary, instructions);
+            })
+            .catch((error) => {
+                console.error("Error fetching TomTom route:", error);
+                clearAllRoutesAndButton();
+            });
 
         return () => clearAllRoutesAndButton(); 
     }, [map, start, routeTo, trafficSignals]);
 
     return null;
-});
-
+};
 
 //zooms out only when a new filler is applied. Otherwise, keeps zoom level, even when a icon is clicked.
-const MapCenterUpdater = React.memo(({ nearbyLocations,  searchLoc, showNearby, setMarkerLoc, markerLoc}) => { 
+const MapCenterUpdater = ({ nearbyLocations,  searchLoc, showNearby, setMarkerLoc, markerLoc}) => { 
     const map = useMap();
     
     useEffect(() => {
@@ -291,6 +327,9 @@ const MapCenterUpdater = React.memo(({ nearbyLocations,  searchLoc, showNearby, 
         //let newCenter;
         // let sellat = (selectedLocation?.lat ?? selectedLocation?.latitude   ?? (selectedLocation[0]?.lat || selectedLocation[0]?.latitude)  );
         // let sellon = (selectedLocation?.lon ?? selectedLocation?.longitude  ?? (selectedLocation[0]?.lon || selectedLocation[0]?.longitude) );
+        // console.log('selectedLocation:', selectedLocation);
+        // console.log('sellat:', sellat);
+        // console.log('sellon:', sellon);
 
         // if ((selectedLocation.length >0 &&selectedLocation.length <4000) && (sellat && sellon)) {
         //     newCenter = [sellat, sellon]; ;
@@ -307,16 +346,16 @@ const MapCenterUpdater = React.memo(({ nearbyLocations,  searchLoc, showNearby, 
         let slon = (searchLoc?.lon ?? searchLoc?.longitude );
 
         if (markerLoc){
-            map.setView(markerLoc, map.getZoom(), { animate: false });
-            setMarkerLoc(null); 
+            map.setView(markerLoc, map.getZoom());
+            setTimeout(() => setMarkerLoc(null), 300); 
             return
         }
         else if (showNearby==true && nearbyLocations.length > 0  && Object.keys(searchLoc).length === 0 && (map.getZoom()<14) && !markerLoc  ) {  
-            map.setView(calculateCenter(nearbyLocations), map.getZoom(), { animate: false });
+            map.setView(calculateCenter(nearbyLocations), map.getZoom());
             return
         }
         else if (slat && slon){    
-            map.setView([slat, slon], map.getZoom(), { animate: false });
+            map.setView([slat, slon], map.getZoom());
             return
         }
      
@@ -324,11 +363,11 @@ const MapCenterUpdater = React.memo(({ nearbyLocations,  searchLoc, showNearby, 
     }, [ nearbyLocations, showNearby, searchLoc, markerLoc, setMarkerLoc, map]);   
 
     return null;
-});
+};
 
 
 
-const MapComponent = React.memo(({ locations, nearbyLocations = [], selectedLocation , userCoord, destination, filterCriteria, searchLoc}) => {
+const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , userCoord, destination, filterCriteria, searchLoc}) => {
     const [showNearby, setShowNearby] = useState(true);  // Default to showing nearby location
     const [showToastError, setShowToastError] = useState(false);
     const [showToastSuccess, setShowToastSuccess] = useState(false);
@@ -493,7 +532,7 @@ const MapComponent = React.memo(({ locations, nearbyLocations = [], selectedLoca
                                 icon={getIconByLocationType(location.location_type, iconSize)}
                                 eventHandlers={{
                                     click: () => {
-                                        //console.log(location._id);
+                                        console.log(location._id);
                                         setMarkerLoc([lat, lon])
                                         setRecentlyOpened(location);
                                         handleGetAccessibleRating(location._id);
@@ -687,7 +726,7 @@ const MapComponent = React.memo(({ locations, nearbyLocations = [], selectedLoca
             />
         </div>
     );
-});
+};
 
 function DirectionModal(props) {
     const [showToastError, setShowToastError] = useState(false);
