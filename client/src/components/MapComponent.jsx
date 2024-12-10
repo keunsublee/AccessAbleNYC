@@ -300,10 +300,14 @@ const RoutingMachine = ({ start, routeTo, trafficSignals }) => {
                     instructionsType: "coded",
                 })
                 .then((response) => {
-                    const geojson = response.toGeoJson();
-                const summary = response?.routes?.[0]?.summary || {};
-                const instructions = response?.routes?.[0]?.guidance?.instructions || [];
-                handleRouteAndButton(geojson, summary, instructions);
+                    try{
+                        const geojson = response.toGeoJson();
+                        const summary = response?.routes?.[0]?.summary || {};
+                        const instructions = response?.routes?.[0]?.guidance?.instructions || [];
+                        handleRouteAndButton(geojson, summary, instructions);
+                    } catch (error) {
+            console.error("Routing Machine Error: Failed to parse response from TomTom API:", error);
+        }
             })
             .catch((error) => {
                 console.error("Routing Machine Error: Failed to fetch route from TomTom API.", error.message, error.stack);
