@@ -13,6 +13,7 @@ import Form from 'react-bootstrap/Form';
 import { useNavigate } from 'react-router-dom';
 import '../style/MapComponent.css';
 import ReviewSideBar from './ReviewSideBar';
+import { useLocation } from 'react-router-dom';
 
 // Def custom icons for each location type
 const beachIconUrl =        '/assets/50px/beach-100.png';
@@ -319,11 +320,56 @@ const RoutingMachine = React.memo(({ start, routeTo, trafficSignals }) => {
 
     return null;
 });
+const useFetchLocationCoords = (locationName) => {
+    const [locationCoords, setLocationCoords] = useState(null);
 
+    useEffect(() => {
+        if (locationName) {
+            console.log("Fetching coordinates for:", locationName);
+            const url = `${import.meta.env.VITE_PORT}/location/${encodeURIComponent(locationName)}`;
+
+            fetch(url)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.status} - ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log("Data received from API:", data);
+
+                const lat = data.latitude;
+                const lon = data.longitude; 
+
+                if (lat && lon) {
+                    console.log("Using coordinates:", { lat, lon });
+                    setLocationCoords({ lat, lon });
+                } else {
+                    console.error("Coordinates not found for the location.");
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching location data:", error);
+            });
+        }
+    }, [locationName]);
+
+    return { locationCoords, setLocationCoords };
+};
 //zooms out only when a new filler is applied. Otherwise, keeps zoom level, even when a icon is clicked.
 const MapCenterUpdater = React.memo(({ nearbyLocations,  searchLoc, showNearby, setMarkerLoc, markerLoc}) => { 
     const map = useMap();
-    
+    const location = useLocation();
+    const params = new URLSearchParams(location.search);
+    const locationName = params.get('location');
+    const { locationCoords, setLocationCoords } = useFetchLocationCoords(locationName);
+
+
+    useEffect(() => {
+        if (searchLoc && Object.keys(searchLoc).length > 0) {
+            setLocationCoords(null);
+        }
+    }, [searchLoc, setLocationCoords]);
     useEffect(() => {
         //THIS PART IS FOR CENTERING ON FILTER CHANGE, WHICH WE DONT WANT
         //let newCenter;
@@ -344,6 +390,12 @@ const MapCenterUpdater = React.memo(({ nearbyLocations,  searchLoc, showNearby, 
         //     map.setView(newCenter, map.getZoom());
         //}
         //SEARCH CENTERING && nearby (NEED TESTING)
+
+        console.log("Location Coordinates:", locationCoords);
+
+        if (locationCoords) {
+            map.setView([locationCoords.lat, locationCoords.lon], map.getZoom());
+        } else {
         let slat = (searchLoc?.lat ?? searchLoc?.latitude  );
         let slon = (searchLoc?.lon ?? searchLoc?.longitude );
 
@@ -360,9 +412,9 @@ const MapCenterUpdater = React.memo(({ nearbyLocations,  searchLoc, showNearby, 
             map.setView([slat, slon], map.getZoom(), { animate: false });
             return
         }
-     
-   
-    }, [ nearbyLocations, showNearby, searchLoc, markerLoc, setMarkerLoc, map]);   
+    }
+
+    }, [ locationCoords, nearbyLocations, showNearby, searchLoc, markerLoc, setMarkerLoc, map]);   
 
     return null;
 });
