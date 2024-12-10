@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef} from 'react';
 import '../style/Search.css';
+import { useTheme } from './ThemeContext';
 
 const SearchBar = ({ onSearch }) => {       
     // , clearSearch
@@ -9,6 +10,7 @@ const SearchBar = ({ onSearch }) => {
     const [searchLoc, setSearchLoc] = useState({})
     const [isLocSelected, setIsLocSelected] = useState(false); 
     const searchRef = useRef(null);
+    const {theme} = useTheme();
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -57,6 +59,7 @@ const SearchBar = ({ onSearch }) => {
             setSearchResults([]);
             setSearchLoc({});
             setIsLocSelected(false);
+            //setSearchTerm(''); Removed; allows location name to remain in search bar once a location from the dropdown is selected
         }}, [isLocSelected]);
 
     const handleClickOut = (event) => {
@@ -77,7 +80,7 @@ const SearchBar = ({ onSearch }) => {
             </div>
             <form className="d-flex" onSubmit={handleSearchSubmit}>
                 <input
-                    className="form-control me-2"
+                    className={`form-control me-2 ${theme === 'dark' ? 'dark-mode-input' : ''}`}
                     type="search"
                     placeholder="Search places . . ."
                     aria-label="Search"
