@@ -41,6 +41,33 @@ router.get('/locations', async (req, res) => {
     }
 });
 
+// get coordinates based on location name
+router.get('/location/:name', async (req, res) => {
+    const locationName = decodeURIComponent(req.params.name).trim();
+
+    try {
+        const locations = await Location.find({
+            Name: { $regex: new RegExp(locationName, 'i') }  
+        });
+
+
+        if (locations.length === 0) {
+            return res.status(404).json({ message: 'Location not found' });
+        }   
+        const location = locations[0];
+        const latitude = location.latitude || location.lat;
+        const longitude = location.longitude || location.lon;
+        if (latitude && longitude) {
+            return res.json({ latitude, longitude});
+        } else {
+            return res.status(404).json({ message: 'Coordinates not found for the location' });
+        }
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Server error' });
+    }
+});
 // Route to fetch locations near the user's coordinates
 router.get('/locations/nearby', async (req, res) => {
     const { lat, lon, distance = 4000 } = req.query; // Default set to 2000 meters
