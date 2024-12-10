@@ -15,11 +15,11 @@ import '../style/MapComponent.css';
 import ReviewSideBar from './ReviewSideBar';
 
 // Def custom icons for each location type
-const beachIconUrl = '/assets/beach-100.png';
-const playgroundIconUrl = '/assets/playground-100.png';
-const signalIconUrl = '/assets/traffic-light-100.png';
-const subwayIconUrl = '/assets/subway-100.png';
-const restroomIconUrl = '/assets/restroom-100.png';
+const beachIconUrl =        '/assets/50px/beach-100.png';
+const playgroundIconUrl =   '/assets/50px/playground-100.png';
+const signalIconUrl =       '/assets/50px/traffic-light-100.png';
+const subwayIconUrl =       '/assets/50px/subway-100.png';
+const restroomIconUrl =      '/assets/50px/restroom-100.png';
 
 // Bounds for the map to stay within NYC
 const nycBounds = [
@@ -346,16 +346,16 @@ const MapCenterUpdater = ({ nearbyLocations,  searchLoc, showNearby, setMarkerLo
         let slon = (searchLoc?.lon ?? searchLoc?.longitude );
 
         if (markerLoc){
-            map.setView(markerLoc, map.getZoom());
-            setTimeout(() => setMarkerLoc(null), 300); 
+            map.setView(markerLoc, map.getZoom(), { animate: false });
+            setMarkerLoc(null);
             return
         }
         else if (showNearby==true && nearbyLocations.length > 0  && Object.keys(searchLoc).length === 0 && (map.getZoom()<14) && !markerLoc  ) {  
-            map.setView(calculateCenter(nearbyLocations), map.getZoom());
+            map.setView(calculateCenter(nearbyLocations), map.getZoom(), { animate: false });
             return
         }
         else if (slat && slon){    
-            map.setView([slat, slon], map.getZoom());
+            map.setView([slat, slon], map.getZoom(), { animate: false });
             return
         }
      
@@ -493,7 +493,7 @@ const MapComponent = ({ locations, nearbyLocations = [], selectedLocation , user
                         // className={`${theme}`}
                         checked={showNearby}
                         onChange={handleNearbyToggle}
-                    />
+                        />
                     {/* onChange={() => setShowNearby(!showNearby)} */}
                     Show Nearby Locations Only
             </label>
