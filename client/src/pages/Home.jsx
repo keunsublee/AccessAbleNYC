@@ -116,9 +116,13 @@ function Home() {
             const decodedToken = JSON.parse(atob(token.split('.')[1]));
             setName(decodedToken.name);
         }
- 
- 
-        fetch(`${import.meta.env.VITE_PORT}/locations`)
+        
+        if (localStorage.getItem('savedlocations')){
+            setLocations(JSON.parse(localStorage.getItem('savedlocations')));
+            console.log(JSON.parse(localStorage.getItem('savedlocations')));
+        }
+        else{
+            fetch(`${import.meta.env.VITE_PORT}/locations`)
             .then((response) => {
                 if (!response.ok) {
                     throw new Error("Error fetching locations");
@@ -126,12 +130,14 @@ function Home() {
                 return response.json();
             })
             .then((data) => {
-                setLocations(data);
-                console.log("Locations data:", data);
+                localStorage.setItem('savedlocations', JSON.stringify(data));
+                setLocations(JSON.parse(localStorage.getItem('savedlocations')));
+                console.log("Locations data:", JSON.stringify(data));
             })
             .catch((error) => {
                 console.error("Error fetching locations:", error);
             });
+        }
  
  
         const storedLocation = Cookies.get('location');
