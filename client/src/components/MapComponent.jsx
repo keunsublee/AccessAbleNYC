@@ -24,8 +24,8 @@ const restroomIconUrl =      '/assets/50px/restroom-100.png';
 
 // Bounds for the map to stay within NYC
 const nycBounds = [
-    [39, -75],  // Even more southwest
-    [42, -70]  // Even more northeast
+    [40.2, -74.6],  // Even more southwest
+    [41.3, -73.4]  // Even more northeast
 ];
 
 // Function to select the correct icon based on the location type
@@ -562,6 +562,12 @@ const MapComponent = React.memo(({ locations, nearbyLocations = [], selectedLoca
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    minZoom= {11}
+                    maxZoom= {15}
+                    detectRetina= {false}
+                    falseupdateWhenIdle= {false}
+                    noWrap={true}
+                    reuseTiles={true}
                 />
                 {/* This component will update the map center when nearbyLocations changes */}
                 <MapCenterUpdater 
