@@ -14,7 +14,6 @@ import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import ToggleButton from 'react-bootstrap/ToggleButton';
 import ToggleButtonGroup from 'react-bootstrap/ToggleButtonGroup';
-import { FaRegSun, FaRegMoon } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 
 //user profile
@@ -314,10 +313,10 @@ function Profile() {
                                 <p>Theme:</p>
                                 <ToggleButtonGroup className='' name='themes' defaultValue={"light"} type='radio'>
                                     <ToggleButton id='light-mode' value={"light"} className={`custom-width ${theme === 'light' ? 'light-active' : 'light'}`} onClick={() => handleTheme('light')}>
-                                        Light <FaRegSun />
+                                        Light ☼
                                     </ToggleButton>
                                     <ToggleButton id='dark-mode' value={"dark"} className={`custom-width ${theme === 'dark' ? 'dark-active' : 'dark'}`} onClick={() => handleTheme('dark')}>
-                                        Dark <FaRegMoon />
+                                        Dark ☾
                                     </ToggleButton>
                                 </ToggleButtonGroup>
                             </Col>
