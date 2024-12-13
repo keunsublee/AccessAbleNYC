@@ -4,8 +4,6 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import ttServices from '@tomtom-international/web-sdk-services';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import 'leaflet-routing-machine';
-import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 import Toast from 'react-bootstrap/Toast';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
