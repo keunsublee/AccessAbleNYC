@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'; 
 import dotenv from 'dotenv';
 import express from 'express';
+import compression from 'compression';
 import userRoute from './routes/user.route.js';
 import locationRoute from './routes/location.route.js';  
 import feedbackRoute from './routes/feedback.route.js'; 
@@ -12,11 +13,17 @@ dotenv.config();
 // create the server
 const app = express();
 
+app.use(compression({
+    threshold: 0, 
+}));
+
 // allows us to accept JSON data in req.body
 app.use(express.json());
 
 // allows the server to interact with the front end
 app.use(cors());
+
+
 
 // application routes
 app.use('', locationRoute);
